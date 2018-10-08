@@ -1,7 +1,7 @@
 package com.jsj.nettyrpc.common.codec;
 
 
-import com.jsj.nettyrpc.common.util.SerializationUtil;
+import com.jsj.nettyrpc.util.SerializationUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;

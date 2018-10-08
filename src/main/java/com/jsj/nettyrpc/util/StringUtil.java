@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.common.util;
+package com.jsj.nettyrpc.util;
 
 
 import org.apache.commons.lang3.StringUtils;

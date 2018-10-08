@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.common.util;
+package com.jsj.nettyrpc.util;
 
 import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
