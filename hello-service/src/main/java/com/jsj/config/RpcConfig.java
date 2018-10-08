@@ -6,11 +6,12 @@ import com.jsj.nettyrpc.server.RpcServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
-@Component
+@Configuration
 public class RpcConfig {
 
     private String host;
@@ -19,18 +20,18 @@ public class RpcConfig {
 
     RpcServer rpcServer;
 
-    @PostConstruct
     @Bean
     public ServiceRegistry initServiceRegistry() {
         host = "119.23.204.78";
         String port = "2181";
+        System.out.println("initServiceRegistry");
         return new ZooKeeperServiceRegistry(host + ":" + port);
     }
 
-    @PostConstruct
     @Bean
     public RpcServer initRpcServer(@Autowired ServiceRegistry serviceRegistry) {
         String port = "8080";
+        System.out.println("initRpcServer");
         return new RpcServer(host + ":" + port, serviceRegistry);
     }
 
