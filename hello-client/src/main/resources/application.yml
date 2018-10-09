@@ -1,0 +1,5 @@
+server:
+  address: 127.0.0.1
+  port: 2333
+  servlet:
+    context-path: /

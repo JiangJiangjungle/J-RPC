@@ -52,7 +52,6 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        System.out.println("afterPropertiesSet");
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -64,9 +63,12 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
                 @Override
                 public void initChannel(SocketChannel channel) throws Exception {
                     ChannelPipeline pipeline = channel.pipeline();
-                    pipeline.addLast(new RpcDecoder(RpcRequest.class)); // 解码 RPC 请求
-                    pipeline.addLast(new RpcEncoder(RpcResponse.class)); // 编码 RPC 响应
-                    pipeline.addLast(new RpcServiceHandler(handlerMap)); // 处理 RPC 请求
+                    // 解码 RPC 请求
+                    pipeline.addLast(new RpcDecoder(RpcRequest.class));
+                    // 编码 RPC 响应
+                    pipeline.addLast(new RpcEncoder(RpcResponse.class));
+                    // 处理 RPC 请求
+                    pipeline.addLast(new RpcServiceHandler(handlerMap));
                 }
             });
             bootstrap.option(ChannelOption.SO_BACKLOG, 1024);
@@ -95,7 +97,6 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        System.out.println("setApplicationContext");
         // 扫描带有 RpcService 注解的类并初始化 handlerMap 对象
         Map<String, Object> serviceBeanMap = applicationContext.getBeansWithAnnotation(RpcService.class);
         if (MapUtils.isNotEmpty(serviceBeanMap)) {

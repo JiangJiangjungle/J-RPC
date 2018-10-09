@@ -20,6 +20,12 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry {
     public ZooKeeperServiceRegistry(String zkAddress) {
         // 创建 ZooKeeper 客户端
         zkClient = new ZkClient(zkAddress, ZooKeeperConfig.ZK_SESSION_TIMEOUT, ZooKeeperConfig.ZK_CONNECTION_TIMEOUT);
+        // 创建 registry 节点（持久）
+        if (!zkClient.exists(ZooKeeperConfig.ZK_REGISTRY_PATH)){
+            zkClient.createPersistent(ZooKeeperConfig.ZK_REGISTRY_PATH);
+            System.out.println("create registry node: {}"+ZooKeeperConfig.ZK_REGISTRY_PATH);
+            LOGGER.debug("create registry node: {}", ZooKeeperConfig.ZK_REGISTRY_PATH);
+        }
         LOGGER.debug("connect zookeeper");
     }
 
