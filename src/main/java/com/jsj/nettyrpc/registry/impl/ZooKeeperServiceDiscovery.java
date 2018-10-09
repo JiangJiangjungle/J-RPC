@@ -49,6 +49,7 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery {
                 LOGGER.debug("get only address node: {}", address);
             } else {
                 // 若存在多个地址，则随机获取一个地址
+                //todo 可以考虑利用zooKeeper做更好的负载均衡
                 address = addressList.get(ThreadLocalRandom.current().nextInt(size));
                 LOGGER.debug("get random address node: {}", address);
             }
