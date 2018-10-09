@@ -3,6 +3,7 @@ package com.jsj.nettyrpc.client;
 
 import com.jsj.nettyrpc.common.bean.RpcRequest;
 import com.jsj.nettyrpc.common.bean.RpcResponse;
+import com.jsj.nettyrpc.common.constant.RpcResultEnum;
 import com.jsj.nettyrpc.util.StringUtil;
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
 import net.sf.cglib.proxy.Proxy;
@@ -53,6 +54,7 @@ public class RpcProxy {
                     request.setMethodName(method.getName());
                     request.setParameterTypes(method.getParameterTypes());
                     request.setParameters(args);
+
                     // 获取 RPC 服务地址
                     if (serviceDiscovery != null) {
                         String serviceName = interfaceClass.getName();
@@ -74,15 +76,12 @@ public class RpcProxy {
                     long time = System.currentTimeMillis();
                     RpcResponse response = client.send(request);
                     LOGGER.debug("time: {}ms", System.currentTimeMillis() - time);
-                    if (response == null) {
-                        throw new RuntimeException("response is null");
-                    }
+
                     // 返回 RPC 响应结果
-                    if (response.hasException()) {
-                        throw response.getException();
-                    } else {
-                        return response.getResult();
+                    if (response == null || RpcResultEnum.FAIL.equals(response.getRpcResultEnum())) {
+                        throw new RuntimeException(RpcResultEnum.FAIL.getValue());
                     }
+                    return response.getServiceResult();
                 }
         );
     }

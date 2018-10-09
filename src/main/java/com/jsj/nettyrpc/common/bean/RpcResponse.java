@@ -1,42 +1,29 @@
 package com.jsj.nettyrpc.common.bean;
 
+import com.jsj.nettyrpc.common.constant.RpcResultEnum;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * 封装 RPC 响应
  *
  * @author huangyong
  * @since 1.0.0
  */
+@Data
+@NoArgsConstructor
 public class RpcResponse {
 
+    /**
+     * 请求id
+     */
     private String requestId;
-    private Exception exception;
-    private Object result;
-
-    public boolean hasException() {
-        return exception != null;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
-
-    public Throwable getException() {
-        return exception;
-    }
-
-    public void setException(Exception exception) {
-        this.exception = exception;
-    }
-
-    public Object getResult() {
-        return result;
-    }
-
-    public void setResult(Object result) {
-        this.result = result;
-    }
+    /**
+     * 请求调用结果
+     */
+    private RpcResultEnum rpcResultEnum;
+    /**
+     * RPC响应对象
+     */
+    private Object serviceResult;
 }

@@ -2,6 +2,7 @@ package com.jsj.nettyrpc.server;
 
 import com.jsj.nettyrpc.common.bean.RpcRequest;
 import com.jsj.nettyrpc.common.bean.RpcResponse;
+import com.jsj.nettyrpc.common.constant.RpcResultEnum;
 import com.jsj.nettyrpc.util.StringUtil;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,10 +38,11 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
             //调用服务，获取服务结果
             Object serviceResult = handle(request);
             //结果添加到响应
-            response.setResult(serviceResult);
+            response.setServiceResult(serviceResult);
+            response.setRpcResultEnum(RpcResultEnum.SUCCESS);
         } catch (Exception e) {
             LOGGER.error("handle result failure", e);
-            response.setException(e);
+            response.setRpcResultEnum(RpcResultEnum.FAIL);
         }
         // 写入 RPC 响应对象并关闭客户端连接
         //todo 可能有改动

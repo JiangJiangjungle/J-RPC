@@ -100,6 +100,12 @@
             <artifactId>commons-collections4</artifactId>
             <version>${version.commons-collections}</version>
         </dependency>
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.6</version>
+        </dependency>
 
     </dependencies>
 
