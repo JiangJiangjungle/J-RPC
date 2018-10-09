@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 /**
  * 封装 RPC 请求
  *
- * @author huangyong
- * @since 1.0.0
+ * @author jsj
+ * @date 2018-10-9
  */
 @Data
 @NoArgsConstructor

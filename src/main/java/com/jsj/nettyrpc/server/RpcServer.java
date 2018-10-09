@@ -85,40 +85,17 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
-            //创建 Netty 服务端辅助启动对象 Bootstrap
-            ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG, 1024)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline()
-                                    // 解码 RPC 请求
-                                    .addLast(new RpcDecoder(RpcRequest.class))
-                                    // 编码 RPC 响应
-                                    .addLast(new RpcEncoder(RpcResponse.class))
-                                    // 处理 RPC 请求
-                                    .addLast(new RpcServiceHandler(handlerMap));
-                        }
-                    });
+            //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
+            ServerBootstrap bootstrap = this.initServerBootstrap(bossGroup, workerGroup);
             //获取RPC服务器的ip地址与端口号
             String[] addressArray = StringUtil.split(serviceAddress, ":");
             String ip = addressArray[0];
             int port = Integer.parseInt(addressArray[1]);
             // 绑定对应ip和端口，同步等待成功
             ChannelFuture future = bootstrap.bind(ip, port).sync();
-
             // 将服务地址添加到服务注册中心
-            if (serviceRegistry != null) {
-                for (String interfaceName : handlerMap.keySet()) {
-                    serviceRegistry.register(interfaceName, serviceAddress);
-                    LOGGER.debug("register service: {} => {}", interfaceName, serviceAddress);
-                }
-            }
+            this.registerAllService();
             LOGGER.debug("server started on port {}", port);
-
             // 等待服务端监听端口关闭
             future.channel().closeFuture().sync();
         } finally {
@@ -126,5 +103,44 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
+    }
+
+    /**
+     * 将开放RPC的服务列表全部注册到服务注册中心
+     */
+    private void registerAllService() {
+        if (serviceRegistry != null) {
+            for (String interfaceName : handlerMap.keySet()) {
+                serviceRegistry.register(interfaceName, serviceAddress);
+                LOGGER.debug("register service: {} => {}", interfaceName, serviceAddress);
+            }
+        }
+    }
+
+    /**
+     * 创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
+     *
+     * @param bossGroup
+     * @param workerGroup
+     * @return
+     */
+    private ServerBootstrap initServerBootstrap(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
+        return new ServerBootstrap()
+                .group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .option(ChannelOption.SO_BACKLOG, 1024)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline()
+                                // 解码 RPC 请求
+                                .addLast(new RpcDecoder(RpcRequest.class))
+                                // 编码 RPC 响应
+                                .addLast(new RpcEncoder(RpcResponse.class))
+                                // 处理 RPC 请求
+                                .addLast(new RpcServiceHandler(handlerMap));
+                    }
+                });
     }
 }

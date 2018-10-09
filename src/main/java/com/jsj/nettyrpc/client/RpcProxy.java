@@ -3,13 +3,14 @@ package com.jsj.nettyrpc.client;
 
 import com.jsj.nettyrpc.common.bean.RpcRequest;
 import com.jsj.nettyrpc.common.bean.RpcResponse;
-import com.jsj.nettyrpc.common.constant.RpcResultEnum;
+import com.jsj.nettyrpc.common.constant.RpcStateCode;
 import com.jsj.nettyrpc.util.StringUtil;
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
 import net.sf.cglib.proxy.Proxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 /**
@@ -45,16 +46,9 @@ public class RpcProxy {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                (proxy, method, args) -> {
+                (proxy, method, parameters) -> {
                     // 创建 RPC 请求对象并设置请求属性
-                    RpcRequest request = new RpcRequest();
-                    request.setRequestId(UUID.randomUUID().toString());
-                    request.setInterfaceName(method.getDeclaringClass().getName());
-                    request.setServiceVersion(serviceVersion);
-                    request.setMethodName(method.getName());
-                    request.setParameterTypes(method.getParameterTypes());
-                    request.setParameters(args);
-
+                    RpcRequest request = this.buildRpcRequest(method, serviceVersion, parameters);
                     // 获取 RPC 服务地址
                     if (serviceDiscovery != null) {
                         String serviceName = interfaceClass.getName();
@@ -72,17 +66,42 @@ public class RpcProxy {
                     String host = array[0];
                     int port = Integer.parseInt(array[1]);
                     // 创建 RPC 客户端对象并发送 RPC 请求
+                    //todo 可以考虑改进，不要每次调用都创建一个连接
                     RpcClient client = new RpcClient(host, port);
                     long time = System.currentTimeMillis();
                     RpcResponse response = client.send(request);
                     LOGGER.debug("time: {}ms", System.currentTimeMillis() - time);
-
                     // 返回 RPC 响应结果
-                    if (response == null || RpcResultEnum.FAIL.equals(response.getRpcResultEnum())) {
-                        throw new RuntimeException(RpcResultEnum.FAIL.getValue());
+                    if (response == null || RpcStateCode.FAIL.equals(response.getRpcStateCode())) {
+                        throw new RuntimeException(RpcStateCode.FAIL.getValue());
                     }
                     return response.getServiceResult();
                 }
         );
+    }
+
+    /**
+     * 创建并初始化 RPC 请求对象
+     *
+     * @param method
+     * @param serviceVersion
+     * @param parameters
+     * @return
+     */
+    private RpcRequest buildRpcRequest(Method method, String serviceVersion, Object[] parameters) {
+        RpcRequest request = new RpcRequest();
+        //设置请求id
+        request.setRequestId(UUID.randomUUID().toString());
+        //设置服务接口名称
+        request.setInterfaceName(method.getDeclaringClass().getName());
+        //设置服务版本号
+        request.setServiceVersion(serviceVersion);
+        //设置调用方法名
+        request.setMethodName(method.getName());
+        //设置参数类型
+        request.setParameterTypes(method.getParameterTypes());
+        //设置参数值
+        request.setParameters(parameters);
+        return request;
     }
 }

@@ -6,7 +6,7 @@ package com.jsj.nettyrpc.common.constant;
  * @author jsj
  * @date 2018-10-9
  */
-public enum RpcResultEnum {
+public enum RpcStateCode {
 
     // 成功
     SUCCESS(1, "调用rpc成功"),
@@ -16,7 +16,7 @@ public enum RpcResultEnum {
     private Integer code;
     private String value;
 
-    RpcResultEnum(Integer code, String value) {
+    RpcStateCode(Integer code, String value) {
         this.code = code;
         this.value = value;
     }

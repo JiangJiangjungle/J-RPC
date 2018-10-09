@@ -1,14 +1,14 @@
 package com.jsj.nettyrpc.common.bean;
 
-import com.jsj.nettyrpc.common.constant.RpcResultEnum;
+import com.jsj.nettyrpc.common.constant.RpcStateCode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  * 封装 RPC 响应
  *
- * @author huangyong
- * @since 1.0.0
+ * @author jsj
+ * @date 2018-10-9
  */
 @Data
 @NoArgsConstructor
@@ -19,9 +19,9 @@ public class RpcResponse {
      */
     private String requestId;
     /**
-     * 请求调用结果
+     * 状态码
      */
-    private RpcResultEnum rpcResultEnum;
+    private RpcStateCode rpcStateCode;
     /**
      * RPC响应对象
      */
