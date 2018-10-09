@@ -1,8 +1,8 @@
 package com.jsj.nettyrpc.server;
 
-import com.jsj.nettyrpc.common.bean.RpcRequest;
-import com.jsj.nettyrpc.common.bean.RpcResponse;
-import com.jsj.nettyrpc.common.constant.RpcStateCode;
+import com.jsj.nettyrpc.common.RpcRequest;
+import com.jsj.nettyrpc.common.RpcResponse;
+import com.jsj.nettyrpc.common.RpcStateCode;
 import com.jsj.nettyrpc.util.StringUtil;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;

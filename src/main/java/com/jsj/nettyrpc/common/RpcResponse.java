@@ -1,6 +1,6 @@
-package com.jsj.nettyrpc.common.bean;
+package com.jsj.nettyrpc.common;
 
-import com.jsj.nettyrpc.common.constant.RpcStateCode;
+import com.jsj.nettyrpc.common.RpcStateCode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,9 +1,9 @@
 package com.jsj.nettyrpc.client;
 
 
-import com.jsj.nettyrpc.common.bean.RpcRequest;
-import com.jsj.nettyrpc.common.bean.RpcResponse;
-import com.jsj.nettyrpc.common.constant.RpcStateCode;
+import com.jsj.nettyrpc.common.RpcRequest;
+import com.jsj.nettyrpc.common.RpcResponse;
+import com.jsj.nettyrpc.common.RpcStateCode;
 import com.jsj.nettyrpc.util.StringUtil;
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
 import net.sf.cglib.proxy.Proxy;

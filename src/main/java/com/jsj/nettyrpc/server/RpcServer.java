@@ -1,9 +1,9 @@
 package com.jsj.nettyrpc.server;
 
-import com.jsj.nettyrpc.common.bean.RpcRequest;
-import com.jsj.nettyrpc.common.bean.RpcResponse;
-import com.jsj.nettyrpc.common.codec.RpcDecoder;
-import com.jsj.nettyrpc.common.codec.RpcEncoder;
+import com.jsj.nettyrpc.common.RpcRequest;
+import com.jsj.nettyrpc.common.RpcResponse;
+import com.jsj.nettyrpc.codec.RpcDecoder;
+import com.jsj.nettyrpc.codec.RpcEncoder;
 import com.jsj.nettyrpc.registry.ServiceRegistry;
 import com.jsj.nettyrpc.util.StringUtil;
 import io.netty.bootstrap.ServerBootstrap;

@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.common.codec;
+package com.jsj.nettyrpc.codec;
 
 
 import com.jsj.nettyrpc.util.SerializationUtil;

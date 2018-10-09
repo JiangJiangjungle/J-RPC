@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.common.constant;
+package com.jsj.nettyrpc.common;
 
 /**
  * 用于返回RPC 结果

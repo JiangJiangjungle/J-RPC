@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.common.bean;
+package com.jsj.nettyrpc.common;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
