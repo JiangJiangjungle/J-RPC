@@ -34,16 +34,32 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
         RpcResponse response = new RpcResponse();
         response.setRequestId(request.getRequestId());
         try {
-            Object result = handle(request);
-            response.setResult(result);
+            //调用服务，获取服务结果
+            Object serviceResult = handle(request);
+            //结果添加到响应
+            response.setResult(serviceResult);
         } catch (Exception e) {
             LOGGER.error("handle result failure", e);
             response.setException(e);
         }
-        // 写入 RPC 响应对象并自动关闭连接
+        // 写入 RPC 响应对象并关闭客户端连接
+        //todo 可能有改动
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        LOGGER.error("server caught exception", cause);
+        ctx.close();
+    }
+
+    /**
+     * 根据请求调用已经注册的远程服务
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
     private Object handle(RpcRequest request) throws Exception {
         // 获取服务对象
         String serviceName = request.getInterfaceName();
@@ -68,11 +84,5 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
         FastClass serviceFastClass = FastClass.create(serviceClass);
         FastMethod serviceFastMethod = serviceFastClass.getMethod(methodName, parameterTypes);
         return serviceFastMethod.invoke(serviceBean, parameters);
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.error("server caught exception", cause);
-        ctx.close();
     }
 }

@@ -31,7 +31,7 @@ public class RpcConfig {
     @Bean
     public RpcServer initRpcServer(@Autowired ServiceRegistry serviceRegistry) {
         host="127.0.0.1";
-        String port = "8080";
+        String port = "6666";
         System.out.println("initRpcServer");
         return new RpcServer(host + ":" + port, serviceRegistry);
     }
