@@ -1,6 +1,6 @@
-package jsj.controller;
+package com.jsj.controller;
 
-import jsj.service.ConsumeService;
+import com.jsj.service.ConsumeService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,4 +1,4 @@
-package jsj;
+package com.jsj;
 
 
 import org.springframework.boot.SpringApplication;

@@ -1,4 +1,4 @@
-package jsj.service;
+package com.jsj.service;
 
 public interface ConsumeService {
 
