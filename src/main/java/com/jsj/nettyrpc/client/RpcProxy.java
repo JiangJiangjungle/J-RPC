@@ -43,9 +43,7 @@ public class RpcProxy {
     @SuppressWarnings("unchecked")
     public <T> T create(final Class<?> interfaceClass, final String serviceVersion) {
         // 创建动态代理对象
-        return (T) Proxy.newProxyInstance(
-                interfaceClass.getClassLoader(),
-                new Class<?>[]{interfaceClass},
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass},
                 (proxy, method, parameters) -> {
                     // 创建 RPC 请求对象并设置请求属性
                     RpcRequest request = this.buildRpcRequest(method, serviceVersion, parameters);

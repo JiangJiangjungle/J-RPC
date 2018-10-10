@@ -9,6 +9,11 @@ import org.springframework.stereotype.Component;
 public class HelloServiceImpl implements HelloService {
     @Override
     public String hello() {
+        try {
+            Thread.sleep(3000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "HELLO WORLD!";
     }
 }

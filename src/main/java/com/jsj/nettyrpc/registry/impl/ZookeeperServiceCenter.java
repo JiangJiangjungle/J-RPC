@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 基于ZooKeeper的服务注册发现的接口实现
+ * 基于ZooKeeper的服务注册和服务发现的接口实现
  *
  * @author jsj
  * @date 2018-10-10
