@@ -16,7 +16,7 @@ public class RpcConfig {
     public ServiceDiscovery initServiceDiscovery() {
         host = "119.23.204.78";
         String port = "2181";
-        return new ZookeeperServiceCenter(host + ":" + port);
+        return new ZookeeperServiceCenter(host + ":" + port, false);
     }
 
     @Bean
