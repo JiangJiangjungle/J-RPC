@@ -12,6 +12,7 @@ import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
@@ -36,7 +37,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
         response.setRequestId(request.getRequestId());
         try {
             //调用服务，获取服务结果
-            Object serviceResult = handle(request);
+            Object serviceResult = this.handle(request);
             //结果添加到响应
             response.setServiceResult(serviceResult);
             response.setRpcStateCode(RpcStateCode.SUCCESS);
@@ -63,9 +64,25 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
      * @throws Exception
      */
     private Object handle(RpcRequest request) throws Exception {
-        // 获取服务对象
+        // 获取服务实例对象
         String serviceName = request.getInterfaceName();
         String serviceVersion = request.getServiceVersion();
+        Object serviceBean = this.getServiceBean(serviceName, serviceVersion);
+        //利用反射调用服务
+        String methodName = request.getMethodName();
+        Class<?>[] parameterTypes = request.getParameterTypes();
+        Object[] parameters = request.getParameters();
+        return this.invokeByReflect(serviceBean, methodName, parameterTypes, parameters);
+    }
+
+    /**
+     * 获取服务实例对象
+     *
+     * @param serviceName    service接口名称
+     * @param serviceVersion service版本号
+     * @return
+     */
+    private Object getServiceBean(String serviceName, String serviceVersion) {
         if (StringUtil.isNotEmpty(serviceVersion)) {
             serviceName += "-" + serviceVersion;
         }
@@ -73,11 +90,23 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
         if (serviceBean == null) {
             throw new RuntimeException(String.format("can not find service bean by key: %s", serviceName));
         }
+        return serviceBean;
+    }
+
+
+    /**
+     * 利用反射机制调用服务，并返回结果(可以选择用JDK自带的反射机制，或者cglib提供的反射方法)
+     *
+     * @param serviceBean    service实例对象
+     * @param methodName     调用方法名
+     * @param parameterTypes 参数类型
+     * @param parameters     参数值
+     * @return
+     * @throws InvocationTargetException
+     */
+    private Object invokeByReflect(Object serviceBean, String methodName, Class<?>[] parameterTypes, Object[] parameters) throws InvocationTargetException {
         // 获取反射调用所需的参数
         Class<?> serviceClass = serviceBean.getClass();
-        String methodName = request.getMethodName();
-        Class<?>[] parameterTypes = request.getParameterTypes();
-        Object[] parameters = request.getParameters();
         // 执行反射调用
 //        Method method = serviceClass.getMethod(methodName, parameterTypes);
 //        method.setAccessible(true);

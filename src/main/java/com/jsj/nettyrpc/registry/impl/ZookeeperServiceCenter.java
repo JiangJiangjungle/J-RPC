@@ -1,6 +1,7 @@
 package com.jsj.nettyrpc.registry.impl;
 
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
+import com.jsj.nettyrpc.registry.ServiceRegistry;
 import com.jsj.nettyrpc.util.CollectionUtil;
 import org.I0Itec.zkclient.ZkClient;
 import org.slf4j.Logger;
@@ -10,19 +11,29 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 基于ZooKeeper的服务发现接口实现
+ * 基于ZooKeeper的服务注册发现的接口实现
  *
  * @author jsj
- * @date 2018-10-8
+ * @date 2018-10-10
  */
-public class ZooKeeperServiceDiscovery implements ServiceDiscovery {
+public class ZookeeperServiceCenter implements ServiceRegistry, ServiceDiscovery {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServiceDiscovery.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperServiceCenter.class);
 
-    private String zkAddress;
+    private final ZkClient zkClient;
 
-    public ZooKeeperServiceDiscovery(String zkAddress) {
+    private final String zkAddress;
+
+    public ZookeeperServiceCenter(String zkAddress) {
         this.zkAddress = zkAddress;
+        // 创建 ZooKeeper 客户端
+        zkClient = new ZkClient(zkAddress, ZooKeeperConfig.ZK_SESSION_TIMEOUT, ZooKeeperConfig.ZK_CONNECTION_TIMEOUT);
+        // 创建 registry 节点（持久）
+        if (!zkClient.exists(ZooKeeperConfig.ZK_REGISTRY_PATH)) {
+            zkClient.createPersistent(ZooKeeperConfig.ZK_REGISTRY_PATH);
+            LOGGER.debug("create registry node: {}", ZooKeeperConfig.ZK_REGISTRY_PATH);
+        }
+        LOGGER.debug("connect zookeeper");
     }
 
     @Override
@@ -59,5 +70,25 @@ public class ZooKeeperServiceDiscovery implements ServiceDiscovery {
         } finally {
             zkClient.close();
         }
+    }
+
+    @Override
+    public void register(String serviceName, String serviceAddress) {
+        // 创建 registry 节点（持久）
+        String registryPath = ZooKeeperConfig.ZK_REGISTRY_PATH;
+        if (!zkClient.exists(registryPath)) {
+            zkClient.createPersistent(registryPath);
+            LOGGER.debug("create registry node: {}", registryPath);
+        }
+        // 创建 service 节点（持久）
+        String servicePath = registryPath + "/" + serviceName;
+        if (!zkClient.exists(servicePath)) {
+            zkClient.createPersistent(servicePath);
+            LOGGER.debug("create service node: {}", servicePath);
+        }
+        // 创建 address 节点（临时）
+        String addressPath = servicePath + "/address-";
+        String addressNode = zkClient.createEphemeralSequential(addressPath, serviceAddress);
+        LOGGER.debug("create address node: {}", addressNode);
     }
 }

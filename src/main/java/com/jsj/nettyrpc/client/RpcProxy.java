@@ -50,14 +50,7 @@ public class RpcProxy {
                     // 创建 RPC 请求对象并设置请求属性
                     RpcRequest request = this.buildRpcRequest(method, serviceVersion, parameters);
                     // 获取 RPC 服务地址
-                    if (serviceDiscovery != null) {
-                        String serviceName = interfaceClass.getName();
-                        if (StringUtil.isNotEmpty(serviceVersion)) {
-                            serviceName += "-" + serviceVersion;
-                        }
-                        serviceAddress = serviceDiscovery.discover(serviceName);
-                        LOGGER.debug("discover service: {} => {}", serviceName, serviceAddress);
-                    }
+                    this.findServiceAddress(interfaceClass, serviceVersion);
                     if (StringUtil.isEmpty(serviceAddress)) {
                         throw new RuntimeException("server address is empty");
                     }
@@ -103,5 +96,24 @@ public class RpcProxy {
         //设置参数值
         request.setParameters(parameters);
         return request;
+    }
+
+    /**
+     * 从服务中心发现rpc服务地址
+     *
+     * @param interfaceClass
+     * @param serviceVersion
+     * @return
+     */
+    private String findServiceAddress(Class<?> interfaceClass, String serviceVersion) {
+        if (serviceDiscovery != null) {
+            String serviceName = interfaceClass.getName();
+            if (StringUtil.isNotEmpty(serviceVersion)) {
+                serviceName += "-" + serviceVersion;
+            }
+            serviceAddress = serviceDiscovery.discover(serviceName);
+            LOGGER.debug("discover service: {} => {}", serviceName, serviceAddress);
+        }
+        return serviceAddress;
     }
 }
