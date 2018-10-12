@@ -1,13 +1,17 @@
 package com.jsj.nettyrpc.server;
 
-import com.jsj.nettyrpc.common.RpcRequest;
-import com.jsj.nettyrpc.common.RpcResponse;
+import com.jsj.nettyrpc.RpcService;
 import com.jsj.nettyrpc.codec.RpcDecoder;
 import com.jsj.nettyrpc.codec.RpcEncoder;
+import com.jsj.nettyrpc.common.RpcRequest;
+import com.jsj.nettyrpc.common.RpcResponse;
 import com.jsj.nettyrpc.registry.ServiceRegistry;
 import com.jsj.nettyrpc.util.StringUtil;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -28,11 +32,13 @@ import java.util.Map;
  * @author jsj
  * @date 2018-10-8
  */
-public class RpcServer implements ApplicationContextAware, InitializingBean {
+public class RpcServer implements RemotingServer, ApplicationContextAware, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
 
-    private String serviceAddress;
+    private String ip;
+
+    private int port;
 
     private ServiceRegistry serviceRegistry;
 
@@ -41,12 +47,9 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
      */
     private Map<String, Object> handlerMap = new HashMap<>();
 
-    public RpcServer(String serviceAddress) {
-        this.serviceAddress = serviceAddress;
-    }
-
-    public RpcServer(String serviceAddress, ServiceRegistry serviceRegistry) {
-        this.serviceAddress = serviceAddress;
+    public RpcServer(String ip, int port, ServiceRegistry serviceRegistry) {
+        this.ip = ip;
+        this.port = port;
         this.serviceRegistry = serviceRegistry;
     }
 
@@ -87,10 +90,6 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
         try {
             //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
             ServerBootstrap bootstrap = this.initServerBootstrap(bossGroup, workerGroup);
-            //获取RPC服务器的ip地址与端口号
-            String[] addressArray = StringUtil.split(serviceAddress, ":");
-            String ip = addressArray[0];
-            int port = Integer.parseInt(addressArray[1]);
             // 绑定对应ip和端口，同步等待成功
             ChannelFuture future = bootstrap.bind(ip, port).sync();
             // 将服务地址添加到服务注册中心
@@ -105,11 +104,20 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
         }
     }
 
-    /**
-     * 将开放RPC的服务列表全部注册到服务注册中心
-     */
-    private void registerAllService() {
-        if (serviceRegistry != null) {
+    @Override
+    public String ip() {
+        return this.ip;
+    }
+
+    @Override
+    public int port() {
+        return this.port;
+    }
+
+    @Override
+    public void registerAllService() {
+        if (this.serviceRegistry != null) {
+            String serviceAddress = this.ip + ":" + this.port;
             for (String interfaceName : handlerMap.keySet()) {
                 serviceRegistry.register(interfaceName, serviceAddress);
                 LOGGER.debug("register service: {} => {}", interfaceName, serviceAddress);

@@ -1,5 +1,7 @@
 package com.jsj.nettyrpc.registry;
 
+import com.jsj.nettyrpc.exception.RpcServiceNotFoundException;
+
 /**
  * Service发现
  *
@@ -14,5 +16,5 @@ public interface ServiceDiscovery {
      * @param serviceName 服务名称
      * @return 服务地址
      */
-    String discover(String serviceName);
+    String discover(String serviceName) throws RpcServiceNotFoundException;
 }

@@ -15,7 +15,7 @@ public class ConsumeServiceImpl implements ConsumeService {
 
     @Override
     public String callHello() {
-        HelloService helloService = rpcProxy.create(HelloService.class);
+        HelloService helloService = rpcProxy.getService(HelloService.class);
         String result = helloService.hello();
         System.out.println(result);
         return result;

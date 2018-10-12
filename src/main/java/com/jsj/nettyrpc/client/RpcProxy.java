@@ -4,6 +4,8 @@ package com.jsj.nettyrpc.client;
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
 import com.jsj.nettyrpc.common.RpcStateCode;
+import com.jsj.nettyrpc.exception.RpcErrorException;
+import com.jsj.nettyrpc.exception.RpcServiceNotFoundException;
 import com.jsj.nettyrpc.util.StringUtil;
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
 import net.sf.cglib.proxy.Proxy;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RPC 代理（用于创建 RPC 服务代理）
@@ -26,6 +29,11 @@ public class RpcProxy {
     private String serviceAddress;
 
     private ServiceDiscovery serviceDiscovery;
+
+    /**
+     * rpc service代理对象列表
+     */
+    private ConcurrentHashMap<String, Object> serviceProxyInstanceMap = new ConcurrentHashMap<>();
 
     public RpcProxy(String serviceAddress) {
         this.serviceAddress = serviceAddress;
@@ -45,30 +53,47 @@ public class RpcProxy {
         // 创建动态代理对象
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass},
                 (proxy, method, parameters) -> {
+                    RpcResponse rpcResponse;
                     // 创建 RPC 请求对象并设置请求属性
                     RpcRequest request = this.buildRpcRequest(method, serviceVersion, parameters);
                     // 获取 RPC 服务地址
                     this.findServiceAddress(interfaceClass, serviceVersion);
                     if (StringUtil.isEmpty(serviceAddress)) {
-                        throw new RuntimeException("server address is empty");
+                        throw new RpcErrorException(String.format("errorCode: %s, info: %s", RpcStateCode.SERVICE_NOT_EXISTS.getCode(), RpcStateCode.SERVICE_NOT_EXISTS.getValue()));
                     }
                     // 从 RPC 服务地址中解析主机名与端口号
                     String[] array = StringUtil.split(serviceAddress, ":");
                     String host = array[0];
                     int port = Integer.parseInt(array[1]);
                     // 创建 RPC 客户端对象并发送 RPC 请求
-                    //todo 可以考虑改进，不要每次调用都创建一个连接
                     RpcClient client = new RpcClient(host, port);
                     long time = System.currentTimeMillis();
-                    RpcResponse response = client.send(request);
+                    rpcResponse = client.send(request);
                     LOGGER.debug("time: {}ms", System.currentTimeMillis() - time);
                     // 返回 RPC 响应结果
-                    if (response == null || RpcStateCode.FAIL.equals(response.getRpcStateCode())) {
-                        throw new RuntimeException(RpcStateCode.FAIL.getValue());
+                    if (null == rpcResponse.getServiceResult()) {
+                        throw new RpcErrorException(rpcResponse.getErrorMsg());
                     }
-                    return response.getServiceResult();
+                    return rpcResponse.getServiceResult();
                 }
         );
+    }
+
+    /**
+     * 获取RPC service的代理对象
+     *
+     * @param interfaceClass
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getService(final Class<?> interfaceClass) {
+        String interfaceName = interfaceClass.getName();
+        T instance = (T) serviceProxyInstanceMap.get(interfaceName);
+        if (instance == null) {
+            instance = (T) this.create(interfaceClass);
+            serviceProxyInstanceMap.put(interfaceName, instance);
+        }
+        return instance;
     }
 
     /**
@@ -109,7 +134,12 @@ public class RpcProxy {
             if (StringUtil.isNotEmpty(serviceVersion)) {
                 serviceName += "-" + serviceVersion;
             }
-            serviceAddress = serviceDiscovery.discover(serviceName);
+            try {
+                serviceAddress = serviceDiscovery.discover(serviceName);
+            } catch (RpcServiceNotFoundException r) {
+                LOGGER.debug("discover service: {}  is empty", serviceName);
+                return null;
+            }
             LOGGER.debug("discover service: {} => {}", serviceName, serviceAddress);
         }
         return serviceAddress;

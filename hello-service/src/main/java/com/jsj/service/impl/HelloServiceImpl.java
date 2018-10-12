@@ -1,6 +1,6 @@
 package com.jsj.service.impl;
 
-import com.jsj.nettyrpc.server.RpcService;
+import com.jsj.nettyrpc.RpcService;
 import com.jsj.service.HelloService;
 import org.springframework.stereotype.Component;
 

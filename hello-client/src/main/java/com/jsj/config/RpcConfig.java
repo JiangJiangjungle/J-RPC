@@ -2,7 +2,7 @@ package com.jsj.config;
 
 import com.jsj.nettyrpc.client.RpcProxy;
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
-import com.jsj.nettyrpc.registry.impl.ZookeeperServiceCenter;
+import com.jsj.nettyrpc.registry.impl.ZookeeperDiscovery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,7 @@ public class RpcConfig {
     public ServiceDiscovery initServiceDiscovery() {
         host = "119.23.204.78";
         String port = "2181";
-        return new ZookeeperServiceCenter(host + ":" + port, false);
+        return new ZookeeperDiscovery(host + ":" + port);
     }
 
     @Bean

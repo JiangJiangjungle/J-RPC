@@ -11,7 +11,9 @@ public enum RpcStateCode {
     // 成功
     SUCCESS(1, "调用rpc成功"),
     // 失败
-    FAIL(0, "调用rpc失败");
+    FAIL(0, "调用rpc失败"),
+    // 远程服务尚未注册
+    SERVICE_NOT_EXISTS(-1, "远程服务尚未注册");
 
     private Integer code;
     private String value;

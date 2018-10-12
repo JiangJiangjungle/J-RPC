@@ -40,10 +40,9 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
             Object serviceResult = this.handle(request);
             //结果添加到响应
             response.setServiceResult(serviceResult);
-            response.setRpcStateCode(RpcStateCode.SUCCESS);
         } catch (Exception e) {
             LOGGER.error("handle result failure", e);
-            response.setRpcStateCode(RpcStateCode.FAIL);
+            response.setErrorMsg(String.format("errorCode: %s, info: %s", RpcStateCode.FAIL.getCode(), RpcStateCode.FAIL.getValue()));
         }
         // 写入 RPC 响应对象并关闭客户端连接
         //todo 可能有改动

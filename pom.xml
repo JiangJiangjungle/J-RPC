@@ -19,8 +19,9 @@
         <version.objenesis>2.1</version.objenesis>
         <version.cglib>3.1</version.cglib>
         <version.zookeeper>3.4.6</version.zookeeper>
-        <version.zkclient>0.4</version.zkclient>
+        <version.curator>2.12.0</version.curator>
         <version.commons-lang>3.3.2</version.commons-lang>
+        <version.lombok>1.16.6</version.lombok>
         <version.commons-collections>4.0</version.commons-collections>
         <version.maven-compiler-plugin>3.2</version.maven-compiler-plugin>
         <version.maven-surefire-plugin>2.18.1</version.maven-surefire-plugin>
@@ -82,12 +83,23 @@
             <artifactId>zookeeper</artifactId>
             <version>${version.zookeeper}</version>
         </dependency>
-        <!-- ZkClient -->
+        <!--curator-->
         <dependency>
-            <groupId>com.101tec</groupId>
-            <artifactId>zkclient</artifactId>
-            <version>${version.zkclient}</version>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>${version.curator}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>${version.curator}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-client</artifactId>
+            <version>${version.curator}</version>
+        </dependency>
+
         <!-- Apache Commons Lang -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -104,8 +116,9 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.6</version>
+            <version>${version.lombok}</version>
         </dependency>
+
 
     </dependencies>
 

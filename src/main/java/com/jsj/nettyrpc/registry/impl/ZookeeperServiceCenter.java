@@ -32,8 +32,8 @@ public class ZookeeperServiceCenter implements ServiceRegistry, ServiceDiscovery
         if (needRegistry) {
             // 创建 ZooKeeper 客户端
             this.zkClient = new ZkClient(zkAddress, ZooKeeperConfig.ZK_SESSION_TIMEOUT, ZooKeeperConfig.ZK_CONNECTION_TIMEOUT);
-            //同步阻塞，直到zookeeper连接成功
-            this.zkClient.waitUntilConnected();
+//            //同步阻塞，直到zookeeper连接成功
+//            this.zkClient.waitUntilConnected();
             LOGGER.info("connect zookeeper");
             //检查 registry 节点是否存在，若不存在则创建该节点
             this.checkRegistryPath(this.zkClient);
@@ -44,8 +44,8 @@ public class ZookeeperServiceCenter implements ServiceRegistry, ServiceDiscovery
     public String discover(String serviceName) {
         // 创建 ZooKeeper 客户端
         ZkClient zkClient = new ZkClient(zkAddress, ZooKeeperConfig.ZK_SESSION_TIMEOUT, ZooKeeperConfig.ZK_CONNECTION_TIMEOUT);
-        //同步阻塞，直到zookeeper连接成功
-        zkClient.waitUntilConnected();
+//        //同步阻塞，直到zookeeper连接成功
+//        zkClient.waitUntilConnected();
         LOGGER.debug("connect zookeeper");
         try {
             //检查 registry 节点是否存在，若不存在则创建该节点

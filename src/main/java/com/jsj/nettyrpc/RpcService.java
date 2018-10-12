@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.server;
+package com.jsj.nettyrpc;
 
 import org.springframework.stereotype.Component;
 

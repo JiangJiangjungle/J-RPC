@@ -19,11 +19,11 @@ public class RpcResponse {
      */
     private String requestId;
     /**
-     * 状态码
-     */
-    private RpcStateCode rpcStateCode;
-    /**
      * RPC响应对象
      */
     private Object serviceResult;
+    /**
+     * 错误信息
+     */
+    private String errorMsg;
 }
