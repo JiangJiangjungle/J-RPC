@@ -2,7 +2,6 @@ package com.jsj.config;
 
 import com.jsj.nettyrpc.registry.ServiceRegistry;
 import com.jsj.nettyrpc.registry.impl.ZooKeeperServiceRegistry;
-import com.jsj.nettyrpc.registry.impl.ZookeeperServiceCenter;
 import com.jsj.nettyrpc.server.RpcServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

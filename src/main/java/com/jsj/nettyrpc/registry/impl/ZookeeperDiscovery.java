@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ZookeeperDiscovery implements ServiceDiscovery {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperServiceCenter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperDiscovery.class);
 
     private String zkAddress;
 
