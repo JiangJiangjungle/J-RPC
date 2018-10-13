@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.client;
+package com.jsj.nettyrpc.common.client;
 
 
 import com.jsj.nettyrpc.common.RpcRequest;
@@ -31,7 +31,7 @@ public class RpcProxy {
     private ServiceDiscovery serviceDiscovery;
 
     /**
-     * rpc service代理对象列表
+     * rpc service代理对象列表,避免重复创建
      */
     private ConcurrentHashMap<String, Object> serviceProxyInstanceMap = new ConcurrentHashMap<>();
 

@@ -1,6 +1,6 @@
 package com.jsj.config;
 
-import com.jsj.nettyrpc.client.RpcProxy;
+import com.jsj.nettyrpc.common.client.RpcProxy;
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
 import com.jsj.nettyrpc.registry.impl.ZookeeperDiscovery;
 import org.springframework.beans.factory.annotation.Autowired;

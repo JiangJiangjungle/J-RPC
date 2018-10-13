@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.client;
+package com.jsj.nettyrpc.common.client;
 
 
 import com.jsj.nettyrpc.common.RpcRequest;
@@ -47,9 +47,9 @@ public class RpcClient extends SimpleChannelInboundHandler<RpcResponse> {
     public RpcResponse send(RpcRequest request) throws Exception {
         //配置客户端 NIO 线程组
         EventLoopGroup group = new NioEventLoopGroup();
+        // 创建并初始化 Netty 客户端 Bootstrap 对象
+        Bootstrap bootstrap = this.initBootstrap(group);
         try {
-            // 创建并初始化 Netty 客户端 Bootstrap 对象
-            Bootstrap bootstrap = this.initBootstrap(group);
             // 连接 RPC 服务器
             ChannelFuture future = bootstrap.connect(host, port).sync();
             // 写入 RPC 请求数据并关闭连接

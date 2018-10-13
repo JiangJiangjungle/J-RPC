@@ -1,4 +1,4 @@
-package com.jsj.nettyrpc.server;
+package com.jsj.nettyrpc.common.server;
 
 import com.jsj.nettyrpc.RpcService;
 import com.jsj.nettyrpc.codec.RpcDecoder;
