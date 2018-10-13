@@ -26,8 +26,6 @@ public class RpcProxy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcProxy.class);
 
-    private String serviceAddress;
-
     private ServiceDiscovery serviceDiscovery;
 
     /**
@@ -35,9 +33,10 @@ public class RpcProxy {
      */
     private ConcurrentHashMap<String, Object> serviceProxyInstanceMap = new ConcurrentHashMap<>();
 
-    public RpcProxy(String serviceAddress) {
-        this.serviceAddress = serviceAddress;
-    }
+    /**
+     * RpcClient对象列表,避免重复创建
+     */
+    private ConcurrentHashMap<String, RpcClient> rpcClientMap = new ConcurrentHashMap<>();
 
     public RpcProxy(ServiceDiscovery serviceDiscovery) {
         this.serviceDiscovery = serviceDiscovery;
@@ -57,26 +56,45 @@ public class RpcProxy {
                     // 创建 RPC 请求对象并设置请求属性
                     RpcRequest request = this.buildRpcRequest(method, serviceVersion, parameters);
                     // 获取 RPC 服务地址
-                    this.findServiceAddress(interfaceClass, serviceVersion);
+                    String serviceAddress = this.findServiceAddress(interfaceClass, serviceVersion);
                     if (StringUtil.isEmpty(serviceAddress)) {
                         throw new RpcErrorException(String.format("errorCode: %s, info: %s", RpcStateCode.SERVICE_NOT_EXISTS.getCode(), RpcStateCode.SERVICE_NOT_EXISTS.getValue()));
                     }
-                    // 从 RPC 服务地址中解析主机名与端口号
-                    String[] array = StringUtil.split(serviceAddress, ":");
-                    String host = array[0];
-                    int port = Integer.parseInt(array[1]);
                     // 创建 RPC 客户端对象并发送 RPC 请求
-                    RpcClient client = new RpcClient(host, port);
+                    RpcClient client = this.getRpcClient(serviceAddress);
                     long time = System.currentTimeMillis();
-                    rpcResponse = client.send(request);
+                    rpcResponse = client.invokeSync(request);
+                    System.out.println(rpcResponse);
                     LOGGER.debug("time: {}ms", System.currentTimeMillis() - time);
+                    rpcResponse = client.invokeSync(request);
                     // 返回 RPC 响应结果
-                    if (null == rpcResponse.getServiceResult()) {
-                        throw new RpcErrorException(rpcResponse.getErrorMsg());
+                    if (null == rpcResponse || null == rpcResponse.getServiceResult()) {
+                        throw new RpcErrorException(null == rpcResponse ? null : rpcResponse.getErrorMsg());
                     }
                     return rpcResponse.getServiceResult();
                 }
         );
+    }
+
+    /**
+     * 获取已经初始化的RpcClient
+     *
+     * @param serviceAddress
+     * @return
+     */
+    private RpcClient getRpcClient(String serviceAddress) {
+        RpcClient client = rpcClientMap.get(serviceAddress);
+        //若不存在则创建和初始化，并进行缓存
+//        if (client == null) {
+            // 从 RPC 服务地址中解析主机名与端口号
+            String[] addressArray = StringUtil.split(serviceAddress, ":");
+            String ip = addressArray[0];
+            int port = Integer.parseInt(addressArray[1]);
+            client = new RpcClient(ip, port);
+            client.init();
+            rpcClientMap.put(serviceAddress, client);
+//        }
+        return client;
     }
 
     /**
@@ -90,14 +108,14 @@ public class RpcProxy {
         String interfaceName = interfaceClass.getName();
         T instance = (T) serviceProxyInstanceMap.get(interfaceName);
         if (instance == null) {
-            instance = (T) this.create(interfaceClass);
+            instance = this.create(interfaceClass);
             serviceProxyInstanceMap.put(interfaceName, instance);
         }
         return instance;
     }
 
     /**
-     * 创建并初始化 RPC 请求对象
+     * 创建并初始化 RpcRequest
      *
      * @param method
      * @param serviceVersion
@@ -129,6 +147,7 @@ public class RpcProxy {
      * @return
      */
     private String findServiceAddress(Class<?> interfaceClass, String serviceVersion) {
+        String serviceAddress = null;
         if (serviceDiscovery != null) {
             String serviceName = interfaceClass.getName();
             if (StringUtil.isNotEmpty(serviceVersion)) {

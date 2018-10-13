@@ -6,18 +6,21 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public class ClientChannelHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientChannelHandler.class);
 
-    private RpcResponse rpcResponse;
+    private ConcurrentHashMap<String, RpcResponse> responseMap;
 
-    public ClientChannelHandler() {
+    public ClientChannelHandler(ConcurrentHashMap<String, RpcResponse> responseMap) {
+        this.responseMap = responseMap;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
-        this.rpcResponse = rpcResponse;
+        this.responseMap.put(rpcResponse.getRequestId(), rpcResponse);
     }
 
     @Override
@@ -25,6 +28,4 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<RpcRespons
         LOGGER.error("api caught exception", cause);
         ctx.channel().close();
     }
-
-
 }

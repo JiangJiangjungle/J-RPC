@@ -1,6 +1,5 @@
-package com.jsj.nettyrpc.connection;
+package com.jsj.nettyrpc.common.client;
 
-import com.jsj.nettyrpc.common.client.ClientChannelHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;

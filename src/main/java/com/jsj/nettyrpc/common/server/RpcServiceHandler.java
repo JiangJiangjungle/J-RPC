@@ -42,7 +42,8 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
             response.setServiceResult(serviceResult);
         } catch (Exception e) {
             LOGGER.error("handle result failure", e);
-            response.setErrorMsg(String.format("errorCode: %s, info: %s", RpcStateCode.FAIL.getCode(), RpcStateCode.FAIL.getValue()));
+            response.setErrorMsg(String.format("errorCode: %s, state: %s, cause: %s", RpcStateCode.FAIL.getCode(),
+                    RpcStateCode.FAIL.getValue(), e.getMessage()));
         }
         // 写入 RPC 响应对象并关闭客户端连接
         //todo 可能有改动

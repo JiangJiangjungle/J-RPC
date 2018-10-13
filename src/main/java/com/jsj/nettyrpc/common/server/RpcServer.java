@@ -7,6 +7,7 @@ import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
 import com.jsj.nettyrpc.registry.ServiceRegistry;
 import com.jsj.nettyrpc.util.StringUtil;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -25,6 +26,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * RPC server（用于注册RPC Service）
@@ -32,13 +34,18 @@ import java.util.Map;
  * @author jsj
  * @date 2018-10-8
  */
-public class RpcServer implements RemotingServer, ApplicationContextAware, InitializingBean {
+public class RpcServer implements ApplicationContextAware, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
 
     private String ip;
 
     private int port;
+
+    private EventLoopGroup bossGroup = new NioEventLoopGroup(1, new NamedThreadFactory(
+            "Rpc-netty-server-boss", false));
+    private EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
+            new NamedThreadFactory("Rpc-netty-server-worker", true));
 
     private ServiceRegistry serviceRegistry;
 
@@ -84,14 +91,11 @@ public class RpcServer implements RemotingServer, ApplicationContextAware, Initi
      */
     @Override
     public void afterPropertiesSet() throws Exception {
-        //配置服务端 NIO 线程组
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
-            ServerBootstrap bootstrap = this.initServerBootstrap(bossGroup, workerGroup);
+            ServerBootstrap serverBootstrap = this.initServerBootstrap(this.bossGroup, this.workerGroup);
             // 绑定对应ip和端口，同步等待成功
-            ChannelFuture future = bootstrap.bind(ip, port).sync();
+            ChannelFuture future = serverBootstrap.bind(ip, port).sync();
             // 将服务地址添加到服务注册中心
             this.registerAllService();
             LOGGER.debug("server started on port {}", port);
@@ -104,17 +108,6 @@ public class RpcServer implements RemotingServer, ApplicationContextAware, Initi
         }
     }
 
-    @Override
-    public String ip() {
-        return this.ip;
-    }
-
-    @Override
-    public int port() {
-        return this.port;
-    }
-
-    @Override
     public void registerAllService() {
         if (this.serviceRegistry != null) {
             String serviceAddress = this.ip + ":" + this.port;
@@ -150,5 +143,13 @@ public class RpcServer implements RemotingServer, ApplicationContextAware, Initi
                                 .addLast(new RpcServiceHandler(handlerMap));
                     }
                 });
+    }
+
+    public String ip() {
+        return this.ip;
+    }
+
+    public int port() {
+        return this.port;
     }
 }

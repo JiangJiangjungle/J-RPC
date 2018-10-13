@@ -1,6 +1,10 @@
-package com.jsj.nettyrpc.connection;
+package com.jsj.nettyrpc.common.client;
 
 import com.jsj.nettyrpc.codec.CodeC;
+import com.jsj.nettyrpc.codec.RpcDecoder;
+import com.jsj.nettyrpc.codec.RpcEncoder;
+import com.jsj.nettyrpc.common.RpcRequest;
+import com.jsj.nettyrpc.common.RpcResponse;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -17,6 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultConnectionFactory implements ConnectionFactory {
 
+    public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConnectionFactory.class);
 
     private ChannelHandler channelHandler;
@@ -42,14 +47,19 @@ public class DefaultConnectionFactory implements ConnectionFactory {
                     @Override
                     public void initChannel(SocketChannel channel) throws Exception {
                         ChannelPipeline pipeline = channel.pipeline();
-                        //解码
-                        pipeline.addLast(codeC.newDecoder())
-                                //编码
-                                .addLast(codeC.newEncoder())
+                        //出方向编码
+                        pipeline.addLast(codeC.newEncoder())
+                                //入方向解码
+                                .addLast(codeC.newDecoder())
                                 //处理
                                 .addLast(channelHandler);
                     }
                 });
+    }
+
+    @Override
+    public Connection createConnection(String targetIP, int targetPort) throws Exception {
+        return this.createConnection(targetIP, targetPort, DEFAULT_CONNECT_TIMEOUT);
     }
 
     @Override
@@ -75,9 +85,8 @@ public class DefaultConnectionFactory implements ConnectionFactory {
             LOGGER.debug("connectTimeout of address [{}] is [{}].", address, connectTimeout);
         }
         this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
-        ChannelFuture future = bootstrap.connect(targetIP, targetPort);
-
-        future.awaitUninterruptibly();
+        //连接到远程节点，阻塞等待直到连接完成
+        ChannelFuture future = bootstrap.connect(targetIP, targetPort).sync();
         if (!future.isDone()) {
             String errMsg = "Create connection to " + address + " timeout!";
             LOGGER.warn(errMsg);
