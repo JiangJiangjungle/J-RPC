@@ -18,4 +18,9 @@ public class CallHelloController {
     public String callHello() {
         return consumeService.callHello();
     }
+
+    @GetMapping("/sync")
+    public String callHelloSync() {
+        return consumeService.callHelloSync();
+    }
 }

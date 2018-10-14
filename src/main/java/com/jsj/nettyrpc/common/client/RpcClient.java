@@ -72,7 +72,7 @@ public class RpcClient {
     public RpcFuture invokeWithFuture(RpcRequest request) throws Exception {
         //注册到futureMap
         String requestId = request.getRequestId();
-        RpcFuture future = new RpcFuture(request);
+        RpcFuture future = new RpcFuture(requestId);
         futureMap.put(requestId, future);
         //发出请求，并直接返回
         channel.writeAndFlush(request);

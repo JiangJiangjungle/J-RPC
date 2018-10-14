@@ -30,7 +30,7 @@ public class ConsumeServiceImpl implements ConsumeService {
     public String callHello() {
         System.out.println("异步调用HelloService 的 hello方法");
         try {
-            Method method = HelloService.class.getMethod("hello", null);
+            Method method = HelloService.class.getMethod("hello");
             RpcFuture future = rpcProxy.call(HelloService.class, method, null);
             while (!future.isDone()) {
                 System.out.println("...");

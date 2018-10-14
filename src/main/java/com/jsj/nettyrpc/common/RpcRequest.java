@@ -22,10 +22,6 @@ public class RpcRequest {
      */
     private String interfaceName;
     /**
-     * service版本号
-     */
-    private String serviceVersion;
-    /**
      * 方法名
      */
     private String methodName;

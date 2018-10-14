@@ -15,13 +15,13 @@ import org.slf4j.LoggerFactory;
  * @author huangyong
  * @since 1.0.0
  */
-public class ZooKeeperServiceRegistry implements ServiceRegistry {
+public class ZooKeeperRegistry implements ServiceRegistry {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServiceRegistry.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperRegistry.class);
 
     private final CuratorFramework client;
 
-    public ZooKeeperServiceRegistry(String zkAddress) {
+    public ZooKeeperRegistry(String zkAddress) {
         // 创建 ZooKeeper 客户端
         this.client = CuratorFrameworkFactory.builder()
                 .connectString(zkAddress)

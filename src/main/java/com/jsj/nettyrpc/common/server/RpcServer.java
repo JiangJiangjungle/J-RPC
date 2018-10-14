@@ -76,10 +76,6 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
         serviceBeanMap.forEach((key, serviceBean) -> {
             RpcService rpcService = serviceBean.getClass().getAnnotation(RpcService.class);
             String serviceName = rpcService.value().getName();
-            String serviceVersion = rpcService.version();
-            if (StringUtil.isNotEmpty(serviceVersion)) {
-                serviceName += "-" + serviceVersion;
-            }
             handlerMap.put(serviceName, serviceBean);
         });
     }

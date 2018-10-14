@@ -65,8 +65,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private Object handle(RpcRequest request) throws Exception {
         // 获取服务实例对象
         String serviceName = request.getInterfaceName();
-        String serviceVersion = request.getServiceVersion();
-        Object serviceBean = this.getServiceBean(serviceName, serviceVersion);
+        Object serviceBean = this.getServiceBean(serviceName);
         //利用反射调用服务
         String methodName = request.getMethodName();
         Class<?>[] parameterTypes = request.getParameterTypes();
@@ -78,13 +77,9 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
      * 获取服务实例对象
      *
      * @param serviceName    service接口名称
-     * @param serviceVersion service版本号
      * @return
      */
-    private Object getServiceBean(String serviceName, String serviceVersion) {
-        if (StringUtil.isNotEmpty(serviceVersion)) {
-            serviceName += "-" + serviceVersion;
-        }
+    private Object getServiceBean(String serviceName) {
         Object serviceBean = handlerMap.get(serviceName);
         if (serviceBean == null) {
             throw new RuntimeException(String.format("can not find service bean by key: %s", serviceName));

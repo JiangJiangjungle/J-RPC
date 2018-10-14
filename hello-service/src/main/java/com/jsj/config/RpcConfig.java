@@ -1,7 +1,7 @@
 package com.jsj.config;
 
 import com.jsj.nettyrpc.registry.ServiceRegistry;
-import com.jsj.nettyrpc.registry.impl.ZooKeeperServiceRegistry;
+import com.jsj.nettyrpc.registry.impl.ZooKeeperRegistry;
 import com.jsj.nettyrpc.common.server.RpcServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ public class RpcConfig {
     public ServiceRegistry initServiceRegistry() {
         host = "119.23.204.78";
         String port = "2181";
-        return new ZooKeeperServiceRegistry(host + ":" + port);
+        return new ZooKeeperRegistry(host + ":" + port);
     }
 
     @Bean

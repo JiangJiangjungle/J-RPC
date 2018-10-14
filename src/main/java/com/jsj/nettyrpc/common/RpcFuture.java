@@ -20,10 +20,10 @@ public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
      */
     private RpcResponse rpcResponse;
 
-    private RpcRequest rpcRequest;
+    private String requestId;
 
-    public RpcFuture(RpcRequest rpcRequest) {
-        this.rpcRequest = rpcRequest;
+    public RpcFuture(String requestId) {
+        this.requestId = requestId;
     }
 
     @Override
