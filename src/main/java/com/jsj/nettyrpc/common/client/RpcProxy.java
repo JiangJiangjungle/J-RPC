@@ -3,6 +3,7 @@ package com.jsj.nettyrpc.common.client;
 
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
+import com.jsj.nettyrpc.common.RpcFuture;
 import com.jsj.nettyrpc.common.RpcStateCode;
 import com.jsj.nettyrpc.exception.RpcErrorException;
 import com.jsj.nettyrpc.exception.RpcServiceNotFoundException;
@@ -42,61 +43,6 @@ public class RpcProxy {
         this.serviceDiscovery = serviceDiscovery;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T create(final Class<?> interfaceClass) {
-        return create(interfaceClass, "");
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T create(final Class<?> interfaceClass, final String serviceVersion) {
-        // 创建动态代理对象
-        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass},
-                (proxy, method, parameters) -> {
-                    RpcResponse rpcResponse;
-                    // 创建 RPC 请求对象并设置请求属性
-                    RpcRequest request = this.buildRpcRequest(method, serviceVersion, parameters);
-                    // 获取 RPC 服务地址
-                    String serviceAddress = this.findServiceAddress(interfaceClass, serviceVersion);
-                    if (StringUtil.isEmpty(serviceAddress)) {
-                        throw new RpcErrorException(String.format("errorCode: %s, info: %s", RpcStateCode.SERVICE_NOT_EXISTS.getCode(), RpcStateCode.SERVICE_NOT_EXISTS.getValue()));
-                    }
-                    // 创建 RPC 客户端对象并发送 RPC 请求
-                    RpcClient client = this.getRpcClient(serviceAddress);
-                    long time = System.currentTimeMillis();
-                    rpcResponse = client.invokeSync(request);
-                    System.out.println(rpcResponse);
-                    LOGGER.debug("time: {}ms", System.currentTimeMillis() - time);
-                    rpcResponse = client.invokeSync(request);
-                    // 返回 RPC 响应结果
-                    if (null == rpcResponse || null == rpcResponse.getServiceResult()) {
-                        throw new RpcErrorException(null == rpcResponse ? null : rpcResponse.getErrorMsg());
-                    }
-                    return rpcResponse.getServiceResult();
-                }
-        );
-    }
-
-    /**
-     * 获取已经初始化的RpcClient
-     *
-     * @param serviceAddress
-     * @return
-     */
-    private RpcClient getRpcClient(String serviceAddress) {
-        RpcClient client = rpcClientMap.get(serviceAddress);
-        //若不存在则创建和初始化，并进行缓存
-//        if (client == null) {
-            // 从 RPC 服务地址中解析主机名与端口号
-            String[] addressArray = StringUtil.split(serviceAddress, ":");
-            String ip = addressArray[0];
-            int port = Integer.parseInt(addressArray[1]);
-            client = new RpcClient(ip, port);
-            client.init();
-            rpcClientMap.put(serviceAddress, client);
-//        }
-        return client;
-    }
-
     /**
      * 获取RPC service的代理对象
      *
@@ -112,6 +58,105 @@ public class RpcProxy {
             serviceProxyInstanceMap.put(interfaceName, instance);
         }
         return instance;
+    }
+
+    /**
+     * 异步调用
+     *
+     * @param interfaceClass
+     * @param method
+     * @param parameters
+     * @return
+     * @throws Exception
+     */
+    public RpcFuture call(final Class<?> interfaceClass, Method method, Object[] parameters) throws Exception {
+        // 创建 RPC 请求对象并设置请求属性
+        RpcRequest request = this.buildRpcRequest(method, "", parameters);
+        // 获取 RPC 服务地址
+        String serviceAddress = this.findServiceAddress(interfaceClass, "");
+        // 创建 RPC 客户端对象并发送 RPC 请求
+        RpcClient client = this.getRpcClient(serviceAddress);
+        //调用异步方法
+        return client.invokeWithFuture(request);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private <T> T create(final Class<?> interfaceClass) {
+        return create(interfaceClass, "");
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T create(final Class<?> interfaceClass, final String serviceVersion) {
+        // 创建动态代理对象
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass},
+                (proxy, method, parameters) -> {
+                    RpcResponse rpcResponse;
+                    // 创建 RPC 请求对象并设置请求属性
+                    RpcRequest request = this.buildRpcRequest(method, serviceVersion, parameters);
+                    // 获取 RPC 服务地址
+                    String serviceAddress = this.findServiceAddress(interfaceClass, serviceVersion);
+                    // 创建 RPC 客户端对象并发送 RPC 请求
+                    RpcClient client = this.getRpcClient(serviceAddress);
+                    long time = System.currentTimeMillis();
+                    rpcResponse = client.invokeSync(request);
+                    LOGGER.debug("time: {}ms", System.currentTimeMillis() - time);
+                    // 返回 RPC 响应结果
+                    if (null == rpcResponse || null == rpcResponse.getServiceResult()) {
+                        throw new RpcErrorException(null == rpcResponse ? null : rpcResponse.getErrorMsg());
+                    }
+                    return rpcResponse.getServiceResult();
+                }
+        );
+    }
+
+    /**
+     * 获取已经初始化的RpcClient
+     *
+     * @param serviceAddress
+     * @return
+     */
+    private RpcClient getRpcClient(String serviceAddress) throws Exception {
+        RpcClient client = rpcClientMap.get(serviceAddress);
+        //若不存在则创建和初始化，并进行缓存
+        if (client == null) {
+            // 从 RPC 服务地址中解析主机名与端口号
+            String[] addressArray = StringUtil.split(serviceAddress, ":");
+            String ip = addressArray[0];
+            int port = Integer.parseInt(addressArray[1]);
+            client = new RpcClient(ip, port);
+            client.init();
+            rpcClientMap.put(serviceAddress, client);
+        }
+        return client;
+    }
+
+    /**
+     * 从服务中心发现rpc服务地址
+     *
+     * @param interfaceClass
+     * @param serviceVersion
+     * @return
+     */
+    private String findServiceAddress(Class<?> interfaceClass, String serviceVersion) throws RpcErrorException {
+        String serviceAddress = null;
+        if (serviceDiscovery != null) {
+            String serviceName = interfaceClass.getName();
+            if (StringUtil.isNotEmpty(serviceVersion)) {
+                serviceName += "-" + serviceVersion;
+            }
+            try {
+                serviceAddress = serviceDiscovery.discover(serviceName);
+            } catch (RpcServiceNotFoundException r) {
+                LOGGER.debug("discover service: {}  is empty", serviceName);
+                return null;
+            }
+            LOGGER.debug("discover service: {} => {}", serviceName, serviceAddress);
+        }
+        if (StringUtil.isEmpty(serviceAddress)) {
+            throw new RpcErrorException(String.format("errorCode: %s, info: %s", RpcStateCode.SERVICE_NOT_EXISTS.getCode(), RpcStateCode.SERVICE_NOT_EXISTS.getValue()));
+        }
+        return serviceAddress;
     }
 
     /**
@@ -137,30 +182,5 @@ public class RpcProxy {
         //设置参数值
         request.setParameters(parameters);
         return request;
-    }
-
-    /**
-     * 从服务中心发现rpc服务地址
-     *
-     * @param interfaceClass
-     * @param serviceVersion
-     * @return
-     */
-    private String findServiceAddress(Class<?> interfaceClass, String serviceVersion) {
-        String serviceAddress = null;
-        if (serviceDiscovery != null) {
-            String serviceName = interfaceClass.getName();
-            if (StringUtil.isNotEmpty(serviceVersion)) {
-                serviceName += "-" + serviceVersion;
-            }
-            try {
-                serviceAddress = serviceDiscovery.discover(serviceName);
-            } catch (RpcServiceNotFoundException r) {
-                LOGGER.debug("discover service: {}  is empty", serviceName);
-                return null;
-            }
-            LOGGER.debug("discover service: {} => {}", serviceName, serviceAddress);
-        }
-        return serviceAddress;
     }
 }

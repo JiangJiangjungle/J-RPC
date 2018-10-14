@@ -1,10 +1,6 @@
 package com.jsj.nettyrpc.common.client;
 
 import com.jsj.nettyrpc.codec.CodeC;
-import com.jsj.nettyrpc.codec.RpcDecoder;
-import com.jsj.nettyrpc.codec.RpcEncoder;
-import com.jsj.nettyrpc.common.RpcRequest;
-import com.jsj.nettyrpc.common.RpcResponse;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -58,14 +54,13 @@ public class DefaultConnectionFactory implements ConnectionFactory {
     }
 
     @Override
-    public Connection createConnection(String targetIP, int targetPort) throws Exception {
+    public Channel createConnection(String targetIP, int targetPort) throws Exception {
         return this.createConnection(targetIP, targetPort, DEFAULT_CONNECT_TIMEOUT);
     }
 
     @Override
-    public Connection createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {
-        Channel channel = doCreateConnection(targetIP, targetPort, connectTimeout);
-        return new Connection(channel, targetIP, targetPort);
+    public Channel createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {
+        return doCreateConnection(targetIP, targetPort, connectTimeout);
     }
 
     /**

@@ -45,9 +45,8 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
             response.setErrorMsg(String.format("errorCode: %s, state: %s, cause: %s", RpcStateCode.FAIL.getCode(),
                     RpcStateCode.FAIL.getValue(), e.getMessage()));
         }
-        // 写入 RPC 响应对象并关闭客户端连接
-        //todo 可能有改动
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        // 写入 RPC 响应对象
+        ctx.writeAndFlush(response).sync();
     }
 
     @Override

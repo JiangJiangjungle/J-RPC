@@ -1,5 +1,8 @@
 package com.jsj.nettyrpc.common.client;
 
+
+import io.netty.channel.Channel;
+
 public interface ConnectionFactory {
 
     void init();
@@ -13,7 +16,7 @@ public interface ConnectionFactory {
      * @param connectTimeout connect timeout in millisecond
      * @return connection
      */
-    Connection createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception;
+    Channel createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception;
 
     /**
      * Create a connection according to the IP and port.
@@ -23,6 +26,6 @@ public interface ConnectionFactory {
      * @param targetPort     target port
      * @return connection
      */
-    Connection createConnection(String targetIP, int targetPort) throws Exception;
+    Channel createConnection(String targetIP, int targetPort) throws Exception;
 
 }
