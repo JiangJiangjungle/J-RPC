@@ -10,22 +10,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 以工厂模式创建netty连接
+ * 以工厂模式创建channel
  *
  * @author jsj
  * @date 2018-10-13
  */
-public class DefaultConnectionFactory implements ConnectionFactory {
+public class DefaultChannelFactory implements ChannelFactory {
 
     public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConnectionFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultChannelFactory.class);
 
     private ChannelHandler channelHandler;
     private CodeC codeC;
 
     private Bootstrap bootstrap;
 
-    public DefaultConnectionFactory(ChannelHandler channelHandler, CodeC codeC) {
+    public DefaultChannelFactory(ChannelHandler channelHandler, CodeC codeC) {
         this.channelHandler = channelHandler;
         this.codeC = codeC;
     }

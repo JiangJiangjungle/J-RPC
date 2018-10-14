@@ -24,11 +24,11 @@ public class RpcClient {
 
     private Channel channel;
 
-    private ConcurrentHashMap<String, RpcResponse> responseMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, RpcFuture> futureMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, RpcResponse> responseMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>();
     private ChannelHandler channelHandler;
     private CodeC codeC;
-    private ConnectionFactory connectionFactory;
+    private ChannelFactory connectionFactory;
 
     public RpcClient(String ip, int port) {
         this.ip = ip;
@@ -36,9 +36,9 @@ public class RpcClient {
     }
 
     public void init() throws Exception {
-        channelHandler = new ClientChannelHandler(responseMap, futureMap);
+        channelHandler = new ClientHandler(responseMap, futureMap);
         codeC = new DefaultCodeC(RpcRequest.class, RpcResponse.class);
-        connectionFactory = new DefaultConnectionFactory(this.channelHandler, this.codeC);
+        connectionFactory = new DefaultChannelFactory(this.channelHandler, this.codeC);
         connectionFactory.init();
         channel = connectionFactory.createConnection(ip, port);
     }
@@ -71,7 +71,7 @@ public class RpcClient {
      */
     public RpcFuture invokeWithFuture(RpcRequest request) throws Exception {
         //注册到futureMap
-        String requestId = request.getRequestId();
+        Integer requestId = request.getRequestId();
         RpcFuture future = new RpcFuture(requestId);
         futureMap.put(requestId, future);
         //发出请求，并直接返回

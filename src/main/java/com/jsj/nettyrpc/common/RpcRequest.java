@@ -16,7 +16,7 @@ public class RpcRequest {
     /**
      * 请求id
      */
-    private String requestId;
+    private Integer requestId;
     /**
      * service名称
      */

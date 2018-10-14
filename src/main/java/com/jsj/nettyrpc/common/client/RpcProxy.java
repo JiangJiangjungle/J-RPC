@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * RPC 代理（用于创建 RPC 服务代理）
@@ -28,6 +29,8 @@ public class RpcProxy {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcProxy.class);
 
     private ServiceDiscovery serviceDiscovery;
+
+    private AtomicInteger requestId = new AtomicInteger(0);
 
     /**
      * rpc service代理对象列表,避免重复创建
@@ -159,8 +162,17 @@ public class RpcProxy {
      */
     private RpcRequest buildRpcRequest(Method method, Object[] parameters) {
         RpcRequest request = new RpcRequest();
+        //若当前计数器值超过阈值，需要重置
+        if (requestId.get() > Integer.MAX_VALUE >> 1) {
+            synchronized (this) {
+                if (requestId.get() > Integer.MAX_VALUE >> 1) {
+                    requestId.getAndSet(0);
+                }
+            }
+        }
         //设置请求id
-        request.setRequestId(UUID.randomUUID().toString());
+        int id = requestId.getAndIncrement();
+        request.setRequestId(id);
         //设置服务接口名称
         request.setInterfaceName(method.getDeclaringClass().getName());
         //设置调用方法名

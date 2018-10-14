@@ -13,6 +13,12 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * 基于 ZooKeeper 的服务发现接口实现
+ *
+ * @author jsj
+ * @date 2018-10-14
+ */
 public class ZookeeperDiscovery implements ServiceDiscovery {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperDiscovery.class);
@@ -43,7 +49,7 @@ public class ZookeeperDiscovery implements ServiceDiscovery {
             // 获取所有 address 节点
             List<String> addressList = client.getChildren().forPath(servicePath);
             if (CollectionUtil.isEmpty(addressList)) {
-                throw new RpcServiceNotFoundException(String.format("can not find any address node on path: %s", servicePath));
+                throw new RpcServiceNotFoundException(String.format("未发现任何节点注册信息！: %s", servicePath));
             }
             //选取 serviceAddress 节点
             String serviceAddress = this.chooseServiceAddress(addressList);
@@ -53,7 +59,7 @@ public class ZookeeperDiscovery implements ServiceDiscovery {
         } catch (RpcServiceNotFoundException r) {
             throw r;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RpcServiceNotFoundException(e.getMessage());
         } finally {
             //关闭连接
             client.close();
@@ -75,12 +81,11 @@ public class ZookeeperDiscovery implements ServiceDiscovery {
         if (size == 1) {
             // 若只有一个地址，则获取该地址
             address = addressList.get(0);
-            LOGGER.debug("get only address node: {}", address);
+            LOGGER.debug("选取任意唯一节点: {}", address);
         } else {
-            // 若存在多个地址，则随机获取一个地址
-            //todo 可以考虑利用zooKeeper做更好的负载均衡
+            //todo 若存在多个地址，则随机获取一个地址，可以考虑利用zooKeeper做更好的负载均衡
             address = addressList.get(ThreadLocalRandom.current().nextInt(size));
-            LOGGER.debug("get random address node: {}", address);
+            LOGGER.debug("选取任意一个节点: {}", address);
         }
         return address;
     }

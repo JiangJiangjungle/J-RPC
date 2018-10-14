@@ -8,6 +8,9 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * 用于rpc框架的异步调用
+ *
+ * @author jsj
+ * @date 2018-10-14
  */
 public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
     /**
@@ -20,9 +23,9 @@ public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
      */
     private RpcResponse rpcResponse;
 
-    private String requestId;
+    private final int requestId;
 
-    public RpcFuture(String requestId) {
+    public RpcFuture(int requestId) {
         this.requestId = requestId;
     }
 
@@ -60,15 +63,15 @@ public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
         return done ? rpcResponse : null;
     }
 
-    public RpcResponse getRpcResponse() {
-        return rpcResponse;
-    }
-
     public void setRpcResponse(RpcResponse rpcResponse) {
         this.rpcResponse = rpcResponse;
     }
 
     public void setDone(boolean done) {
         this.done = done;
+    }
+
+    public int getRequestId() {
+        return requestId;
     }
 }

@@ -3,7 +3,7 @@ package com.jsj.nettyrpc.common.client;
 
 import io.netty.channel.Channel;
 
-public interface ConnectionFactory {
+public interface ChannelFactory {
 
     void init();
 

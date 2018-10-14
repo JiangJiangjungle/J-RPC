@@ -17,7 +17,7 @@ public class RpcResponse {
     /**
      * 请求id
      */
-    private String requestId;
+    private Integer requestId;
     /**
      * RPC响应对象
      */
