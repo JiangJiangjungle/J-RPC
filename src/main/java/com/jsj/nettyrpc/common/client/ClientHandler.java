@@ -44,8 +44,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
             this.responseMap.put(rpcResponse.getRequestId(), rpcResponse);
         } else {
             //若是异步调用则更新对应的RpcFuture
-            future.setRpcResponse(rpcResponse);
-            future.setDone(true);
+            future.done(rpcResponse);
             futureMap.remove(requestId);
         }
 

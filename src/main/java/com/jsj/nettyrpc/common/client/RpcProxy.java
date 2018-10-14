@@ -1,20 +1,19 @@
 package com.jsj.nettyrpc.common.client;
 
 
+import com.jsj.nettyrpc.common.RpcFuture;
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
-import com.jsj.nettyrpc.common.RpcFuture;
 import com.jsj.nettyrpc.common.RpcStateCode;
 import com.jsj.nettyrpc.exception.RpcErrorException;
 import com.jsj.nettyrpc.exception.RpcServiceNotFoundException;
-import com.jsj.nettyrpc.util.StringUtil;
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
+import com.jsj.nettyrpc.util.StringUtil;
 import net.sf.cglib.proxy.Proxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 

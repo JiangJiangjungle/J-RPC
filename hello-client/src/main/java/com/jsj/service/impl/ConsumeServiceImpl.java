@@ -32,9 +32,6 @@ public class ConsumeServiceImpl implements ConsumeService {
         try {
             Method method = HelloService.class.getMethod("hello");
             RpcFuture future = rpcProxy.call(HelloService.class, method, null);
-            while (!future.isDone()) {
-                System.out.println("...");
-            }
             RpcResponse rpcResponse = (RpcResponse) future.get();
             String result = (String) rpcResponse.getServiceResult();
             System.out.println(result);

@@ -5,6 +5,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 用于rpc框架的异步调用
@@ -17,6 +20,9 @@ public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
      * 表示异步调用是否完成
      */
     private boolean done = false;
+
+    private Lock lock = new ReentrantLock();
+    private Condition condition = lock.newCondition();
 
     /**
      * 返回响应
@@ -46,7 +52,18 @@ public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
 
     @Override
     public RpcResponse get() throws InterruptedException, ExecutionException {
-        return done ? (RpcResponse) rpcResponse : null;
+        if (done) {
+            return rpcResponse;
+        }
+        try {
+            lock.lock();
+            while (!done) {
+                condition.await();
+            }
+        } finally {
+            lock.unlock();
+        }
+        return rpcResponse;
     }
 
     @Override
@@ -60,18 +77,30 @@ public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
                 this.wait(ms);
             }
         }
-        return done ? rpcResponse : null;
+        if (done) {
+            return rpcResponse;
+        }
+        throw new TimeoutException();
     }
 
-    public void setRpcResponse(RpcResponse rpcResponse) {
+    /**
+     * Handler收到RpcResponse后调用此方法
+     *
+     * @param rpcResponse
+     */
+    public void done(RpcResponse rpcResponse) {
         this.rpcResponse = rpcResponse;
-    }
-
-    public void setDone(boolean done) {
-        this.done = done;
+        this.done = true;
+        try {
+            lock.lock();
+            condition.signalAll();
+        } finally {
+            lock.unlock();
+        }
     }
 
     public int getRequestId() {
         return requestId;
     }
+
 }
