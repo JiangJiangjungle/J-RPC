@@ -24,10 +24,10 @@ import java.util.Map;
 public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServiceHandler.class);
 
-    private final Map<String, Object> handlerMap;
+    private final Map<String, Object> serviceInstanceMap;
 
-    public RpcServiceHandler(Map<String, Object> handlerMap) {
-        this.handlerMap = handlerMap;
+    public RpcServiceHandler(Map<String, Object> serviceInstanceMap) {
+        this.serviceInstanceMap = serviceInstanceMap;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
      * @return
      */
     private Object getServiceBean(String serviceName) {
-        Object serviceBean = handlerMap.get(serviceName);
+        Object serviceBean = serviceInstanceMap.get(serviceName);
         if (serviceBean == null) {
             throw new RuntimeException(String.format("can not find service bean by key: %s", serviceName));
         }

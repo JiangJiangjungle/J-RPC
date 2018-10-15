@@ -22,6 +22,9 @@ public class RpcClient {
     private final String ip;
     private final int port;
 
+    /**
+     * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
+     */
     private Channel channel;
 
     private ConcurrentHashMap<Integer, RpcResponse> responseMap = new ConcurrentHashMap<>();
@@ -51,15 +54,8 @@ public class RpcClient {
      * @throws Exception
      */
     public RpcResponse invokeSync(RpcRequest request) throws Exception {
-        this.checkChannel();
-        //发出请求，sync()阻塞至 request写出完成
-        channel.writeAndFlush(request).sync();
-        //等待handler处理完毕，再获取response
-        RpcResponse rpcResponse;
-        do {
-            rpcResponse = responseMap.remove(request.getRequestId());
-        } while (rpcResponse == null);
-        return rpcResponse;
+        RpcFuture future = this.invokeWithFuture(request);
+        return (RpcResponse) future.get();
     }
 
     /**
@@ -70,6 +66,7 @@ public class RpcClient {
      * @throws Exception
      */
     public RpcFuture invokeWithFuture(RpcRequest request) throws Exception {
+        this.checkChannel();
         //注册到futureMap
         Integer requestId = request.getRequestId();
         RpcFuture future = new RpcFuture(requestId);
@@ -84,12 +81,12 @@ public class RpcClient {
      *
      * @throws Exception
      */
-    public void close() throws Exception {
+    public void shutdown() throws Exception {
         channel.close().sync();
     }
 
     /**
-     * 检查channel 是否连接
+     * 检查channel 是否正常连接
      *
      * @throws Exception
      */

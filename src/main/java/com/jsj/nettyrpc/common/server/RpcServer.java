@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * RPC server（用于注册RPC Service）
+ * RPC server
  *
  * @author jsj
  * @date 2018-10-8
@@ -42,46 +42,51 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
 
     private int port;
 
+    private String addr;
+
+    /**
+     * Netty 的连接线程池
+     */
     private EventLoopGroup bossGroup = new NioEventLoopGroup(1, new NamedThreadFactory(
             "Rpc-netty-server-boss", false));
+    /**
+     * Netty 的Task执行线程池
+     */
     private EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
             new NamedThreadFactory("Rpc-netty-server-worker", true));
 
+    /**
+     * 服务注册中心
+     */
     private ServiceRegistry serviceRegistry;
 
     /**
-     * 开放RPC的服务列表缓存
+     * 用于存储已经注册的服务实例
      */
-    private Map<String, Object> handlerMap = new HashMap<>();
+    private Map<String, Object> serviceInstanceMap = new HashMap<>();
 
     public RpcServer(String ip, int port, ServiceRegistry serviceRegistry) {
         this.ip = ip;
         this.port = port;
+        this.addr = this.ip + ":" + this.port;
         this.serviceRegistry = serviceRegistry;
     }
 
     /**
-     * 扫描带有 RpcService 注解的服务并添加到 handlerMap ，之后用于服务注册
+     * 初始化bean初始化完成后调用：扫描带有 RpcService 注解的服务并添加到 handlerMap ，并进行服务注册
      *
      * @throws Exception
      */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        // 扫描带有 RpcService 注解的类并初始化 handlerMap 对象
+        //扫描带有 RpcService 注解的类并初始化 handlerMap 对象
         Map<String, Object> serviceBeanMap = applicationContext.getBeansWithAnnotation(RpcService.class);
-        if (MapUtils.isEmpty(serviceBeanMap)) {
-            return;
-        }
-        //遍历后取出所有serviceName和对应的Class对象
-        serviceBeanMap.forEach((key, serviceBean) -> {
-            RpcService rpcService = serviceBean.getClass().getAnnotation(RpcService.class);
-            String serviceName = rpcService.value().getName();
-            handlerMap.put(serviceName, serviceBean);
-        });
+        //注册
+        this.registerAllService(serviceBeanMap);
     }
 
     /**
-     * 创建Netty RPC服务器服务端，注册（到服务中心），监听和处理客户端的RPC调用请求
+     * 初始化bean时调用：启动 Netty RPC服务器服务端
      *
      * @throws Exception
      */
@@ -90,27 +95,38 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
         try {
             //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
             ServerBootstrap serverBootstrap = this.initServerBootstrap(this.bossGroup, this.workerGroup);
-            // 绑定对应ip和端口，同步等待成功
+            //绑定对应ip和端口，同步等待成功
             ChannelFuture future = serverBootstrap.bind(ip, port).sync();
-            // 将服务地址添加到服务注册中心
-            this.registerAllService();
             LOGGER.debug("server started on port {}", port);
-            // 等待服务端监听端口关闭
+            //等待服务端监听端口关闭
             future.channel().closeFuture().sync();
         } finally {
             //优雅退出，释放 NIO 线程组
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
+            this.workerGroup.shutdownGracefully();
+            this.bossGroup.shutdownGracefully();
         }
     }
 
-    public void registerAllService() {
-        if (this.serviceRegistry != null) {
-            String serviceAddress = this.ip + ":" + this.port;
-            for (String interfaceName : handlerMap.keySet()) {
-                serviceRegistry.register(interfaceName, serviceAddress);
-                LOGGER.debug("register service: {} => {}", interfaceName, serviceAddress);
-            }
+    /**
+     * 注册所有服务
+     */
+    private void registerAllService(Map<String, Object> serviceBeanMap) {
+        if (MapUtils.isEmpty(serviceBeanMap)) {
+            return;
+        }
+        RpcService rpcService;
+        String serviceName;
+        Object serviceBean;
+        for (Map.Entry<String, Object> entry : serviceBeanMap.entrySet()) {
+            //service实例
+            serviceBean = entry.getValue();
+            rpcService = serviceBean.getClass().getAnnotation(RpcService.class);
+            //service接口名称
+            serviceName = rpcService.value().getName();
+            //注册
+            this.serviceRegistry.register(serviceName, this.addr);
+            this.serviceInstanceMap.put(serviceName, serviceBean);
+            LOGGER.debug("register service: {} => {}", serviceName, this.addr);
         }
     }
 
@@ -136,7 +152,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
                                 // 编码 RPC 响应
                                 .addLast(new RpcEncoder(RpcResponse.class))
                                 // 处理 RPC 请求
-                                .addLast(new RpcServiceHandler(handlerMap));
+                                .addLast(new RpcServiceHandler(serviceInstanceMap));
                     }
                 });
     }

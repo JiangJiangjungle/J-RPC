@@ -1,6 +1,7 @@
 package com.jsj.nettyrpc.common.client;
 
 import com.jsj.nettyrpc.codec.CodeC;
+import com.jsj.nettyrpc.common.server.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -33,7 +34,8 @@ public class DefaultChannelFactory implements ChannelFactory {
     @Override
     public void init() {
         //配置客户端 NIO 线程组
-        EventLoopGroup group = new NioEventLoopGroup();
+        EventLoopGroup group = new NioEventLoopGroup(1, new NamedThreadFactory(
+                "Rpc-netty-client", false));
         // 创建并初始化 Netty 客户端 Bootstrap 对象
         this.bootstrap = new Bootstrap()
                 .group(group)
