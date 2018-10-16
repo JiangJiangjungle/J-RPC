@@ -19,31 +19,30 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2018-10-10
  */
 public class RpcClient {
-    private final String ip;
-    private final int port;
+    private final String targetIP;
+    private final int targetPort;
 
     /**
      * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
      */
     private Channel channel;
 
-    private ConcurrentHashMap<Integer, RpcResponse> responseMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>();
     private ChannelHandler channelHandler;
     private CodeC codeC;
     private ChannelFactory connectionFactory;
 
-    public RpcClient(String ip, int port) {
-        this.ip = ip;
-        this.port = port;
+    public RpcClient(String targetIP, int targetPort) {
+        this.targetIP = targetIP;
+        this.targetPort = targetPort;
     }
 
     public void init() throws Exception {
-        channelHandler = new ClientHandler(responseMap, futureMap);
-        codeC = new DefaultCodeC(RpcRequest.class, RpcResponse.class);
-        connectionFactory = new DefaultChannelFactory(this.channelHandler, this.codeC);
-        connectionFactory.init();
-        channel = connectionFactory.createConnection(ip, port);
+        this.channelHandler = new ClientHandler(futureMap);
+        this.codeC = new DefaultCodeC(RpcRequest.class, RpcResponse.class);
+        this.connectionFactory = new DefaultChannelFactory(this.channelHandler, this.codeC);
+        this.connectionFactory.init();
+        this.channel = this.connectionFactory.createConnection(this.targetIP, this.targetPort);
     }
 
     /**
@@ -70,9 +69,9 @@ public class RpcClient {
         //注册到futureMap
         Integer requestId = request.getRequestId();
         RpcFuture future = new RpcFuture(requestId);
-        futureMap.put(requestId, future);
+        this.futureMap.put(requestId, future);
         //发出请求，并直接返回
-        channel.writeAndFlush(request);
+        this.channel.writeAndFlush(request);
         return future;
     }
 
@@ -82,7 +81,7 @@ public class RpcClient {
      * @throws Exception
      */
     public void shutdown() throws Exception {
-        channel.close().sync();
+        this.channel.close().sync();
     }
 
     /**
@@ -91,8 +90,8 @@ public class RpcClient {
      * @throws Exception
      */
     private void checkChannel() throws Exception {
-        if (!channel.isOpen()) {
-            channel = connectionFactory.createConnection(ip, port);
+        if (!this.channel.isOpen()) {
+            this.channel = this.connectionFactory.createConnection(this.targetIP, this.targetPort);
         }
     }
 }
