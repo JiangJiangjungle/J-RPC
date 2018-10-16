@@ -55,7 +55,7 @@ public class RpcClient {
      */
     public RpcResponse invokeSync(RpcRequest request) throws Exception {
         RpcFuture future = this.invokeWithFuture(request);
-        return (RpcResponse) future.get();
+        return future.get();
     }
 
     /**

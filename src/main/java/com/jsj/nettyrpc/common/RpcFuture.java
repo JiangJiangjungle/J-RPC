@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author jsj
  * @date 2018-10-14
  */
-public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
+public class RpcFuture implements Future<RpcResponse> {
     /**
      * 表示异步调用是否完成
      */
