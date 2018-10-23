@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RpcRequest {
 
+    private boolean heartBeat;
     /**
      * 请求id
      */

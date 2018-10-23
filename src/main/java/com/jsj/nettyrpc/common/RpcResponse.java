@@ -1,6 +1,5 @@
 package com.jsj.nettyrpc.common;
 
-import com.jsj.nettyrpc.common.RpcStateCode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RpcResponse {
 
+    private boolean heartBeat;
     /**
      * 请求id
      */
