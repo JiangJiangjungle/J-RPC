@@ -15,14 +15,14 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author jsj
  * @date 2018-10-14
  */
-public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
+public class RpcFuture implements Future<RpcResponse> {
     /**
      * 表示异步调用是否完成
      */
     private boolean done = false;
 
     private Lock lock = new ReentrantLock();
-    private Condition condition = lock.newCondition();
+    private Condition waitUntilDone = lock.newCondition();
 
     /**
      * 返回响应
@@ -58,7 +58,7 @@ public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
         try {
             lock.lock();
             while (!done) {
-                condition.await();
+                waitUntilDone.await();
             }
         } finally {
             lock.unlock();
@@ -93,7 +93,8 @@ public class RpcFuture<RpcResponse> implements Future<RpcResponse> {
         this.done = true;
         try {
             lock.lock();
-            condition.signalAll();
+            //唤醒同步等待响应的线程
+            waitUntilDone.signalAll();
         } finally {
             lock.unlock();
         }

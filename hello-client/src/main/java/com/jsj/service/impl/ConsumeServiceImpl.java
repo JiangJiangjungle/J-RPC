@@ -32,7 +32,7 @@ public class ConsumeServiceImpl implements ConsumeService {
         try {
             Method method = HelloService.class.getMethod("hello");
             RpcFuture future = rpcProxy.call(HelloService.class, method, null);
-            RpcResponse rpcResponse = (RpcResponse) future.get();
+            RpcResponse rpcResponse = future.get();
             String result = (String) rpcResponse.getServiceResult();
             System.out.println(result);
             return result;

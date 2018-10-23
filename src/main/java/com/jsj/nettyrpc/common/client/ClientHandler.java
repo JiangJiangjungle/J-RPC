@@ -20,35 +20,20 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
 
     /**
-     * 同步调用所提供的响应列表
-     */
-    private ConcurrentHashMap<Integer, RpcResponse> responseMap;
-
-    /**
      * 异步调用所注册的Future对象
      */
     private ConcurrentHashMap<Integer, RpcFuture> futureMap;
 
-    public ClientHandler(ConcurrentHashMap<Integer, RpcResponse> responseMap, ConcurrentHashMap<Integer, RpcFuture> futureMap) {
-        this.responseMap = responseMap;
+    public ClientHandler(ConcurrentHashMap<Integer, RpcFuture> futureMap) {
         this.futureMap = futureMap;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
         Integer requestId = rpcResponse.getRequestId();
-        RpcFuture future = futureMap.get(requestId);
-        //判断是同步调用还是异步调用
-        if (future == null) {
-            //若是同步调用则存入responseMap
-            this.responseMap.put(rpcResponse.getRequestId(), rpcResponse);
-        } else {
-            //若是异步调用则更新对应的RpcFuture
-            future.done(rpcResponse);
-            futureMap.remove(requestId);
-        }
-
-
+        RpcFuture future = futureMap.remove(requestId);
+        //更新对应的RpcFuture
+        future.done(rpcResponse);
     }
 
     @Override

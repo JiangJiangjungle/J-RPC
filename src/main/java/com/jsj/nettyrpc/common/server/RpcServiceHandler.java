@@ -37,6 +37,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
         response.setRequestId(request.getRequestId());
         try {
             //调用服务，获取服务结果
+            //todo 这里调用的业务代码如果耗时很长，会严重影响NIO线程进行IO操作，需要改进（可以考虑通过提交task到用户线程池处理）
             Object serviceResult = this.handle(request);
             //结果添加到响应
             response.setServiceResult(serviceResult);
@@ -76,7 +77,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
     /**
      * 获取服务实例对象
      *
-     * @param serviceName    service接口名称
+     * @param serviceName service接口名称
      * @return
      */
     private Object getServiceBean(String serviceName) {
