@@ -7,37 +7,30 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.IdleStateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-
-import java.time.LocalTime;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+/**
+ * @author jsj
+ * @date 2018-10-24
+ */
 public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWatchDog.class);
+    private ReConnectionListener reConnectionListener;
 
-    private final Bootstrap bootstrap;
-    private final String targetIP;
-    private final int port;
+    public ConnectionWatchDog(ReConnectionListener reConnectionListener) {
+        this.reConnectionListener = reConnectionListener;
+    }
 
-    private AtomicBoolean occupied = new AtomicBoolean(false);
-    private AtomicBoolean connected = new AtomicBoolean(false);
-    private int attempts = 3;
-
-    public ConnectionWatchDog(Bootstrap bootstrap, String targetIP, int port) {
-        this.bootstrap = bootstrap;
-        this.targetIP = targetIP;
-        this.port = port;
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("链接关闭，将进行重连: " + LocalTime.now());
-        while (attempts > 0 && !reConnect(ctx, 2000)) {
-            attempts--;
-        }
-        if (!connected.get()) {
-            System.out.println("重连失败，且已经达到最大重试次数，不再重试: " + LocalTime.now());
-            closeChannel(ctx);
-        }
+        LOGGER.debug("链接关闭，将进行重连.");
+        reConn(RpcClient.DEFAULT_CONNECT_TIMEOUT);
         ctx.fireChannelInactive();
     }
 
@@ -47,11 +40,9 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             switch (idleStateEvent.state()) {
                 case READER_IDLE:
-                    System.out.println("READER_IDLE: " + LocalTime.now());
                     closeChannel(ctx);
                     break;
                 case WRITER_IDLE:
-                    System.out.println("WRITER_IDLE: " + LocalTime.now());
                     sendHeartBeat(ctx);
                     break;
                 default:
@@ -66,23 +57,20 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setHeartBeat(true);
         ctx.writeAndFlush(rpcRequest);
-        System.out.println("client 发送 PING...");
     }
 
     private void closeChannel(ChannelHandlerContext ctx) {
+        ConnectionPool connectionPool = reConnectionListener.getConnectionPool();
+        connectionPool.delete(ctx.channel());
         ctx.close();
-        connected.getAndSet(false);
     }
 
-    public boolean reConnect(ChannelHandlerContext ctx, int connectTimeout) throws InterruptedException {
-        ChannelFuture future;
+    private void reConn(int connectTimeout) {
+        String targetIP = reConnectionListener.getTargetIP();
+        int port = reConnectionListener.getPort();
+        Bootstrap bootstrap = reConnectionListener.getBootstrap();
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
-        future = bootstrap.connect(targetIP, port);
-        long start = System.currentTimeMillis();
-        while (!future.isDone() && System.currentTimeMillis() - start < connectTimeout) {
-
-        }
-        return future.isSuccess();
+        ChannelFuture future = bootstrap.connect(targetIP, port);
+        future.addListener(reConnectionListener);
     }
-
 }

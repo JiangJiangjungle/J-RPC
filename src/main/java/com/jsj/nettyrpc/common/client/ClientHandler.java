@@ -30,10 +30,12 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
-        Integer requestId = rpcResponse.getRequestId();
-        RpcFuture future = futureMap.remove(requestId);
-        //更新对应的RpcFuture
-        future.done(rpcResponse);
+        if (!rpcResponse.isHeartBeat()) {
+            Integer requestId = rpcResponse.getRequestId();
+            RpcFuture future = futureMap.remove(requestId);
+            //更新对应的RpcFuture
+            future.done(rpcResponse);
+        }
     }
 
     @Override

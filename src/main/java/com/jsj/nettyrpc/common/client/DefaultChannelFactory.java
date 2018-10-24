@@ -1,12 +1,9 @@
 package com.jsj.nettyrpc.common.client;
 
-import com.jsj.nettyrpc.codec.CodeC;
-import com.jsj.nettyrpc.common.server.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,46 +15,19 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultChannelFactory implements ChannelFactory {
 
-    public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultChannelFactory.class);
 
-    private ChannelHandler channelHandler;
-    private CodeC codeC;
 
     private Bootstrap bootstrap;
 
-    public DefaultChannelFactory(ChannelHandler channelHandler, CodeC codeC) {
-        this.channelHandler = channelHandler;
-        this.codeC = codeC;
-    }
-
-    @Override
-    public void init() {
-        //配置客户端 NIO 线程组
-        EventLoopGroup group = new NioEventLoopGroup(1, new NamedThreadFactory(
-                "Rpc-netty-client", false));
-        // 创建并初始化 Netty 客户端 Bootstrap 对象
-        this.bootstrap = new Bootstrap()
-                .group(group)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    public void initChannel(SocketChannel channel) throws Exception {
-                        ChannelPipeline pipeline = channel.pipeline();
-                        //出方向编码
-                        pipeline.addLast(codeC.newEncoder())
-                                //入方向解码
-                                .addLast(codeC.newDecoder())
-                                //处理
-                                .addLast(channelHandler);
-                    }
-                });
+    public DefaultChannelFactory(Bootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     @Override
     public Channel createConnection(String targetIP, int targetPort) throws Exception {
-        return this.createConnection(targetIP, targetPort, DEFAULT_CONNECT_TIMEOUT);
+        return this.createConnection(targetIP, targetPort, RpcClient.DEFAULT_CONNECT_TIMEOUT);
     }
 
     @Override
@@ -83,7 +53,8 @@ public class DefaultChannelFactory implements ChannelFactory {
         }
         this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
         //连接到远程节点，阻塞等待直到连接完成
-        ChannelFuture future = bootstrap.connect(targetIP, targetPort).sync();
+        ChannelFuture future = bootstrap.connect(targetIP, targetPort);
+        future.awaitUninterruptibly();
         if (!future.isDone()) {
             String errMsg = "Create connection to " + address + " timeout!";
             LOGGER.warn(errMsg);

@@ -34,17 +34,21 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
     public void channelRead0(final ChannelHandlerContext ctx, RpcRequest request) throws Exception {
         // 创建并初始化 RPC 响应对象
         RpcResponse response = new RpcResponse();
-        response.setRequestId(request.getRequestId());
-        try {
-            //调用服务，获取服务结果
-            //todo 这里调用的业务代码如果耗时很长，会严重影响NIO线程进行IO操作，需要改进（可以考虑通过提交task到用户线程池处理）
-            Object serviceResult = this.handle(request);
-            //结果添加到响应
-            response.setServiceResult(serviceResult);
-        } catch (Exception e) {
-            LOGGER.error("handle result failure", e);
-            response.setErrorMsg(String.format("errorCode: %s, state: %s, cause: %s", RpcStateCode.FAIL.getCode(),
-                    RpcStateCode.FAIL.getValue(), e.getMessage()));
+        if (request.isHeartBeat()) {
+            response.setHeartBeat(true);
+        } else {
+            response.setRequestId(request.getRequestId());
+            try {
+                //调用服务，获取服务结果
+                //todo 这里调用的业务代码如果耗时很长，会严重影响NIO线程进行IO操作，需要改进（可以考虑通过提交task到用户线程池处理）
+                Object serviceResult = this.handle(request);
+                //结果添加到响应
+                response.setServiceResult(serviceResult);
+            } catch (Exception e) {
+                LOGGER.error("handle result failure", e);
+                response.setErrorMsg(String.format("errorCode: %s, state: %s, cause: %s", RpcStateCode.FAIL.getCode(),
+                        RpcStateCode.FAIL.getValue(), e.getMessage()));
+            }
         }
         // 写入 RPC 响应对象
         ctx.writeAndFlush(response).sync();

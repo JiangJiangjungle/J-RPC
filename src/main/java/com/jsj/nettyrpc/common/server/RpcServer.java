@@ -3,11 +3,10 @@ package com.jsj.nettyrpc.common.server;
 import com.jsj.nettyrpc.RpcService;
 import com.jsj.nettyrpc.codec.RpcDecoder;
 import com.jsj.nettyrpc.codec.RpcEncoder;
+import com.jsj.nettyrpc.common.NamedThreadFactory;
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
 import com.jsj.nettyrpc.registry.ServiceRegistry;
-import com.jsj.nettyrpc.util.StringUtil;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -26,7 +25,6 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * RPC server
