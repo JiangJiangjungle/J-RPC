@@ -14,7 +14,7 @@ public class RpcConfig {
 
     @Bean
     public ServiceRegistry initServiceRegistry() {
-        host = "119.23.204.78";
+        host = "127.0.0.1";
         String port = "2181";
         return new ZooKeeperRegistry(host + ":" + port);
     }
