@@ -30,7 +30,7 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.debug("链接关闭，将进行重连.");
-        reConn(RpcClient.DEFAULT_CONNECT_TIMEOUT);
+        reConn(Connection.DEFAULT_CONNECT_TIMEOUT);
         ctx.fireChannelInactive();
     }
 
@@ -60,8 +60,8 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
     }
 
     private void closeChannel(ChannelHandlerContext ctx) {
-        ConnectionPool connectionPool = reConnectionListener.getConnectionPool();
-        connectionPool.delete(ctx.channel());
+        Connection connection = reConnectionListener.getConnection();
+        connection.delete(ctx.channel());
         ctx.close();
     }
 

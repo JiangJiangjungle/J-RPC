@@ -3,17 +3,20 @@ package com.jsj.nettyrpc.common.client;
 
 import com.jsj.nettyrpc.codec.RpcDecoder;
 import com.jsj.nettyrpc.codec.RpcEncoder;
+import com.jsj.nettyrpc.common.NamedThreadFactory;
 import com.jsj.nettyrpc.common.RpcFuture;
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
-import com.jsj.nettyrpc.common.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -25,20 +28,17 @@ import java.util.concurrent.TimeUnit;
  * @date 2018-10-10
  */
 public class RpcClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
+
     private final String targetIP;
     private final int targetPort;
-
-    public static final int DEFAULT_RECONNECT_TRY = 20;
-
-    public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
 
     /**
      * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
      */
-    private ConnectionPool connectionPool = new ConnectionPool(1);
+    private Connection connection = new Connection();
 
     private ConcurrentHashMap<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>();
-    private ChannelFactory connectionFactory;
 
     /**
      * 配置客户端 NIO 线程组
@@ -48,7 +48,8 @@ public class RpcClient {
     /**
      * 创建并初始化 Netty 客户端 Bootstrap 对象
      */
-    private Bootstrap bootstrap = new Bootstrap().group(group).channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true);
+    private Bootstrap bootstrap = new Bootstrap().group(group).channel(NioSocketChannel.class)
+            .option(ChannelOption.TCP_NODELAY, true);
 
     public RpcClient(String targetIP, int targetPort) {
         this.targetIP = targetIP;
@@ -56,24 +57,26 @@ public class RpcClient {
     }
 
     public void init() throws Exception {
-        ReConnectionListener reconnectionListener = new ReConnectionListener(bootstrap, targetIP, targetPort, DEFAULT_RECONNECT_TRY, connectionPool);
-        this.connectionFactory = new DefaultChannelFactory(this.bootstrap);
+        //创建重连监听器
+        ReConnectionListener reconnectionListener = new ReConnectionListener(bootstrap, targetIP, targetPort, connection);
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
-                //出方向编码
+                //
                 pipeline.addLast(new IdleStateHandler(10, 5, 0, TimeUnit.SECONDS))
+                        //出方向编码
                         .addLast(new RpcEncoder(RpcRequest.class))
                         //入方向解码
                         .addLast(new RpcDecoder(RpcResponse.class))
+                        //前置连接监视处理器
                         .addLast(new ConnectionWatchDog(reconnectionListener))
-                        //处理
+                        //业务处理
                         .addLast(new ClientHandler(futureMap));
             }
         });
-        Channel channel = this.connectionFactory.createConnection(this.targetIP, this.targetPort);
-        connectionPool.add(channel);
+        Channel channel = doCreateConnection(this.targetIP, this.targetPort, Connection.DEFAULT_CONNECT_TIMEOUT);
+        connection.bind(channel);
     }
 
     /**
@@ -107,17 +110,51 @@ public class RpcClient {
 
     public Channel getChannel() throws Exception {
         Channel channel;
-        if (connectionPool.getSize() == 0) {
-            channel = this.connectionFactory.createConnection(this.targetIP, this.targetPort);
-            connectionPool.add(channel);
-            return channel;
-        }
-        channel = connectionPool.get();
-        if (!channel.isActive()) {
-            channel = this.connectionFactory.createConnection(this.targetIP, this.targetPort);
-            connectionPool.add(channel);
-            return channel;
+        do {
+            channel = connection.get();
+        } while (!channel.isActive() && connection.getCount() < Connection.DEFAULT_RECONNECT_TRY);
+        //重连失败则抛出异常
+        if (connection.getCount() == Connection.DEFAULT_RECONNECT_TRY) {
+            throw new ConnectTimeoutException();
         }
         return channel;
+    }
+
+    /**
+     * 借鉴 SOFA-BOLT 框架
+     *
+     * @param targetIP
+     * @param targetPort
+     * @param connectTimeout
+     * @return
+     * @throws Exception
+     */
+    private Channel doCreateConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {
+        // prevent unreasonable value, at least 1000
+        connectTimeout = Math.max(connectTimeout, 1000);
+        String address = targetIP + ":" + targetPort;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("connectTimeout of address [{}] is [{}].", address, connectTimeout);
+        }
+        this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
+        //连接到远程节点，阻塞等待直到连接完成
+        ChannelFuture future = bootstrap.connect(targetIP, targetPort);
+        future.awaitUninterruptibly();
+        if (!future.isDone()) {
+            String errMsg = "Create connection to " + address + " timeout!";
+            LOGGER.warn(errMsg);
+            throw new Exception(errMsg);
+        }
+        if (future.isCancelled()) {
+            String errMsg = "Create connection to " + address + " cancelled by user!";
+            LOGGER.warn(errMsg);
+            throw new Exception(errMsg);
+        }
+        if (!future.isSuccess()) {
+            String errMsg = "Create connection to " + address + " error!";
+            LOGGER.warn(errMsg);
+            throw new Exception(errMsg, future.cause());
+        }
+        return future.channel();
     }
 }

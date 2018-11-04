@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
+import java.time.LocalTime;
 
 @Service("consumeService")
 public class ConsumeServiceImpl implements ConsumeService {
@@ -19,16 +20,16 @@ public class ConsumeServiceImpl implements ConsumeService {
 
     @Override
     public String callHelloSync() {
-        System.out.println("同步调用HelloService 的 hello方法");
+        System.out.println("同步调用HelloService 的 hello方法: "+ LocalTime.now());
         HelloService helloService = rpcProxy.getService(HelloService.class);
         String result = helloService.hello();
-        System.out.println(result);
+        System.out.println(result+": "+ LocalTime.now());
         return result;
     }
 
     @Override
     public String callHello() {
-        System.out.println("异步调用HelloService 的 hello方法");
+        System.out.println("异步调用HelloService 的 hello方法: "+ LocalTime.now());
         try {
             Method method = HelloService.class.getMethod("hello");
             RpcFuture future = rpcProxy.call(HelloService.class, method, null);

@@ -1,5 +1,6 @@
 package com.jsj.nettyrpc.util;
 
+import com.alibaba.fastjson.JSON;
 import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.Schema;
@@ -11,10 +12,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 序列化工具类（基于 Protostuff 实现）
+ * 序列化工具类（提供 JSON 和 Protostuff 2种实现）
  *
- * @author huangyong
- * @since 1.0.0
+ * @author jsj
+ * @date 2018-11-4
  */
 public class SerializationUtil {
 
@@ -26,10 +27,10 @@ public class SerializationUtil {
     }
 
     /**
-     * 序列化（对象 -> 字节数组）
+     * 基于 Protostuff 序列化（对象 -> 字节数组）
      */
     @SuppressWarnings("unchecked")
-    public static <T> byte[] serialize(T obj) {
+    public static <T> byte[] serializeByProtostuff(T obj) {
         Class<T> cls = (Class<T>) obj.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
@@ -43,9 +44,9 @@ public class SerializationUtil {
     }
 
     /**
-     * 反序列化（字节数组 -> 对象）
+     * 基于 Protostuff 反序列化（字节数组 -> 对象）
      */
-    public static <T> T deserialize(byte[] data, Class<T> cls) {
+    public static <T> T deserializeByProtostuff(byte[] data, Class<T> cls) {
         try {
             T message = objenesis.newInstance(cls);
             Schema<T> schema = getSchema(cls);
@@ -54,6 +55,21 @@ public class SerializationUtil {
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 基于 JSON 序列化（对象 -> 字节数组）
+     */
+    public static <T> byte[] serializeByJSON(T obj) {
+        //使用fastJSON进行序列化
+        return JSON.toJSONBytes(obj);
+    }
+
+    /**
+     * 基于 JSON 反序列化（字节数组 -> 对象）
+     */
+    public static <T> T deserializeByJSON(byte[] data, Class<T> cls) {
+        return JSON.parseObject(data, cls);
     }
 
     @SuppressWarnings("unchecked")
