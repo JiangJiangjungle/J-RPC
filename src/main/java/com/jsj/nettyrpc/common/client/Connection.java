@@ -15,7 +15,7 @@ public class Connection {
     public static final int DEFAULT_RECONNECT_TRY = 20;
     public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
 
-    private int count = 0;
+    private int count;
 
 
     public Connection() {
@@ -25,22 +25,18 @@ public class Connection {
         return channel;
     }
 
-    public void delete(Channel toDelete) {
-        if (toDelete == channel) {
-            channel = null;
-        }
+    public void delete() {
+        this.count = 0;
+        channel = null;
     }
 
     public void bind(Channel channel) {
         this.channel = channel;
+        this.count = 0;
     }
 
     public void addRetryCount() {
         this.count += 1;
-    }
-
-    public void resetCount() {
-        this.count = 0;
     }
 
     public int getCount() {

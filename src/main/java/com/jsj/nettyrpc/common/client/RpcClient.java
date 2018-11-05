@@ -109,12 +109,16 @@ public class RpcClient {
     }
 
     public Channel getChannel() throws Exception {
-        Channel channel;
-        do {
+        Channel channel = connection.get();
+        if (channel == null) {
+            channel = doCreateConnection(this.targetIP, this.targetPort, Connection.DEFAULT_CONNECT_TIMEOUT);
+            connection.bind(channel);
+        }
+        while (!channel.isActive() && connection.getCount() < Connection.DEFAULT_RECONNECT_TRY) {
             channel = connection.get();
-        } while (!channel.isActive() && connection.getCount() < Connection.DEFAULT_RECONNECT_TRY);
+        }
         //重连失败则抛出异常
-        if (connection.getCount() == Connection.DEFAULT_RECONNECT_TRY) {
+        if (!channel.isActive() && connection.getCount() == Connection.DEFAULT_RECONNECT_TRY) {
             throw new ConnectTimeoutException();
         }
         return channel;
