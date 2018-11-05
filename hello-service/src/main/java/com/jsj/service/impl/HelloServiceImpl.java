@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 public class HelloServiceImpl implements HelloService {
     @Override
     public String hello() {
-
         return "HELLO WORLD!";
     }
 }

@@ -15,18 +15,14 @@
         <version.slf4j>1.7.10</version.slf4j>
         <version.spring>4.1.5.RELEASE</version.spring>
         <version.netty>4.0.26.Final</version.netty>
+        <version.cglib>3.1</version.cglib>
+        <version.curator>2.12.0</version.curator>
         <version.protostuff>1.0.9</version.protostuff>
         <version.objenesis>2.1</version.objenesis>
-        <version.cglib>3.1</version.cglib>
-        <version.zookeeper>3.4.6</version.zookeeper>
-        <version.curator>2.12.0</version.curator>
+        <version.fastjson>1.2.47</version.fastjson>
         <version.commons-lang>3.3.2</version.commons-lang>
         <version.lombok>1.16.6</version.lombok>
         <version.commons-collections>4.0</version.commons-collections>
-        <version.maven-compiler-plugin>3.2</version.maven-compiler-plugin>
-        <version.maven-surefire-plugin>2.18.1</version.maven-surefire-plugin>
-        <version.maven-source-plugin>2.4</version.maven-source-plugin>
-        <version.maven-javadoc-plugin>2.10.3</version.maven-javadoc-plugin>
     </properties>
 
     <dependencies>
@@ -54,34 +50,12 @@
             <artifactId>netty-all</artifactId>
             <version>${version.netty}</version>
         </dependency>
-        <!-- Protostuff -->
-        <dependency>
-            <groupId>com.dyuproject.protostuff</groupId>
-            <artifactId>protostuff-core</artifactId>
-            <version>${version.protostuff}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dyuproject.protostuff</groupId>
-            <artifactId>protostuff-runtime</artifactId>
-            <version>${version.protostuff}</version>
-        </dependency>
-        <!-- Objenesis -->
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>${version.objenesis}</version>
-        </dependency>
+
         <!-- CGLib -->
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>${version.cglib}</version>
-        </dependency>
-        <!-- ZooKeeper -->
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-            <version>${version.zookeeper}</version>
         </dependency>
         <!--curator-->
         <dependency>
@@ -100,6 +74,32 @@
             <version>${version.curator}</version>
         </dependency>
 
+        <!--序列化工具-->
+        <!-- Protostuff -->
+        <dependency>
+            <groupId>com.dyuproject.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
+            <version>${version.protostuff}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dyuproject.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+            <version>${version.protostuff}</version>
+        </dependency>
+        <!-- Objenesis -->
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>${version.objenesis}</version>
+        </dependency>
+        <!-- fastjson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${version.fastjson}</version>
+        </dependency>
+
+        <!--字符串/集合工具类-->
         <!-- Apache Commons Lang -->
         <dependency>
             <groupId>org.apache.commons</groupId>

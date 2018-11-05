@@ -22,34 +22,33 @@ public class ReConnectionListener implements ChannelFutureListener {
     private final String targetIP;
     private final int port;
 
-    private final int RECONNECT_TRY;
-    private final AtomicInteger count;
+    private Connection connection;
 
-    private ConnectionPool connectionPool;
-
-    public ReConnectionListener(Bootstrap bootstrap, String targetIP, int port, int RECONNECT_TRY, ConnectionPool connectionPool) {
+    public ReConnectionListener(Bootstrap bootstrap, String targetIP, int port, Connection connection) {
         this.bootstrap = bootstrap;
         this.targetIP = targetIP;
         this.port = port;
-        this.RECONNECT_TRY = RECONNECT_TRY;
-        this.count = new AtomicInteger(0);
-        this.connectionPool = connectionPool;
+        this.connection = connection;
     }
 
     @Override
     public void operationComplete(ChannelFuture channelFuture) throws Exception {
         if (channelFuture.isSuccess()) {
-            count.getAndSet(0);
             Channel channel = channelFuture.channel();
             LOGGER.debug("重连接成功: " + channel);
-            connectionPool.add(channel);
-        } else if (count.getAndIncrement() <= RECONNECT_TRY) {
-            ChannelPipeline channelPipeline = channelFuture.channel().pipeline();
-            channelPipeline.fireChannelInactive();
+            //重新绑定channel
+            connection.resetCount();
+            connection.bind(channel);
         } else {
+            connection.addRetryCount();
             Channel channel = channelFuture.channel();
-            LOGGER.debug("重连失败，且已经达到最大重试次数：" + RECONNECT_TRY + "，不再进行重试!");
-            connectionPool.delete(channel);
+            if (connection.getCount() < Connection.DEFAULT_RECONNECT_TRY) {
+                ChannelPipeline channelPipeline = channel.pipeline();
+                channelPipeline.fireChannelInactive();
+            } else {
+                LOGGER.debug("重连失败，且已经达到最大重试次数: " + Connection.DEFAULT_RECONNECT_TRY + ",不再进行重试!");
+                connection.delete(channel);
+            }
         }
     }
 
@@ -66,12 +65,8 @@ public class ReConnectionListener implements ChannelFutureListener {
         return port;
     }
 
-    public AtomicInteger getCount() {
-        return count;
-    }
-
-    public ConnectionPool getConnectionPool() {
-        return connectionPool;
+    public Connection getConnection() {
+        return connection;
     }
 
 }

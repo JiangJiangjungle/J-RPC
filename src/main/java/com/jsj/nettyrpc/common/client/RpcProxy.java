@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.time.LocalTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -114,6 +115,9 @@ public class RpcProxy {
      * @return
      */
     private RpcClient getRpcClient(String serviceAddress) throws Exception {
+        if (StringUtil.isEmpty(serviceAddress)) {
+            throw new RpcServiceNotFoundException();
+        }
         RpcClient client = rpcClientMap.get(serviceAddress);
         //若不存在则创建和初始化，并进行缓存
         if (client == null) {
