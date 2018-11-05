@@ -10,6 +10,8 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
+
 /**
  * @author jsj
  * @date 2018-10-24
@@ -43,6 +45,7 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
                     closeChannel(ctx);
                     break;
                 case WRITER_IDLE:
+                    LOGGER.debug("发送心跳包，channel：{}", ctx.channel());
                     sendHeartBeat(ctx);
                     break;
                 default:
@@ -61,7 +64,7 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
 
     private void closeChannel(ChannelHandlerContext ctx) {
         Connection connection = reConnectionListener.getConnection();
-        connection.delete(ctx.channel());
+        connection.delete();
         ctx.close();
     }
 
