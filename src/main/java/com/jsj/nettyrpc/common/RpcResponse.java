@@ -3,6 +3,8 @@ package com.jsj.nettyrpc.common;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 封装 RPC 响应
  *
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class RpcResponse {
+public class RpcResponse  implements Serializable {
 
     private boolean heartBeat;
     /**
