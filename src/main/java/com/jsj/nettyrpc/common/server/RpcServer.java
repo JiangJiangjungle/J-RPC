@@ -23,6 +23,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,7 +96,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
             ServerBootstrap serverBootstrap = this.initServerBootstrap(this.bossGroup, this.workerGroup);
             //绑定对应ip和端口，同步等待成功
             ChannelFuture future = serverBootstrap.bind(ip, port).sync();
-            LOGGER.debug("server started on port {}", port);
+            LOGGER.info("rpc server 已启动，端口：{}", port);
             //等待服务端监听端口关闭
             future.channel().closeFuture().sync();
         } finally {

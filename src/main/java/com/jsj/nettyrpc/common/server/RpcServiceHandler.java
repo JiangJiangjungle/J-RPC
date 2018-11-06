@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalTime;
 import java.util.Map;
 
 /**
@@ -35,8 +36,10 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
         // 创建并初始化 RPC 响应对象
         RpcResponse response = new RpcResponse();
         if (request.isHeartBeat()) {
+            LOGGER.info("收到 Netty 心跳包，channel：{}", ctx.channel());
             response.setHeartBeat(true);
         } else {
+            LOGGER.info("收到 rpc request:{}", request);
             response.setRequestId(request.getRequestId());
             try {
                 //调用服务，获取服务结果
@@ -45,7 +48,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
                 //结果添加到响应
                 response.setServiceResult(serviceResult);
             } catch (Exception e) {
-                LOGGER.error("handle result failure", e);
+                LOGGER.debug("request:{},handle failure:{}",request, e);
                 response.setErrorMsg(String.format("errorCode: %s, state: %s, cause: %s", RpcStateCode.FAIL.getCode(),
                         RpcStateCode.FAIL.getValue(), e.getMessage()));
             }
@@ -106,10 +109,6 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private Object invokeByReflect(Object serviceBean, String methodName, Class<?>[] parameterTypes, Object[] parameters) throws InvocationTargetException {
         // 获取反射调用所需的参数
         Class<?> serviceClass = serviceBean.getClass();
-        // 执行反射调用
-//        Method method = serviceClass.getMethod(methodName, parameterTypes);
-//        method.setAccessible(true);
-//        return method.invoke(serviceBean, parameters);
         // 使用 CGLib 执行反射调用
         FastClass serviceFastClass = FastClass.create(serviceClass);
         FastMethod serviceFastMethod = serviceFastClass.getMethod(methodName, parameterTypes);

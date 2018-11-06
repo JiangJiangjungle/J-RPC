@@ -10,6 +10,7 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -43,7 +44,7 @@ public class ZookeeperDiscovery implements ServiceDiscovery {
         try {
             //检查 registry 节点是否存在，若不存在则创建该节点
             this.checkExists(client);
-            LOGGER.debug("connect zookeeper");
+            LOGGER.info("Zookeeper 已连接！");
             // 获取 service 节点
             String servicePath = ZooKeeperConfig.ZK_REGISTRY_PATH + "/" + serviceName;
             // 获取所有 address 节点
@@ -101,9 +102,10 @@ public class ZookeeperDiscovery implements ServiceDiscovery {
             Stat stat = client.checkExists().forPath(ZooKeeperConfig.ZK_REGISTRY_PATH);
             if (stat == null) {
                 client.create().withMode(CreateMode.PERSISTENT).forPath(ZooKeeperConfig.ZK_REGISTRY_PATH);
-                LOGGER.debug("创建 registry 节点: {}", ZooKeeperConfig.ZK_REGISTRY_PATH);
+                LOGGER.info("创建 registry 节点: {}", ZooKeeperConfig.ZK_REGISTRY_PATH);
             }
         } catch (Exception e) {
+            LOGGER.debug("创建 registry 节点和 service 节点时发生异常");
             throw new RuntimeException("创建 registry 节点和 service 节点时发生异常");
         }
     }

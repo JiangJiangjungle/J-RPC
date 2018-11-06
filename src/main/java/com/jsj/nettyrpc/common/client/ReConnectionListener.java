@@ -8,6 +8,7 @@ import io.netty.channel.ChannelPipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -35,9 +36,8 @@ public class ReConnectionListener implements ChannelFutureListener {
     public void operationComplete(ChannelFuture channelFuture) throws Exception {
         if (channelFuture.isSuccess()) {
             Channel channel = channelFuture.channel();
-            LOGGER.debug("重连接成功: " + channel);
+            LOGGER.info("重连接成功: {}", channel);
             //重新绑定channel
-            connection.resetCount();
             connection.bind(channel);
         } else {
             connection.addRetryCount();
@@ -46,8 +46,8 @@ public class ReConnectionListener implements ChannelFutureListener {
                 ChannelPipeline channelPipeline = channel.pipeline();
                 channelPipeline.fireChannelInactive();
             } else {
-                LOGGER.debug("重连失败，且已经达到最大重试次数: " + Connection.DEFAULT_RECONNECT_TRY + ",不再进行重试!");
-                connection.delete(channel);
+                LOGGER.debug("重连失败，且已经达到最大重试次数:{},不再进行重试!", Connection.DEFAULT_RECONNECT_TRY);
+                connection.delete();
             }
         }
     }

@@ -33,12 +33,12 @@ public class RpcProxy {
     private AtomicInteger requestId = new AtomicInteger(0);
 
     /**
-     * rpc service代理对象列表,避免重复创建
+     * rpc service代理对象列表(用于客户端的异步调用),避免重复创建
      */
     private ConcurrentHashMap<String, Object> serviceProxyInstanceMap = new ConcurrentHashMap<>();
 
     /**
-     * RpcClient对象列表,避免重复创建
+     * rpc服务 ip:port->本地 rpcClient 映射列表,避免重复创建
      */
     private ConcurrentHashMap<String, RpcClient> rpcClientMap = new ConcurrentHashMap<>();
 
@@ -79,6 +79,7 @@ public class RpcProxy {
         String serviceAddress = this.findServiceAddress(interfaceClass);
         // 创建 RPC 客户端对象并发送 RPC 请求
         RpcClient client = this.getRpcClient(serviceAddress);
+        LOGGER.info("{}, rpc request:{}, 异步调用", LocalTime.now(), request);
         //调用异步方法
         return client.invokeWithFuture(request);
     }
@@ -96,9 +97,8 @@ public class RpcProxy {
                     String serviceAddress = this.findServiceAddress(interfaceClass);
                     // 创建 RPC 客户端对象并发送 RPC 请求
                     RpcClient client = this.getRpcClient(serviceAddress);
-                    long time = System.currentTimeMillis();
+                    LOGGER.info("rpc request:{}, 同步调用", request);
                     rpcResponse = client.invokeSync(request);
-                    LOGGER.debug("time: {}ms", System.currentTimeMillis() - time);
                     // 返回 RPC 响应结果
                     if (null == rpcResponse || null == rpcResponse.getServiceResult()) {
                         throw new RpcErrorException(null == rpcResponse ? null : rpcResponse.getErrorMsg());
@@ -148,7 +148,7 @@ public class RpcProxy {
                 LOGGER.debug("discover service: {}  is empty", serviceName);
                 return null;
             }
-            LOGGER.debug("discover service: {} => {}", serviceName, serviceAddress);
+            LOGGER.info("discover service: {} => {}", serviceName, serviceAddress);
         }
         if (StringUtil.isEmpty(serviceAddress)) {
             throw new RpcErrorException(String.format("errorCode: %s, info: %s", RpcStateCode.SERVICE_NOT_EXISTS.getCode(), RpcStateCode.SERVICE_NOT_EXISTS.getValue()));
