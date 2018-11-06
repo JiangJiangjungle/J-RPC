@@ -1,6 +1,8 @@
 package com.jsj.nettyrpc.common.client;
 
 
+import com.jsj.nettyrpc.codec.CodeStrategy;
+import com.jsj.nettyrpc.codec.DefaultCodeC;
 import com.jsj.nettyrpc.common.RpcFuture;
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
@@ -42,8 +44,18 @@ public class RpcProxy {
      */
     private ConcurrentHashMap<String, RpcClient> rpcClientMap = new ConcurrentHashMap<>();
 
+    /**
+     * 编解码选项
+     */
+    private final CodeStrategy codeStrategy;
+
     public RpcProxy(ServiceDiscovery serviceDiscovery) {
+        this(serviceDiscovery, CodeStrategy.DEAULT);
+    }
+
+    public RpcProxy(ServiceDiscovery serviceDiscovery, CodeStrategy codeStrategy) {
         this.serviceDiscovery = serviceDiscovery;
+        this.codeStrategy = codeStrategy;
     }
 
     /**
@@ -125,8 +137,7 @@ public class RpcProxy {
             String[] addressArray = StringUtil.split(serviceAddress, ":");
             String ip = addressArray[0];
             int port = Integer.parseInt(addressArray[1]);
-            client = new RpcClient(ip, port);
-            client.init();
+            client = new RpcClient(ip, port, this.codeStrategy);
             rpcClientMap.put(serviceAddress, client);
         }
         return client;

@@ -1,8 +1,7 @@
 package com.jsj.nettyrpc.common.server;
 
 import com.jsj.nettyrpc.RpcService;
-import com.jsj.nettyrpc.codec.RpcDecoder;
-import com.jsj.nettyrpc.codec.RpcEncoder;
+import com.jsj.nettyrpc.codec.*;
 import com.jsj.nettyrpc.common.NamedThreadFactory;
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
@@ -64,11 +63,24 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
      */
     private Map<String, Object> serviceInstanceMap = new HashMap<>();
 
+    /**
+     * 编解码方案
+     *
+     * @param targetIP
+     * @param targetPort
+     */
+    private CodeC codeC;
+
     public RpcServer(String ip, int port, ServiceRegistry serviceRegistry) {
+        this(ip, port, serviceRegistry, CodeStrategy.DEAULT);
+    }
+
+    public RpcServer(String ip, int port, ServiceRegistry serviceRegistry, CodeStrategy codeStrategy) {
         this.ip = ip;
         this.port = port;
         this.addr = this.ip + ":" + this.port;
         this.serviceRegistry = serviceRegistry;
+        this.codeC = new DefaultCodeC(RpcResponse.class, RpcRequest.class, codeStrategy);
     }
 
     /**
@@ -142,18 +154,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline()
-                                // 解码 RPC 请求
-                                .addLast(new RpcDecoder(RpcRequest.class))
-                                // 编码 RPC 响应
-                                .addLast(new RpcEncoder(RpcResponse.class))
-                                // 处理 RPC 请求
-                                .addLast(new RpcServiceHandler(serviceInstanceMap));
-                    }
-                });
+                .childHandler(new ServerChannelInitializer(this.codeC, new RpcServiceHandler(this.serviceInstanceMap)));
     }
 
     public String ip() {

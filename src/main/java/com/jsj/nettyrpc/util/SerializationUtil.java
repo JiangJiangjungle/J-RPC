@@ -8,11 +8,12 @@ import com.dyuproject.protostuff.runtime.RuntimeSchema;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
+import java.io.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 序列化工具类（提供 JSON 和 Protostuff 2种实现）
+ * 序列化工具类（提供 Java原生、JSON 和 Protostuff 3种序列化/反序列化实现）
  *
  * @author jsj
  * @date 2018-11-4
@@ -30,7 +31,7 @@ public class SerializationUtil {
      * 基于 Protostuff 序列化（对象 -> 字节数组）
      */
     @SuppressWarnings("unchecked")
-    public static <T> byte[] serializeByProtostuff(T obj) {
+    public static <T> byte[] serializeWithProtostuff(T obj) {
         Class<T> cls = (Class<T>) obj.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
@@ -46,7 +47,7 @@ public class SerializationUtil {
     /**
      * 基于 Protostuff 反序列化（字节数组 -> 对象）
      */
-    public static <T> T deserializeByProtostuff(byte[] data, Class<T> cls) {
+    public static <T> T deserializeWithProtostuff(byte[] data, Class<T> cls) {
         try {
             T message = objenesis.newInstance(cls);
             Schema<T> schema = getSchema(cls);
@@ -60,7 +61,7 @@ public class SerializationUtil {
     /**
      * 基于 JSON 序列化（对象 -> 字节数组）
      */
-    public static <T> byte[] serializeByJSON(T obj) {
+    public static <T> byte[] serializeWithJSON(T obj) {
         //使用fastJSON进行序列化
         return JSON.toJSONBytes(obj);
     }
@@ -68,8 +69,28 @@ public class SerializationUtil {
     /**
      * 基于 JSON 反序列化（字节数组 -> 对象）
      */
-    public static <T> T deserializeByJSON(byte[] data, Class<T> cls) {
+    public static <T> T deserializeWithJSON(byte[] data, Class<T> cls) {
         return JSON.parseObject(data, cls);
+    }
+
+    /**
+     * 基于 原生 序列化（对象 -> 字节数组）
+     */
+    public static <T> byte[] serializeWithJDK(T obj) throws IOException {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(os)) {
+            oos.writeObject(obj);
+            oos.flush();
+            return os.toByteArray();
+        }
+    }
+
+    /**
+     * 基于 原生 反序列化（字节数组 -> 对象）
+     */
+    public static <T> T deserializeWithJDK(byte[] data) throws ClassNotFoundException, IOException {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(data); ObjectInputStream ois = new ObjectInputStream(bis)) {
+            return (T) ois.readObject();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -81,4 +102,6 @@ public class SerializationUtil {
         }
         return schema;
     }
+
+
 }

@@ -9,21 +9,31 @@ import io.netty.handler.codec.MessageToByteEncoder;
 /**
  * RPC 编码器
  *
- * @author huangyong
- * @since 1.0.0
+ * @author jsj
+ * @date 2018-11-6
  */
 public class RpcEncoder extends MessageToByteEncoder {
 
     private Class<?> genericClass;
 
-    public RpcEncoder(Class<?> genericClass) {
+    private CodeStrategy strategy;
+
+    public RpcEncoder(Class<?> genericClass, CodeStrategy strategy) {
         this.genericClass = genericClass;
+        this.strategy = strategy;
     }
 
     @Override
     public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws Exception {
         if (genericClass.isInstance(in)) {
-            byte[] data = SerializationUtil.serializeByProtostuff(in);
+            byte[] data;
+            if (CodeStrategy.JDK == strategy) {
+                data = SerializationUtil.serializeWithJDK(in);
+            } else if (CodeStrategy.JSON == strategy) {
+                data = SerializationUtil.serializeWithJSON(in);
+            } else {
+                data = SerializationUtil.serializeWithProtostuff(in);
+            }
             out.writeInt(data.length);
             out.writeBytes(data);
         }

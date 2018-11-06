@@ -2,6 +2,7 @@ package com.jsj.nettyrpc.common.client;
 
 import com.jsj.nettyrpc.common.RpcResponse;
 import com.jsj.nettyrpc.common.RpcFuture;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author jsj
  * @date 2018-10-4
  */
+@ChannelHandler.Sharable
 public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);

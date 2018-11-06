@@ -5,6 +5,7 @@ import com.jsj.nettyrpc.common.RpcResponse;
 import com.jsj.nettyrpc.common.RpcStateCode;
 import com.jsj.nettyrpc.util.StringUtil;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.sf.cglib.reflect.FastClass;
@@ -22,6 +23,7 @@ import java.util.Map;
  * @author jsj
  * @date 2018-10-8
  */
+@ChannelHandler.Sharable
 public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServiceHandler.class);
 
@@ -48,7 +50,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
                 //结果添加到响应
                 response.setServiceResult(serviceResult);
             } catch (Exception e) {
-                LOGGER.debug("request:{},handle failure:{}",request, e);
+                LOGGER.debug("request:{},handle failure:{}", request, e);
                 response.setErrorMsg(String.format("errorCode: %s, state: %s, cause: %s", RpcStateCode.FAIL.getCode(),
                         RpcStateCode.FAIL.getValue(), e.getMessage()));
             }

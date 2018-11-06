@@ -1,5 +1,6 @@
 package com.jsj.config;
 
+import com.jsj.nettyrpc.codec.CodeStrategy;
 import com.jsj.nettyrpc.common.client.RpcProxy;
 import com.jsj.nettyrpc.registry.ServiceDiscovery;
 import com.jsj.nettyrpc.registry.impl.ZookeeperDiscovery;
@@ -14,13 +15,13 @@ public class RpcConfig {
 
     @Bean
     public ServiceDiscovery initServiceDiscovery() {
-        host = "127.0.0.1";
+        host = "119.23.204.78";
         String port = "2181";
         return new ZookeeperDiscovery(host + ":" + port);
     }
 
     @Bean
     public RpcProxy initRpcProxy(@Autowired ServiceDiscovery serviceDiscovery) {
-        return new RpcProxy(serviceDiscovery);
+        return new RpcProxy(serviceDiscovery, CodeStrategy.JSON);
     }
 }

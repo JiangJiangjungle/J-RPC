@@ -1,8 +1,7 @@
 package com.jsj.nettyrpc.common.client;
 
 
-import com.jsj.nettyrpc.codec.RpcDecoder;
-import com.jsj.nettyrpc.codec.RpcEncoder;
+import com.jsj.nettyrpc.codec.*;
 import com.jsj.nettyrpc.common.NamedThreadFactory;
 import com.jsj.nettyrpc.common.RpcFuture;
 import com.jsj.nettyrpc.common.RpcRequest;
@@ -51,32 +50,28 @@ public class RpcClient {
     private Bootstrap bootstrap = new Bootstrap().group(group).channel(NioSocketChannel.class)
             .option(ChannelOption.TCP_NODELAY, true);
 
-    public RpcClient(String targetIP, int targetPort) {
+    /**
+     * 编解码方案
+     *
+     * @param targetIP
+     * @param targetPort
+     */
+    private CodeC codeC;
+
+    public RpcClient(String targetIP, int targetPort, CodeStrategy codeSrategy) {
         this.targetIP = targetIP;
         this.targetPort = targetPort;
+        this.codeC = new DefaultCodeC(RpcRequest.class, RpcResponse.class, codeSrategy);
+        this.init();
     }
 
-    public void init() throws Exception {
-        //创建重连监听器
-        ReConnectionListener reconnectionListener = new ReConnectionListener(bootstrap, targetIP, targetPort, connection);
-        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            public void initChannel(SocketChannel channel) throws Exception {
-                ChannelPipeline pipeline = channel.pipeline();
-                //
-                pipeline.addLast(new IdleStateHandler(10, 5, 0, TimeUnit.SECONDS))
-                        //出方向编码
-                        .addLast(new RpcEncoder(RpcRequest.class))
-                        //入方向解码
-                        .addLast(new RpcDecoder(RpcResponse.class))
-                        //前置连接监视处理器
-                        .addLast(new ConnectionWatchDog(reconnectionListener))
-                        //业务处理
-                        .addLast(new ClientHandler(futureMap));
-            }
-        });
-        Channel channel = doCreateConnection(this.targetIP, this.targetPort, Connection.DEFAULT_CONNECT_TIMEOUT);
-        connection.bind(channel);
+    public RpcClient(String targetIP, int targetPort) {
+        this(targetIP, targetPort, CodeStrategy.DEAULT);
+    }
+
+    public void init() {
+        ReConnectionListener reConnectionListener = new ReConnectionListener(bootstrap, targetIP, targetPort, connection);
+        bootstrap.handler(new ClientChannelInitializer(this.codeC, new ConnectionWatchDog(reConnectionListener), new ClientHandler(futureMap)));
     }
 
     /**

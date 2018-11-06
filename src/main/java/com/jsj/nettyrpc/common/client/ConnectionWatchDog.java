@@ -2,20 +2,17 @@ package com.jsj.nettyrpc.common.client;
 
 import com.jsj.nettyrpc.common.RpcRequest;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.*;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
 
 /**
  * @author jsj
  * @date 2018-10-24
  */
+@ChannelHandler.Sharable
 public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWatchDog.class);
     private ReConnectionListener reConnectionListener;

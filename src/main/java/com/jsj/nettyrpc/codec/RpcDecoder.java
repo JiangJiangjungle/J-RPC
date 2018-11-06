@@ -11,15 +11,18 @@ import java.util.List;
 /**
  * RPC 解码器
  *
- * @author huangyong
- * @since 1.0.0
+ * @author jsj
+ * @date 2018-11-6
  */
 public class RpcDecoder extends ByteToMessageDecoder {
 
     private Class<?> genericClass;
 
-    public RpcDecoder(Class<?> genericClass) {
+    private CodeStrategy strategy;
+
+    public RpcDecoder(Class<?> genericClass, CodeStrategy strategy) {
         this.genericClass = genericClass;
+        this.strategy = strategy;
     }
 
     @Override
@@ -35,6 +38,12 @@ public class RpcDecoder extends ByteToMessageDecoder {
         }
         byte[] data = new byte[dataLength];
         in.readBytes(data);
-        out.add(SerializationUtil.deserializeByProtostuff(data, genericClass));
+        if (CodeStrategy.JDK == strategy) {
+            out.add(SerializationUtil.deserializeWithJDK(data));
+        } else if (CodeStrategy.JSON == strategy) {
+            out.add(SerializationUtil.deserializeWithJSON(data, genericClass));
+        } else {
+            out.add(SerializationUtil.deserializeWithProtostuff(data, genericClass));
+        }
     }
 }
