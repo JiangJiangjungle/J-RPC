@@ -24,7 +24,7 @@ public class RpcConfig {
     public RpcServer initRpcServer(@Autowired ServiceRegistry serviceRegistry) {
         host = "127.0.0.1";
         int port = 6666;
-        return new RpcServer(host, port, serviceRegistry, CodeStrategy.JSON);
+        return new RpcServer(host, port, serviceRegistry, CodeStrategy.JDK);
     }
 
 
