@@ -1,28 +1,26 @@
 package com.jsj.nettyrpc.common.server;
 
 import com.jsj.nettyrpc.RpcService;
-import com.jsj.nettyrpc.codec.*;
+import com.jsj.nettyrpc.codec.CodeC;
+import com.jsj.nettyrpc.codec.CodeStrategy;
+import com.jsj.nettyrpc.codec.DefaultCodeC;
 import com.jsj.nettyrpc.common.NamedThreadFactory;
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
 import com.jsj.nettyrpc.registry.ServiceRegistry;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +30,7 @@ import java.util.Map;
  * @author jsj
  * @date 2018-10-8
  */
-public class RpcServer implements ApplicationContextAware, InitializingBean {
+public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
 
@@ -84,38 +82,48 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
     }
 
     /**
-     * 初始化bean初始化完成后调用：扫描带有 RpcService 注解的服务并添加到 handlerMap ，并进行服务注册
+     * 添加监听，用于扫描服务并启动server
      *
      * @throws Exception
      */
+
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        //扫描带有 RpcService 注解的类并初始化 handlerMap 对象
-        Map<String, Object> serviceBeanMap = applicationContext.getBeansWithAnnotation(RpcService.class);
-        //注册
-        this.registerAllService(serviceBeanMap);
+    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        LOGGER.info("调用了onApplicationEvent！");
+        ApplicationContext applicationContext = contextRefreshedEvent.getApplicationContext();
+        //root application context 保证只执行一次
+        if (applicationContext.getParent() == null) {
+            LOGGER.info("root application context 调用了onApplicationEvent！");
+            //扫描带有 RpcService 注解的类并初始化 handlerMap 对象
+            Map<String, Object> serviceBeanMap = applicationContext.getBeansWithAnnotation(RpcService.class);
+            //注册
+            this.registerAllService(serviceBeanMap);
+            //启动server
+            this.doRunServer();
+        }
     }
 
     /**
-     * 初始化bean时调用：启动 Netty RPC服务器服务端
-     *
-     * @throws Exception
+     * 启动 Netty RPC服务器服务端
      */
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        try {
-            //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
-            ServerBootstrap serverBootstrap = this.initServerBootstrap(this.bossGroup, this.workerGroup);
-            //绑定对应ip和端口，同步等待成功
-            ChannelFuture future = serverBootstrap.bind(ip, port).sync();
-            LOGGER.info("rpc server 已启动，端口：{}", port);
-            //等待服务端监听端口关闭
-            future.channel().closeFuture().sync();
-        } finally {
-            //优雅退出，释放 NIO 线程组
-            this.workerGroup.shutdownGracefully();
-            this.bossGroup.shutdownGracefully();
-        }
+    private void doRunServer() {
+        new Thread((Runnable) () -> {
+            try {
+                //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
+                ServerBootstrap serverBootstrap = this.initServerBootstrap(this.bossGroup, this.workerGroup);
+                //绑定对应ip和端口，同步等待成功
+                ChannelFuture future = serverBootstrap.bind(ip, port).sync();
+                LOGGER.info("rpc server 已启动，端口：{}", port);
+                //等待服务端监听端口关闭
+                future.channel().closeFuture().sync();
+            } catch (InterruptedException i) {
+                LOGGER.error("rpc server 出现异常，端口：{}, cause:", port, i.getMessage());
+            } finally {
+                //优雅退出，释放 NIO 线程组
+                this.workerGroup.shutdownGracefully();
+                this.bossGroup.shutdownGracefully();
+            }
+        }, "rpc-server-thread").start();
     }
 
     /**
@@ -123,7 +131,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
      */
     private void registerAllService(Map<String, Object> serviceBeanMap) {
         if (MapUtils.isEmpty(serviceBeanMap)) {
-            return;
+            LOGGER.debug("需要注册的 service 为空!");
         }
         RpcService rpcService;
         String serviceName;

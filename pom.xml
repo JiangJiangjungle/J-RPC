@@ -38,12 +38,6 @@
             <artifactId>spring-context</artifactId>
             <version>${version.spring}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${version.spring}</version>
-            <scope>test</scope>
-        </dependency>
         <!-- Netty -->
         <dependency>
             <groupId>io.netty</groupId>
