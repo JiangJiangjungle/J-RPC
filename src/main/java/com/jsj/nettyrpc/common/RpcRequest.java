@@ -3,6 +3,8 @@ package com.jsj.nettyrpc.common;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 封装 RPC 请求
  *
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class RpcRequest {
+public class RpcRequest implements Serializable {
 
     private boolean heartBeat;
     /**

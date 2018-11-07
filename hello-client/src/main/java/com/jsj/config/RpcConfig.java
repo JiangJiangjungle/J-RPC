@@ -22,6 +22,6 @@ public class RpcConfig {
 
     @Bean
     public RpcProxy initRpcProxy(@Autowired ServiceDiscovery serviceDiscovery) {
-        return new RpcProxy(serviceDiscovery, CodeStrategy.JSON);
+        return new RpcProxy(serviceDiscovery, CodeStrategy.JDK);
     }
 }
