@@ -1,8 +1,5 @@
 package com.jsj.nettyrpc.common;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 
 /**
