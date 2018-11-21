@@ -42,7 +42,7 @@ public class RpcClient {
     /**
      * 配置客户端 NIO 线程组
      */
-    private EventLoopGroup group = new NioEventLoopGroup(1, new NamedThreadFactory(
+    private EventLoopGroup group = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2, new NamedThreadFactory(
             "Rpc-netty-client", false));
     /**
      * 创建并初始化 Netty 客户端 Bootstrap 对象
