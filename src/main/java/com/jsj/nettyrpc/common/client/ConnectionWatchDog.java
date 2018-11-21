@@ -7,13 +7,18 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @author jsj
  * @date 2018-10-24
  */
 @ChannelHandler.Sharable
-public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
+public class ConnectionWatchDog extends ChannelInboundHandlerAdapter implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWatchDog.class);
     private ReConnectionListener listener;
 
@@ -29,7 +34,7 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.debug("链接关闭，将进行重连.");
-        reConn(Connection.DEFAULT_CONNECT_TIMEOUT);
+        ctx.channel().eventLoop().schedule(this, 3L, TimeUnit.SECONDS);
         ctx.fireChannelInactive();
     }
 
@@ -72,5 +77,10 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
         ChannelFuture future = bootstrap.connect(targetIP, port);
         future.addListener(listener);
+    }
+
+    @Override
+    public void run() {
+        reConn(Connection.DEFAULT_CONNECT_TIMEOUT);
     }
 }
