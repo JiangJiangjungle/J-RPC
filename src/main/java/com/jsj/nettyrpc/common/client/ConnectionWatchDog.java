@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
 @ChannelHandler.Sharable
 public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWatchDog.class);
-    private ReConnectionListener reConnectionListener;
+    private ReConnectionListener listener;
 
     public ConnectionWatchDog(ReConnectionListener reConnectionListener) {
-        this.reConnectionListener = reConnectionListener;
+        this.listener = reConnectionListener;
     }
 
     @Override
@@ -60,17 +60,17 @@ public class ConnectionWatchDog extends ChannelInboundHandlerAdapter {
     }
 
     private void closeChannel(ChannelHandlerContext ctx) {
-        Connection connection = reConnectionListener.getConnection();
+        Connection connection = listener.getConnection();
         connection.delete();
         ctx.close();
     }
 
     private void reConn(int connectTimeout) {
-        String targetIP = reConnectionListener.getTargetIP();
-        int port = reConnectionListener.getPort();
-        Bootstrap bootstrap = reConnectionListener.getBootstrap();
+        String targetIP = listener.getTargetIP();
+        int port = listener.getPort();
+        Bootstrap bootstrap = listener.getBootstrap();
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
         ChannelFuture future = bootstrap.connect(targetIP, port);
-        future.addListener(reConnectionListener);
+        future.addListener(listener);
     }
 }

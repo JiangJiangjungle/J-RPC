@@ -1,14 +1,12 @@
 package com.jsj.nettyrpc.common.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelPipeline;
+import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,14 +32,13 @@ public class ReConnectionListener implements ChannelFutureListener {
 
     @Override
     public void operationComplete(ChannelFuture channelFuture) throws Exception {
+        Channel channel = channelFuture.channel();
         if (channelFuture.isSuccess()) {
-            Channel channel = channelFuture.channel();
             LOGGER.info("重连接成功: {}", channel);
             //重新绑定channel
             connection.bind(channel);
         } else {
             connection.addRetryCount();
-            Channel channel = channelFuture.channel();
             if (connection.getCount() < Connection.DEFAULT_RECONNECT_TRY) {
                 ChannelPipeline channelPipeline = channel.pipeline();
                 channelPipeline.fireChannelInactive();
