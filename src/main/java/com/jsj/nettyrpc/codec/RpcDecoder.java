@@ -40,12 +40,6 @@ public class RpcDecoder extends ByteToMessageDecoder {
 //        }
         byte[] data = new byte[dataLength];
         in.readBytes(data);
-        if (CodeStrategy.JDK == strategy) {
-            out.add(SerializationUtil.deserializeWithJDK(data));
-        } else if (CodeStrategy.JSON == strategy) {
-            out.add(SerializationUtil.deserializeWithJSON(data, genericClass));
-        } else {
-            out.add(SerializationUtil.deserializeWithProtostuff(data, genericClass));
-        }
+        out.add(SerializationUtil.deserialize(data,genericClass,strategy));
     }
 }

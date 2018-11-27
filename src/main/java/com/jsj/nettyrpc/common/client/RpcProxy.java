@@ -2,7 +2,6 @@ package com.jsj.nettyrpc.common.client;
 
 
 import com.jsj.nettyrpc.codec.CodeStrategy;
-import com.jsj.nettyrpc.codec.DefaultCodeC;
 import com.jsj.nettyrpc.common.RpcFuture;
 import com.jsj.nettyrpc.common.RpcRequest;
 import com.jsj.nettyrpc.common.RpcResponse;
@@ -59,7 +58,7 @@ public class RpcProxy {
     }
 
     /**
-     * 获取RPC service的代理对象
+     * 获取RPC service的代理对象，用于同步调用
      *
      * @param interfaceClass
      * @return

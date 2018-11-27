@@ -26,14 +26,7 @@ public class RpcEncoder extends MessageToByteEncoder {
     @Override
     public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws Exception {
         if (genericClass.isInstance(in)) {
-            byte[] data;
-            if (CodeStrategy.JDK == strategy) {
-                data = SerializationUtil.serializeWithJDK(in);
-            } else if (CodeStrategy.JSON == strategy) {
-                data = SerializationUtil.serializeWithJSON(in);
-            } else {
-                data = SerializationUtil.serializeWithProtostuff(in);
-            }
+            byte[] data = SerializationUtil.serialize(in, strategy);
             out.writeInt(data.length);
             out.writeBytes(data);
         }

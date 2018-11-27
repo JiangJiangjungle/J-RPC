@@ -5,6 +5,7 @@ import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.Schema;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
+import com.jsj.nettyrpc.codec.CodeStrategy;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -44,6 +45,39 @@ public class SerializationUtil {
         }
     }
 
+
+    /**
+     * 基于 JSON 序列化（对象 -> 字节数组）
+     */
+    public static <T> byte[] serializeWithJSON(T obj) {
+        //使用fastJSON进行序列化
+        return JSON.toJSONBytes(obj);
+    }
+
+    /**
+     * 基于 原生 序列化（对象 -> 字节数组）
+     */
+    public static <T> byte[] serializeWithJDK(T obj) throws IOException {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(os)) {
+            oos.writeObject(obj);
+            oos.flush();
+            return os.toByteArray();
+        }
+    }
+
+    /**
+     * 基于 JSON 序列化（对象 -> 字节数组）
+     */
+    public static <T> byte[] serialize(T obj,CodeStrategy codeStrategy) throws IOException{
+        if (CodeStrategy.JDK == codeStrategy) {
+            return SerializationUtil.serializeWithJDK(obj);
+        } else if (CodeStrategy.JSON == codeStrategy) {
+            return SerializationUtil.serializeWithJSON(obj);
+        } else {
+            return SerializationUtil.serializeWithProtostuff(obj);
+        }
+    }
+
     /**
      * 基于 Protostuff 反序列化（字节数组 -> 对象）
      */
@@ -59,29 +93,10 @@ public class SerializationUtil {
     }
 
     /**
-     * 基于 JSON 序列化（对象 -> 字节数组）
-     */
-    public static <T> byte[] serializeWithJSON(T obj) {
-        //使用fastJSON进行序列化
-        return JSON.toJSONBytes(obj);
-    }
-
-    /**
      * 基于 JSON 反序列化（字节数组 -> 对象）
      */
     public static <T> T deserializeWithJSON(byte[] data, Class<T> cls) {
         return JSON.parseObject(data, cls);
-    }
-
-    /**
-     * 基于 原生 序列化（对象 -> 字节数组）
-     */
-    public static <T> byte[] serializeWithJDK(T obj) throws IOException {
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(os)) {
-            oos.writeObject(obj);
-            oos.flush();
-            return os.toByteArray();
-        }
     }
 
     /**
@@ -90,6 +105,19 @@ public class SerializationUtil {
     public static <T> T deserializeWithJDK(byte[] data) throws ClassNotFoundException, IOException {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(data); ObjectInputStream ois = new ObjectInputStream(bis)) {
             return (T) ois.readObject();
+        }
+    }
+
+    /**
+     * 反序列化（字节数组 -> 对象）
+     */
+    public static <T> T deserialize(byte[] data, Class<T> cls, CodeStrategy codeStrategy) throws ClassNotFoundException, IOException {
+        if (CodeStrategy.JDK == codeStrategy) {
+            return SerializationUtil.deserializeWithJDK(data);
+        } else if (CodeStrategy.JSON == codeStrategy) {
+            return SerializationUtil.deserializeWithJSON(data, cls);
+        } else {
+            return SerializationUtil.deserializeWithProtostuff(data, cls);
         }
     }
 
