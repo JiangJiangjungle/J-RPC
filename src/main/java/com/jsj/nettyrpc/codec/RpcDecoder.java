@@ -28,14 +28,14 @@ public class RpcDecoder extends ByteToMessageDecoder {
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         if (in.readableBytes() < 4) {
-            return;
+            throw new Exception("消息格式错误！");
         }
-        in.markReaderIndex();
+//        in.markReaderIndex();
         int dataLength = in.readInt();
-        if (in.readableBytes() < dataLength) {
-            in.resetReaderIndex();
-            return;
-        }
+//        if (in.readableBytes() < dataLength) {
+//            in.resetReaderIndex();
+//            return;
+//        }
         byte[] data = new byte[dataLength];
         in.readBytes(data);
         if (CodeStrategy.JDK == strategy) {
