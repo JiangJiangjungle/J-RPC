@@ -20,6 +20,8 @@ public class RpcDecoder extends ByteToMessageDecoder {
 
     private CodeStrategy strategy;
 
+    public static int DEFAULT_LENGTH_FIELD_OFFSET=4;
+
     public RpcDecoder(Class<?> genericClass, CodeStrategy strategy) {
         this.genericClass = genericClass;
         this.strategy = strategy;
@@ -27,7 +29,7 @@ public class RpcDecoder extends ByteToMessageDecoder {
 
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        if (in.readableBytes() < 4) {
+        if (in.readableBytes() < DEFAULT_LENGTH_FIELD_OFFSET) {
             throw new Exception("消息格式错误！");
         }
 //        in.markReaderIndex();
