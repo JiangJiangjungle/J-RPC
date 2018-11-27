@@ -16,9 +16,9 @@ import java.util.List;
  */
 public class RpcDecoder extends ByteToMessageDecoder {
 
-    private Class<?> genericClass;
+    private final Class<?> genericClass;
 
-    private CodeStrategy strategy;
+    private final CodeStrategy strategy;
 
     public static int DEFAULT_LENGTH_FIELD_OFFSET=4;
 

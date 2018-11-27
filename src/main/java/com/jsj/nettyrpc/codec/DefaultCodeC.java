@@ -9,10 +9,10 @@ import io.netty.channel.ChannelHandler;
  * @date 2018-11-6
  */
 public class DefaultCodeC implements CodeC {
-    private Class<?> encoderClass;
-    private Class<?> decoderClass;
+    private final Class<?> encoderClass;
+    private final Class<?> decoderClass;
 
-    private CodeStrategy strategy;
+    private final CodeStrategy strategy;
 
     public DefaultCodeC(Class<?> encoderClass, Class<?> decoderClass) {
         this(encoderClass, decoderClass, CodeStrategy.DEAULT);

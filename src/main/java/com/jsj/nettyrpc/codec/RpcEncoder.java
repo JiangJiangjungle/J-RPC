@@ -14,9 +14,9 @@ import io.netty.handler.codec.MessageToByteEncoder;
  */
 public class RpcEncoder extends MessageToByteEncoder {
 
-    private Class<?> genericClass;
+    private final Class<?> genericClass;
 
-    private CodeStrategy strategy;
+    private final CodeStrategy strategy;
 
     public RpcEncoder(Class<?> genericClass, CodeStrategy strategy) {
         this.genericClass = genericClass;
