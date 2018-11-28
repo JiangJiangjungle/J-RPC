@@ -50,6 +50,7 @@ public class RpcClient {
      * 创建并初始化 Netty 客户端 Bootstrap 对象
      */
     private static Bootstrap bootstrap = new Bootstrap().group(group).channel(NioSocketChannel.class)
+            //禁用nagle算法
             .option(ChannelOption.TCP_NODELAY, true);
 
     /**

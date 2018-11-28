@@ -20,7 +20,7 @@ public class RpcDecoder extends ByteToMessageDecoder {
 
     private final CodeStrategy strategy;
 
-    public static int DEFAULT_LENGTH_FIELD_OFFSET=4;
+    public static int DEFAULT_LENGTH_FIELD_OFFSET = 4;
 
     public RpcDecoder(Class<?> genericClass, CodeStrategy strategy) {
         this.genericClass = genericClass;
@@ -32,14 +32,16 @@ public class RpcDecoder extends ByteToMessageDecoder {
         if (in.readableBytes() < DEFAULT_LENGTH_FIELD_OFFSET) {
             throw new Exception("消息格式错误！");
         }
-//        in.markReaderIndex();
+        //标记当前的readIndex的位置
+        in.markReaderIndex();
         int dataLength = in.readInt();
-//        if (in.readableBytes() < dataLength) {
-//            in.resetReaderIndex();
-//            return;
-//        }
+        //消息体长度如果小于传送过来的消息长度，则resetReaderIndex，把readIndex重置到mark的地方
+        if (in.readableBytes() < dataLength) {
+            in.resetReaderIndex();
+            return;
+        }
         byte[] data = new byte[dataLength];
         in.readBytes(data);
-        out.add(SerializationUtil.deserialize(data,genericClass,strategy));
+        out.add(SerializationUtil.deserialize(data, genericClass, strategy));
     }
 }
