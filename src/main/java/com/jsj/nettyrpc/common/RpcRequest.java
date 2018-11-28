@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author jsj
  * @date 2018-10-9
  */
-public class RpcRequest implements Serializable {
+public class RpcRequest extends Body implements Serializable {
 
     private boolean heartBeat;
     /**
