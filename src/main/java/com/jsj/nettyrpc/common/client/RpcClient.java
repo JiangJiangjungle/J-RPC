@@ -37,17 +37,19 @@ public class RpcClient {
      */
     private Connection connection = new Connection();
 
-    private ConcurrentHashMap<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>();
+
+    private static ChannelHandler clientHandler = new ClientHandler(RpcClient.futureMap);
 
     /**
      * 配置客户端 NIO 线程组
      */
-    private EventLoopGroup group = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2, new NamedThreadFactory(
+    private static EventLoopGroup group = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2, new NamedThreadFactory(
             "Rpc-netty-client", false));
     /**
      * 创建并初始化 Netty 客户端 Bootstrap 对象
      */
-    private Bootstrap bootstrap = new Bootstrap().group(group).channel(NioSocketChannel.class)
+    private static Bootstrap bootstrap = new Bootstrap().group(group).channel(NioSocketChannel.class)
             .option(ChannelOption.TCP_NODELAY, true);
 
     /**
@@ -71,7 +73,7 @@ public class RpcClient {
 
     public void init() {
         ReConnectionListener reConnectionListener = new ReConnectionListener(bootstrap, targetIP, targetPort, connection);
-        bootstrap.handler(new ClientChannelInitializer(this.codeC, new ConnectionWatchDog(reConnectionListener), new ClientHandler(futureMap)));
+        RpcClient.bootstrap.handler(new ClientChannelInitializer(this.codeC, new ConnectionWatchDog(reConnectionListener), clientHandler));
     }
 
     /**
@@ -97,7 +99,7 @@ public class RpcClient {
         //注册到futureMap
         Integer requestId = request.getRequestId();
         RpcFuture future = new RpcFuture(requestId);
-        this.futureMap.put(requestId, future);
+        RpcClient.futureMap.put(requestId, future);
         //发出请求，并直接返回
         this.getChannel().writeAndFlush(request);
         return future;
@@ -109,11 +111,8 @@ public class RpcClient {
             channel = doCreateConnection(this.targetIP, this.targetPort, Connection.DEFAULT_CONNECT_TIMEOUT);
             connection.bind(channel);
         }
-        while (!channel.isActive() && connection.getCount() < Connection.DEFAULT_RECONNECT_TRY) {
-            channel = connection.get();
-        }
         //重连失败则抛出异常
-        if (!channel.isActive() && connection.getCount() == Connection.DEFAULT_RECONNECT_TRY) {
+        if (!channel.isActive()) {
             throw new ConnectTimeoutException();
         }
         return channel;
@@ -135,7 +134,7 @@ public class RpcClient {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("connectTimeout of address [{}] is [{}].", address, connectTimeout);
         }
-        this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
+        RpcClient.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
         //连接到远程节点，阻塞等待直到连接完成
         ChannelFuture future = bootstrap.connect(targetIP, targetPort);
         future.awaitUninterruptibly();
