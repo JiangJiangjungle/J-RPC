@@ -1,9 +1,8 @@
 package com.jsj.config;
 
-import com.jsj.nettyrpc.codec.CodeStrategy;
-import com.jsj.nettyrpc.common.server.RpcServer;
-import com.jsj.nettyrpc.registry.ServiceRegistry;
-import com.jsj.nettyrpc.registry.impl.ZooKeeperRegistry;
+import com.jsj.rpc.server.RpcServer;
+import com.jsj.rpc.registry.ServiceRegistry;
+import com.jsj.rpc.registry.impl.ZooKeeperRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +23,7 @@ public class RpcConfig {
     public RpcServer initRpcServer(@Autowired ServiceRegistry serviceRegistry) {
         host = "127.0.0.1";
         int port = 6666;
-        return new RpcServer(host, port, serviceRegistry, CodeStrategy.JDK);
+        return new RpcServer(host, port, serviceRegistry);
     }
 
 

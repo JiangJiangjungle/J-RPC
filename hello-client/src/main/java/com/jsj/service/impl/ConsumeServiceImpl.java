@@ -1,9 +1,9 @@
 package com.jsj.service.impl;
 
 
-import com.jsj.nettyrpc.common.RpcResponse;
-import com.jsj.nettyrpc.common.RpcFuture;
-import com.jsj.nettyrpc.common.client.RpcProxy;
+import com.jsj.rpc.common.RpcResponse;
+import com.jsj.rpc.common.RpcFuture;
+import com.jsj.rpc.client.RpcProxy;
 import com.jsj.service.HelloService;
 import com.jsj.service.ConsumeService;
 import org.springframework.beans.factory.annotation.Autowired;
