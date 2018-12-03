@@ -10,20 +10,12 @@ import org.slf4j.LoggerFactory;
  * @date 2018-10-24
  */
 public class ReConnectionListener implements ChannelFutureListener {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ReConnectionListener.class);
+    private final HeartBeatConnectionHolder connectionHolder;
 
-    private final Bootstrap bootstrap;
-    private final String targetIP;
-    private final int port;
 
-    private Connection connection;
-
-    public ReConnectionListener(Bootstrap bootstrap, String targetIP, int port, Connection connection) {
-        this.bootstrap = bootstrap;
-        this.targetIP = targetIP;
-        this.port = port;
-        this.connection = connection;
+    public ReConnectionListener(HeartBeatConnectionHolder connectionHolder) {
+        this.connectionHolder = connectionHolder;
     }
 
     @Override
@@ -32,34 +24,21 @@ public class ReConnectionListener implements ChannelFutureListener {
         if (channelFuture.isSuccess()) {
             LOGGER.info("重连接成功: {}", channel);
             //重新绑定channel
-            connection.bind(channel);
+            connectionHolder.bind(channel);
         } else {
-            connection.addRetryCount();
-            if (connection.getCount() < Connection.DEFAULT_RECONNECT_TRY) {
+            connectionHolder.addRetryCount();
+            System.out.println("ReConnectionListener count: " + connectionHolder.getCount());
+            if (connectionHolder.getCount() < HeartBeatConnectionHolder.DEFAULT_RECONNECT_TRY) {
                 ChannelPipeline channelPipeline = channel.pipeline();
                 channelPipeline.fireChannelInactive();
             } else {
-                LOGGER.debug("重连失败，且已经达到最大重试次数:{},不再进行重试!", Connection.DEFAULT_RECONNECT_TRY);
-                connection.delete();
+                LOGGER.debug("重连失败，且已经达到最大重试次数:{},不再进行重试!", HeartBeatConnectionHolder.DEFAULT_RECONNECT_TRY);
+                connectionHolder.unbind();
             }
         }
     }
 
-    public Bootstrap getBootstrap() {
-        return bootstrap;
+    public HeartBeatConnectionHolder getConnectionHolder() {
+        return connectionHolder;
     }
-
-    public String getTargetIP() {
-        return targetIP;
-    }
-
-
-    public int getPort() {
-        return port;
-    }
-
-    public Connection getConnection() {
-        return connection;
-    }
-
 }

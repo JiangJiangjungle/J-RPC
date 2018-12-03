@@ -48,14 +48,17 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
+        Channel channel = ctx.channel();
+        //只检查心跳连接
+        if (evt instanceof IdleStateEvent && listener.getConnectionHolder().getChannel() == channel) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             switch (idleStateEvent.state()) {
                 case READER_IDLE:
+                    LOGGER.debug("发送心跳包，channel：{}", channel);
                     closeChannel(ctx);
                     break;
                 case WRITER_IDLE:
-                    LOGGER.debug("发送心跳包，channel：{}", ctx.channel());
+                    LOGGER.debug("发送心跳包，channel：{}", channel);
                     ctx.writeAndFlush(MessageUtil.buildHeartBeatRequest());
                     break;
                 default:
@@ -67,22 +70,21 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
     }
 
     private void closeChannel(ChannelHandlerContext ctx) {
-        Connection connection = listener.getConnection();
-        connection.delete();
+        HeartBeatConnectionHolder connectionHolder = listener.getConnectionHolder();
+        connectionHolder.unbind();
         ctx.close();
     }
 
     private void reConn(int connectTimeout) {
-        String targetIP = listener.getTargetIP();
-        int port = listener.getPort();
-        Bootstrap bootstrap = listener.getBootstrap();
+        HeartBeatConnectionHolder holder = listener.getConnectionHolder();
+        Bootstrap bootstrap = holder.getBootstrap();
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
-        ChannelFuture future = bootstrap.connect(targetIP, port);
+        ChannelFuture future = bootstrap.connect(holder.getTargetIP(), holder.getPort());
         future.addListener(listener);
     }
 
     @Override
     public void run() {
-        reConn(Connection.DEFAULT_CONNECT_TIMEOUT);
+        reConn(HeartBeatConnectionHolder.DEFAULT_CONNECT_TIMEOUT);
     }
 }

@@ -1,6 +1,8 @@
 package com.jsj.rpc.common;
 
 
+import com.jsj.rpc.client.RpcProxy;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -37,12 +39,12 @@ public class RpcFuture implements Future<RpcResponse> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        return false;
+        return RpcProxy.FUTURE_MAP.remove(requestId) != null;
     }
 
     @Override
     public boolean isCancelled() {
-        return false;
+        return !RpcProxy.FUTURE_MAP.containsKey(requestId);
     }
 
     @Override

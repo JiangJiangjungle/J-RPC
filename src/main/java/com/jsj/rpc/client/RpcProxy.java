@@ -1,11 +1,13 @@
 package com.jsj.rpc.client;
 
 
+import com.jsj.rpc.RpcStateCode;
+import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.CodeStrategy;
+import com.jsj.rpc.codec.DefaultCodeC;
 import com.jsj.rpc.common.RpcFuture;
 import com.jsj.rpc.common.RpcRequest;
 import com.jsj.rpc.common.RpcResponse;
-import com.jsj.rpc.RpcStateCode;
 import com.jsj.rpc.exception.RpcErrorException;
 import com.jsj.rpc.exception.RpcServiceNotFoundException;
 import com.jsj.rpc.registry.ServiceDiscovery;
@@ -32,7 +34,10 @@ public class RpcProxy {
 
     private ServiceDiscovery serviceDiscovery;
 
+    public static int MAP_CAPACITY = 1 << 10;
+    public static float LOAD_FACTOR = 0.95f;
     private AtomicInteger requestId = new AtomicInteger(0);
+    public static final ConcurrentHashMap<Integer, RpcFuture> FUTURE_MAP = new ConcurrentHashMap<>(MAP_CAPACITY, LOAD_FACTOR);
 
     /**
      * rpc service代理对象列表(用于客户端的同步调用),避免重复创建
@@ -52,7 +57,7 @@ public class RpcProxy {
     /**
      * 编解码选项
      */
-    private final CodeStrategy codeStrategy;
+    private final CodeC codec;
 
     public RpcProxy(ServiceDiscovery serviceDiscovery) {
         this(serviceDiscovery, CodeStrategy.DEAULT);
@@ -60,7 +65,7 @@ public class RpcProxy {
 
     public RpcProxy(ServiceDiscovery serviceDiscovery, CodeStrategy codeStrategy) {
         this.serviceDiscovery = serviceDiscovery;
-        this.codeStrategy = codeStrategy;
+        this.codec = new DefaultCodeC(codeStrategy);
     }
 
     /**
@@ -121,7 +126,7 @@ public class RpcProxy {
         // 创建动态代理对象
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass},
                 (proxy, method, parameters) -> {
-                    RpcResponse rpcResponse = null;
+                    RpcResponse rpcResponse;
                     // 创建 RPC 请求对象并设置请求属性
                     RpcRequest request = this.buildRpcRequest(method, parameters);
                     // 获取 RPC 服务地址
@@ -191,7 +196,7 @@ public class RpcProxy {
             String[] addressArray = StringUtil.split(serviceAddress, ":");
             String ip = addressArray[0];
             int port = Integer.parseInt(addressArray[1]);
-            client = new RpcClient(ip, port, this.codeStrategy);
+            client = new RpcClient(ip, port, this.codec);
             rpcClientMap.put(serviceAddress, client);
             addressCache.put(interfaceClassName, serviceAddress);
         }
@@ -235,9 +240,9 @@ public class RpcProxy {
     private RpcRequest buildRpcRequest(Method method, Object[] parameters) {
         RpcRequest request = new RpcRequest();
         //若当前计数器值超过阈值，需要重置
-        if (requestId.get() > Integer.MAX_VALUE >> 1) {
+        if (requestId.get() >= MAP_CAPACITY * LOAD_FACTOR) {
             synchronized (this) {
-                if (requestId.get() > Integer.MAX_VALUE >> 1) {
+                if (requestId.get() >= MAP_CAPACITY * LOAD_FACTOR) {
                     requestId.getAndSet(0);
                 }
             }
