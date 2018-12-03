@@ -1,6 +1,6 @@
 ﻿# Netty-rpc
 
-一个用于个人学习的轻量级rpc框架
+一个基于Netty实现的轻量级rpc框架
 
 ### 服务注册与发现中心
  - **ZooKeeper**
