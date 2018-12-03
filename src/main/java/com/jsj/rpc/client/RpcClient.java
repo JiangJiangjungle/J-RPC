@@ -6,6 +6,7 @@ import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.common.RpcFuture;
 import com.jsj.rpc.common.RpcRequest;
 import com.jsj.rpc.common.RpcResponse;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -23,12 +24,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2018-10-10
  */
 public class RpcClient {
-    /**
-     * 规定channel数组的大小
-     */
-    public static int MAX_CHANNEL_ALIVE = 4;
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
-    private static ChannelHandler clientHandler = new ClientHandler(RpcProxy.FUTURE_MAP);
+
+    private final String targetIP;
+    private final int targetPort;
+
+    /**
+     * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
+     */
+    private Connection connection = new Connection();
+
+    private static ChannelHandler clientHandler = new ClientHandler(RpcProxy.futureMap);
+
     /**
      * 配置客户端 NIO 线程组
      */
@@ -41,21 +48,25 @@ public class RpcClient {
             //禁用nagle算法
             .option(ChannelOption.TCP_NODELAY, true);
 
-    private final String targetIP;
-    private final int targetPort;
     /**
-     * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的，建立channel数组以避免单一连接的头部阻塞问题
+     * 编解码方案
+     *
+     * @param targetIP
+     * @param targetPort
      */
-    private final Channel[] channels = new Channel[MAX_CHANNEL_ALIVE];
-
-    private final HeartBeatConnectionHolder connectionHolder;
+    private CodeC codeC;
 
     public RpcClient(String targetIP, int targetPort, CodeC codeC) {
         this.targetIP = targetIP;
         this.targetPort = targetPort;
-        this.connectionHolder = new HeartBeatConnectionHolder(bootstrap, targetIP, targetPort);
-        ReConnectionListener reConnectionListener = new ReConnectionListener(this.connectionHolder);
-        RpcClient.bootstrap.handler(new ClientChannelInitializer(codeC, new ConnectionWatchDog(reConnectionListener), clientHandler));
+        this.codeC = codeC;
+        this.init();
+    }
+
+    private void init() {
+        connection = new Connection(targetIP,targetPort,bootstrap);
+        ReConnectionListener reConnectionListener = new ReConnectionListener(connection);
+        RpcClient.bootstrap.handler(new ClientChannelInitializer(this.codeC, reConnectionListener, clientHandler));
     }
 
     /**
@@ -81,41 +92,30 @@ public class RpcClient {
         //注册到futureMap
         Integer requestId = request.getRequestId();
         RpcFuture future = new RpcFuture(requestId);
-        if (RpcProxy.FUTURE_MAP.containsKey(requestId)) {
-            throw new Exception("requestId 已存在！！");
+        if (RpcProxy.futureMap.containsKey(requestId)) {
+            throw new Exception("requestId 重复！！");
         }
-        RpcProxy.FUTURE_MAP.put(requestId, future);
         try {
+            RpcProxy.futureMap.put(requestId, future);
             //发出请求，并直接返回
             this.getChannel().writeAndFlush(request);
         } catch (Exception e) {
-            //若抛出异常则从缓存中移除请求
-            RpcProxy.FUTURE_MAP.remove(requestId, future);
+            RpcProxy.futureMap.remove(requestId);
+            throw e;
         }
         return future;
     }
 
-    /**
-     * 获取一个channel连接
-     *
-     * @return
-     * @throws Exception
-     */
     public Channel getChannel() throws Exception {
-        Channel channel;
-        if (!connectionHolder.isActive()) {
-            channel = doCreateConnection(this.targetIP, this.targetPort, HeartBeatConnectionHolder.DEFAULT_CONNECT_TIMEOUT);
-            LOGGER.debug("创建心跳检测连接，channel：{}", channel);
-            connectionHolder.bind(channel);
+        Channel channel = connection.get();
+        if (channel == null) {
+            channel = doCreateConnection(this.targetIP, this.targetPort, Connection.DEFAULT_CONNECT_TIMEOUT);
+            connection.bind(channel);
         }
-        int index = (int) (Math.random() * channels.length);
-        channel = channels[index];
-        if (channel == null || !channel.isActive()) {
-            channel = doCreateConnection(this.targetIP, this.targetPort, HeartBeatConnectionHolder.DEFAULT_CONNECT_TIMEOUT);
-            LOGGER.debug("创建普通连接，channel：{}", channel);
-            channels[index] = channel;
+        //重连失败则抛出异常
+        if (!channel.isActive()) {
+            throw new ConnectTimeoutException();
         }
-        LOGGER.debug("获取普通连接，channel：{}", channel);
         return channel;
     }
 
@@ -142,7 +142,7 @@ public class RpcClient {
         if (!future.isDone()) {
             String errMsg = "Create connection to " + address + " timeout!";
             LOGGER.warn(errMsg);
-            throw new ConnectTimeoutException(errMsg);
+            throw new Exception(errMsg);
         }
         if (future.isCancelled()) {
             String errMsg = "Create connection to " + address + " cancelled by user!";

@@ -1,13 +1,13 @@
 package com.jsj.rpc.client;
 
 
-import com.jsj.rpc.RpcStateCode;
 import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.CodeStrategy;
 import com.jsj.rpc.codec.DefaultCodeC;
 import com.jsj.rpc.common.RpcFuture;
 import com.jsj.rpc.common.RpcRequest;
 import com.jsj.rpc.common.RpcResponse;
+import com.jsj.rpc.RpcStateCode;
 import com.jsj.rpc.exception.RpcErrorException;
 import com.jsj.rpc.exception.RpcServiceNotFoundException;
 import com.jsj.rpc.registry.ServiceDiscovery;
@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.time.LocalTime;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,14 +32,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RpcProxy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcProxy.class);
+    private static int MAP_CAPACITY = 1 << 10;
+    private static float LOAD_FACTOR = 0.95f;
+    public static Map<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>(MAP_CAPACITY, LOAD_FACTOR);
+
+    private AtomicInteger requestId = new AtomicInteger(0);
 
     private ServiceDiscovery serviceDiscovery;
-
-    public static int MAP_CAPACITY = 1 << 10;
-    public static float LOAD_FACTOR = 0.95f;
-    private AtomicInteger requestId = new AtomicInteger(0);
-    public static final ConcurrentHashMap<Integer, RpcFuture> FUTURE_MAP = new ConcurrentHashMap<>(MAP_CAPACITY, LOAD_FACTOR);
-
     /**
      * rpc service代理对象列表(用于客户端的同步调用),避免重复创建
      */
@@ -57,7 +57,7 @@ public class RpcProxy {
     /**
      * 编解码选项
      */
-    private final CodeC codec;
+    private final CodeC codeC;
 
     public RpcProxy(ServiceDiscovery serviceDiscovery) {
         this(serviceDiscovery, CodeStrategy.DEAULT);
@@ -65,7 +65,7 @@ public class RpcProxy {
 
     public RpcProxy(ServiceDiscovery serviceDiscovery, CodeStrategy codeStrategy) {
         this.serviceDiscovery = serviceDiscovery;
-        this.codec = new DefaultCodeC(codeStrategy);
+        this.codeC = new DefaultCodeC(codeStrategy);
     }
 
     /**
@@ -196,7 +196,7 @@ public class RpcProxy {
             String[] addressArray = StringUtil.split(serviceAddress, ":");
             String ip = addressArray[0];
             int port = Integer.parseInt(addressArray[1]);
-            client = new RpcClient(ip, port, this.codec);
+            client = new RpcClient(ip, port, this.codeC);
             rpcClientMap.put(serviceAddress, client);
             addressCache.put(interfaceClassName, serviceAddress);
         }

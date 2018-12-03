@@ -42,23 +42,20 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.debug("链接关闭，将进行重连.");
-        ctx.channel().eventLoop().schedule(this, 3L, TimeUnit.SECONDS);
+        ctx.channel().eventLoop().schedule(this, 5L, TimeUnit.SECONDS);
         ctx.fireChannelInactive();
     }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        Channel channel = ctx.channel();
-        //只检查心跳连接
-        if (evt instanceof IdleStateEvent && listener.getConnectionHolder().getChannel() == channel) {
+        if (evt instanceof IdleStateEvent) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             switch (idleStateEvent.state()) {
                 case READER_IDLE:
-                    LOGGER.debug("发送心跳包，channel：{}", channel);
                     closeChannel(ctx);
                     break;
                 case WRITER_IDLE:
-                    LOGGER.debug("发送心跳包，channel：{}", channel);
+                    LOGGER.debug("发送心跳包，channel：{}", ctx.channel());
                     ctx.writeAndFlush(MessageUtil.buildHeartBeatRequest());
                     break;
                 default:
@@ -70,21 +67,21 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
     }
 
     private void closeChannel(ChannelHandlerContext ctx) {
-        HeartBeatConnectionHolder connectionHolder = listener.getConnectionHolder();
-        connectionHolder.unbind();
+        Connection connection = listener.getConnection();
+        connection.unbind();
         ctx.close();
     }
 
     private void reConn(int connectTimeout) {
-        HeartBeatConnectionHolder holder = listener.getConnectionHolder();
-        Bootstrap bootstrap = holder.getBootstrap();
+        Connection connection = listener.getConnection();
+        Bootstrap bootstrap = connection.getBootstrap();
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
-        ChannelFuture future = bootstrap.connect(holder.getTargetIP(), holder.getPort());
+        ChannelFuture future = bootstrap.connect(connection.getTargetIP(), connection.getTargetPort());
         future.addListener(listener);
     }
 
     @Override
     public void run() {
-        reConn(HeartBeatConnectionHolder.DEFAULT_CONNECT_TIMEOUT);
+        reConn(Connection.DEFAULT_CONNECT_TIMEOUT);
     }
 }

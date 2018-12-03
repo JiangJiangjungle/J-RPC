@@ -1,14 +1,14 @@
 package com.jsj.rpc.client;
 
-import com.jsj.rpc.common.RpcResponse;
 import com.jsj.rpc.common.RpcFuture;
+import com.jsj.rpc.common.RpcResponse;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * 客户端的Handler
@@ -24,9 +24,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     /**
      * 异步调用所注册的Future对象
      */
-    private ConcurrentHashMap<Integer, RpcFuture> futureMap;
+    private Map<Integer, RpcFuture> futureMap;
 
-    public ClientHandler(ConcurrentHashMap<Integer, RpcFuture> futureMap) {
+    public ClientHandler(Map<Integer, RpcFuture> futureMap) {
         this.futureMap = futureMap;
     }
 
