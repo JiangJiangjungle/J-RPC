@@ -18,10 +18,16 @@ import java.util.concurrent.locks.ReentrantLock;
  * @date 2018-10-14
  */
 public class RpcFuture implements Future<RpcResponse> {
+
+    /**
+     * get方法的最大等待时间
+     */
+    private static int MAX_WAIT_MS = RpcProxy.RPC_TIMEOUT;
+
     /**
      * 表示异步调用是否完成
      */
-    private boolean done = false;
+    private volatile boolean done = false;
 
     private Lock lock = new ReentrantLock();
     private Condition waitUntilDone = lock.newCondition();
@@ -54,16 +60,11 @@ public class RpcFuture implements Future<RpcResponse> {
 
     @Override
     public RpcResponse get() throws InterruptedException, ExecutionException {
-        if (done) {
-            return rpcResponse;
-        }
+        RpcResponse rpcResponse;
         try {
-            lock.lock();
-            while (!done) {
-                waitUntilDone.await();
-            }
-        } finally {
-            lock.unlock();
+            rpcResponse = this.get(MAX_WAIT_MS, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException t) {
+            throw new ExecutionException(t.getCause());
         }
         return rpcResponse;
     }
@@ -73,10 +74,14 @@ public class RpcFuture implements Future<RpcResponse> {
         long nanos = unit.toNanos(timeout);
         if (!done && nanos > 0L) {
             long deadline = System.nanoTime() + nanos;
-            long ns, ms;
-            while (!done && (ns = deadline - System.nanoTime()) > 0L) {
-                ms = TimeUnit.NANOSECONDS.toMillis(ns);
-                this.wait(ms);
+            long ns;
+            try {
+                lock.lock();
+                while (!done && (ns = deadline - System.nanoTime()) > 0L) {
+                    waitUntilDone.await(ns, TimeUnit.NANOSECONDS);
+                }
+            } finally {
+                lock.unlock();
             }
         }
         if (done) {
@@ -106,4 +111,14 @@ public class RpcFuture implements Future<RpcResponse> {
         return requestId;
     }
 
+    @Override
+    public String toString() {
+        return "RpcFuture{" +
+                "done=" + done +
+                ", lock=" + lock +
+                ", waitUntilDone=" + waitUntilDone +
+                ", rpcResponse=" + rpcResponse +
+                ", requestId=" + requestId +
+                '}';
+    }
 }

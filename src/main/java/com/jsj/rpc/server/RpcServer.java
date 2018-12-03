@@ -1,10 +1,10 @@
 package com.jsj.rpc.server;
 
+import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.RpcService;
 import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.CodeStrategy;
 import com.jsj.rpc.codec.DefaultCodeC;
-import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.registry.ServiceRegistry;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -21,6 +21,10 @@ import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * RPC server
@@ -41,13 +45,20 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
     /**
      * Netty 的连接线程池
      */
-    private EventLoopGroup bossGroup = new NioEventLoopGroup(1, new NamedThreadFactory(
+    private static EventLoopGroup bossGroup = new NioEventLoopGroup(1, new NamedThreadFactory(
             "Rpc-netty-server-boss", false));
     /**
      * Netty 的Task执行线程池
      */
-    private EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
+    private static EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
             new NamedThreadFactory("Rpc-netty-server-worker", true));
+
+    /**
+     * 用户线程池，用于处理实际rpc业务
+     */
+    private static ExecutorService threadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 2,
+            Runtime.getRuntime().availableProcessors() * 2, 60L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(1000), new NamedThreadFactory());
 
     /**
      * 服务注册中心
@@ -57,7 +68,7 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
     /**
      * 用于存储已经注册的服务实例
      */
-    private Map<String, Object> serviceInstanceMap = new HashMap<>();
+    public static Map<String, Object> serviceInstanceMap = new HashMap<>();
 
     /**
      * 编解码方案
@@ -108,7 +119,7 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
         new Thread((Runnable) () -> {
             try {
                 //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
-                ServerBootstrap serverBootstrap = this.initServerBootstrap(this.bossGroup, this.workerGroup);
+                ServerBootstrap serverBootstrap = this.initServerBootstrap(bossGroup, workerGroup);
                 //绑定对应ip和端口，同步等待成功
                 ChannelFuture future = serverBootstrap.bind(ip, port).sync();
                 LOGGER.info("rpc server 已启动，端口：{}", port);
@@ -118,8 +129,8 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
                 LOGGER.error("rpc server 出现异常，端口：{}, cause:", port, i.getMessage());
             } finally {
                 //优雅退出，释放 NIO 线程组
-                this.workerGroup.shutdownGracefully();
-                this.bossGroup.shutdownGracefully();
+                workerGroup.shutdownGracefully();
+                bossGroup.shutdownGracefully();
             }
         }, "rpc-server-thread").start();
     }
@@ -142,7 +153,7 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
             serviceName = rpcService.value().getName();
             //注册
             this.serviceRegistry.register(serviceName, this.addr);
-            this.serviceInstanceMap.put(serviceName, serviceBean);
+            serviceInstanceMap.put(serviceName, serviceBean);
             LOGGER.debug("register service: {} => {}", serviceName, this.addr);
         }
     }
@@ -160,7 +171,7 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(new ServerChannelInitializer(this.codeC, new RpcServiceHandler(this.serviceInstanceMap)));
+                .childHandler(new ServerChannelInitializer(this.codeC, new RpcServiceHandler(threadPool)));
     }
 
     public String ip() {

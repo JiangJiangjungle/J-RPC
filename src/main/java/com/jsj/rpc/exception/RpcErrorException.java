@@ -1,6 +1,9 @@
 package com.jsj.rpc.exception;
 
-public class RpcErrorException extends RuntimeException {
+/**
+ * rpc调用异常
+ */
+public class RpcErrorException extends Exception {
     public RpcErrorException() {
     }
 

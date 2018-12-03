@@ -13,4 +13,14 @@ public class HelloServiceImpl implements HelloService, Serializable {
     public String hello() {
         return "HELLO WORLD!";
     }
+
+    @Override
+    public String timeOut() {
+        try {
+            Thread.sleep(12000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "time out";
+    }
 }

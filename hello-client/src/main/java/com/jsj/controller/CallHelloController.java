@@ -23,4 +23,14 @@ public class CallHelloController {
     public String callHelloSync() {
         return consumeService.callHelloSync();
     }
+
+    @GetMapping("/timeout")
+    public String callTimeOut() {
+        return consumeService.callTimeOut();
+    }
+
+    @GetMapping("/timeout/sync")
+    public String callTimeOutSync() {
+        return consumeService.callTimeOutSync();
+    }
 }

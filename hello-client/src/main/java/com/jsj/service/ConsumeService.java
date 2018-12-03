@@ -5,4 +5,8 @@ public interface ConsumeService {
     String callHelloSync();
 
     String callHello();
+
+    String callTimeOutSync();
+
+    String callTimeOut();
 }

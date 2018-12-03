@@ -1,13 +1,13 @@
 package com.jsj.rpc.client;
 
 
+import com.jsj.rpc.RpcStateCode;
 import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.CodeStrategy;
 import com.jsj.rpc.codec.DefaultCodeC;
 import com.jsj.rpc.common.RpcFuture;
 import com.jsj.rpc.common.RpcRequest;
 import com.jsj.rpc.common.RpcResponse;
-import com.jsj.rpc.RpcStateCode;
 import com.jsj.rpc.exception.RpcErrorException;
 import com.jsj.rpc.exception.RpcServiceNotFoundException;
 import com.jsj.rpc.registry.ServiceDiscovery;
@@ -21,6 +21,8 @@ import java.lang.reflect.Method;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -30,8 +32,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2018-10-10
  */
 public class RpcProxy {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcProxy.class);
+    /**
+     * 连接相关配置 单位: ms
+     */
+    public static int RPC_TIMEOUT = 10000;
+    public static int CONNECTION_READ_IDLE = 20000;
+    public static int CONNECTION_WRITE_IDLE = 10000;
+
     private static int MAP_CAPACITY = 1 << 10;
     private static float LOAD_FACTOR = 0.95f;
     public static Map<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>(MAP_CAPACITY, LOAD_FACTOR);
@@ -94,28 +102,35 @@ public class RpcProxy {
      * @return
      * @throws Exception
      */
-    public RpcFuture call(final Class<?> interfaceClass, Method method, Object[] parameters) throws Exception {
+    public RpcFuture call(final Class<?> interfaceClass, Method method, Object[] parameters) throws RpcErrorException {
         // 创建 RPC 请求对象并设置请求属性
         RpcRequest request = this.buildRpcRequest(method, parameters);
         // 获取 RPC 服务地址
         String interfaceClassName = interfaceClass.getName();
         String serviceAddress = this.findServiceAddress(interfaceClassName);
-        // 创建 RPC 客户端对象并发送 RPC 请求
-        RpcClient client = this.getRpcClient(interfaceClassName, serviceAddress);
-        LOGGER.info("{}, rpc request:{}, 异步调用", LocalTime.now(), request);
         //调用异步方法
         RpcFuture future;
+        RpcClient client;
         try {
-            future = client.invokeWithFuture(request);
-        } catch (ConnectTimeoutException e) {
-            //若旧服务地址已经更新，则更新本地缓存，否则抛出异常
-            if (checkLogOut(interfaceClassName, serviceAddress)) {
-                throw e;
-            }
-            //更新地址，调用服务
-            serviceAddress = this.findServiceAddress(interfaceClassName);
+            // 创建 RPC 客户端对象并发送 RPC 请求
             client = this.getRpcClient(interfaceClassName, serviceAddress);
+            LOGGER.info("{}, rpc request:{}, 异步调用", LocalTime.now(), request);
             future = client.invokeWithFuture(request);
+        } catch (ConnectTimeoutException c) {
+            try {
+                //若旧服务地址已经更新，则更新本地缓存，否则抛出异常
+                if (checkLogOut(interfaceClassName, serviceAddress)) {
+                    throw new RpcErrorException(c.getMessage());
+                }
+                //更新地址，调用服务
+                serviceAddress = this.findServiceAddress(interfaceClassName);
+                client = this.getRpcClient(interfaceClassName, serviceAddress);
+                future = client.invokeWithFuture(request);
+            } catch (Exception e) {
+                throw new RpcErrorException(e.getMessage());
+            }
+        } catch (Exception r) {
+            throw new RpcErrorException(r.getMessage());
         }
         return future;
     }
@@ -134,9 +149,16 @@ public class RpcProxy {
                     String serviceAddress = this.findServiceAddress(interfaceClassName);
                     // 创建 RPC 客户端对象并发送 RPC 请求
                     RpcClient client = this.getRpcClient(interfaceClassName, serviceAddress);
-                    LOGGER.info("rpc request:{}, 同步调用", request);
+                    LOGGER.info("rpc request:{}, 同步调用", request.toString());
                     try {
-                        rpcResponse = client.invokeSync(request);
+                        //加入超时处理
+                        RpcFuture future = client.invokeWithFuture(request);
+                        rpcResponse = future.get(RPC_TIMEOUT, TimeUnit.MILLISECONDS);
+                    } catch (TimeoutException t) {
+                        //调用超时
+                        futureMap.remove(request.getRequestId());
+                        LOGGER.info("rpc request:{}, 调用超时", request.toString());
+                        throw new RpcErrorException("调用超时，request：" + request.toString());
                     } catch (ConnectTimeoutException e) {
                         //若旧服务地址已经更新，则更新本地缓存，否则抛出异常
                         if (checkLogOut(interfaceClassName, serviceAddress)) {
@@ -163,7 +185,7 @@ public class RpcProxy {
      * @return
      * @throws Exception
      */
-    private boolean checkLogOut(String interfaceClassName, String oldAddress) throws Exception {
+    private boolean checkLogOut(String interfaceClassName, String oldAddress) throws RpcErrorException, RpcServiceNotFoundException {
         if (serviceDiscovery == null) {
             throw new RpcErrorException("serviceDiscovery not exists.");
         }
@@ -185,7 +207,7 @@ public class RpcProxy {
      * @param serviceAddress
      * @return
      */
-    private RpcClient getRpcClient(String interfaceClassName, String serviceAddress) throws Exception {
+    private RpcClient getRpcClient(String interfaceClassName, String serviceAddress) throws RpcServiceNotFoundException {
         if (StringUtil.isEmpty(serviceAddress)) {
             throw new RpcServiceNotFoundException();
         }

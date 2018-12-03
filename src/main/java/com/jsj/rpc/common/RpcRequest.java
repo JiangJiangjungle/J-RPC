@@ -1,6 +1,7 @@
 package com.jsj.rpc.common;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * 封装 RPC 请求
@@ -79,5 +80,16 @@ public class RpcRequest implements Body,Serializable {
 
     public void setParameters(Object[] parameters) {
         this.parameters = parameters;
+    }
+
+    @Override
+    public String toString() {
+        return "RpcRequest{" +
+                "requestId=" + requestId +
+                ", interfaceName='" + interfaceName + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", parameterTypes=" + Arrays.toString(parameterTypes) +
+                ", parameters=" + Arrays.toString(parameters) +
+                '}';
     }
 }

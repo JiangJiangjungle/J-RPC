@@ -54,4 +54,13 @@ public class RpcResponse implements Body, Serializable {
     public void setErrorMsg(String errorMsg) {
         this.errorMsg = errorMsg;
     }
+
+    @Override
+    public String toString() {
+        return "RpcResponse{" +
+                "requestId=" + requestId +
+                ", serviceResult=" + serviceResult +
+                ", errorMsg='" + errorMsg + '\'' +
+                '}';
+    }
 }

@@ -24,7 +24,7 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline pipeline = socketChannel.pipeline();
         //
-        pipeline.addLast(new IdleStateHandler(20, 10, 0, TimeUnit.SECONDS))
+        pipeline.addLast(new IdleStateHandler(RpcProxy.CONNECTION_READ_IDLE, RpcProxy.CONNECTION_WRITE_IDLE, 0, TimeUnit.MILLISECONDS))
                 //出方向编码
                 .addLast(codeC.newEncoder())
                 //入方向解码
