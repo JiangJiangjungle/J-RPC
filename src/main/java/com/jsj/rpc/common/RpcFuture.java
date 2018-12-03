@@ -39,12 +39,12 @@ public class RpcFuture implements Future<RpcResponse> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        return RpcProxy.FUTURE_MAP.remove(requestId) != null;
+        return RpcProxy.futureMap.remove(requestId) != null;
     }
 
     @Override
     public boolean isCancelled() {
-        return !RpcProxy.FUTURE_MAP.containsKey(requestId);
+        return !RpcProxy.futureMap.containsKey(requestId);
     }
 
     @Override
