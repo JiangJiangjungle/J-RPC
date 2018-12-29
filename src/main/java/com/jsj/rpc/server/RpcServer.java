@@ -98,7 +98,6 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        LOGGER.info("调用了onApplicationEvent！");
         ApplicationContext applicationContext = contextRefreshedEvent.getApplicationContext();
         //root application context 保证只执行一次
         if (applicationContext.getParent() == null) {
@@ -116,10 +115,10 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
      * 启动 Netty RPC服务器服务端
      */
     private void doRunServer() {
-        new Thread((Runnable) () -> {
+        new Thread(() -> {
             try {
                 //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
-                ServerBootstrap serverBootstrap = this.initServerBootstrap(bossGroup, workerGroup);
+                ServerBootstrap serverBootstrap = RpcServer.this.initServerBootstrap(bossGroup, workerGroup);
                 //绑定对应ip和端口，同步等待成功
                 ChannelFuture future = serverBootstrap.bind(ip, port).sync();
                 LOGGER.info("rpc server 已启动，端口：{}", port);

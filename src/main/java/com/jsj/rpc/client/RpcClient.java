@@ -1,12 +1,11 @@
 package com.jsj.rpc.client;
 
 
-import com.jsj.rpc.codec.*;
 import com.jsj.rpc.NamedThreadFactory;
+import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.common.RpcFuture;
 import com.jsj.rpc.common.RpcRequest;
 import com.jsj.rpc.common.RpcResponse;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -14,7 +13,12 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -26,21 +30,29 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RpcClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
 
+    public static int MAP_CAPACITY = 1 << 10;
+    public static float LOAD_FACTOR = 0.95f;
+
+    public static int ID_MAX_VALUE = 1 << 16;
+
     private final String targetIP;
     private final int targetPort;
+
+    private AtomicInteger requestId = new AtomicInteger(0);
+
+    public static Map<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>(MAP_CAPACITY, LOAD_FACTOR);
 
     /**
      * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
      */
     private Connection connection = new Connection();
 
-    private static ChannelHandler clientHandler = new ClientHandler(RpcProxy.futureMap);
+    private static ChannelHandler clientHandler = new ClientHandler(futureMap);
 
     /**
      * 配置客户端 NIO 线程组
      */
-    private static EventLoopGroup group = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2, new NamedThreadFactory(
-            "Rpc-netty-client", false));
+    private static EventLoopGroup group = new NioEventLoopGroup(1, new NamedThreadFactory("Rpc-netty-client", false));
     /**
      * 创建并初始化 Netty 客户端 Bootstrap 对象
      */
@@ -64,7 +76,7 @@ public class RpcClient {
     }
 
     private void init() {
-        connection = new Connection(targetIP,targetPort,bootstrap);
+        connection = new Connection(targetIP, targetPort, bootstrap);
         ReConnectionListener reConnectionListener = new ReConnectionListener(connection);
         RpcClient.bootstrap.handler(new ClientChannelInitializer(this.codeC, reConnectionListener, clientHandler));
     }
@@ -72,35 +84,54 @@ public class RpcClient {
     /**
      * 同步调用
      *
-     * @param request
+     * @param method
+     * @param parameters
      * @return
      * @throws Exception
      */
-    public RpcResponse invokeSync(RpcRequest request) throws Exception {
-        RpcFuture future = this.invokeWithFuture(request);
-        return future.get();
+    public RpcResponse invokeSync(Method method, Object[] parameters) throws Exception {
+        //注册到futureMap
+        RpcRequest request = this.buildRpcRequest(method, parameters);
+        Integer requestId = request.getRequestId();
+        RpcFuture future = new RpcFuture(requestId);
+        RpcResponse rpcResponse;
+        try {
+            futureMap.put(requestId, future);
+            //发出请求，并直接返回
+            this.getChannel().writeAndFlush(request);
+            LOGGER.info("rpc request:{}, 同步调用", request.toString());
+            rpcResponse = future.get(RpcFuture.MAX_WAIT_MS, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException t) {
+            //调用超时
+            LOGGER.info("rpc request:{}, 调用超时", request.toString());
+            throw t;
+        } finally {
+            futureMap.remove(requestId);
+        }
+        return rpcResponse;
     }
+
 
     /**
      * 异步调用
      *
-     * @param request
+     * @param method
+     * @param parameters
      * @return
      * @throws Exception
      */
-    public RpcFuture invokeWithFuture(RpcRequest request) throws Exception {
+    public RpcFuture invokeWithFuture(Method method, Object[] parameters) throws Exception {
         //注册到futureMap
+        RpcRequest request = this.buildRpcRequest(method, parameters);
         Integer requestId = request.getRequestId();
         RpcFuture future = new RpcFuture(requestId);
-        if (RpcProxy.futureMap.containsKey(requestId)) {
-            throw new Exception("requestId 重复！！");
-        }
         try {
-            RpcProxy.futureMap.put(requestId, future);
+            futureMap.put(requestId, future);
             //发出请求，并直接返回
             this.getChannel().writeAndFlush(request);
+            LOGGER.info("rpc request:{}, 异步调用", request.toString());
         } catch (Exception e) {
-            RpcProxy.futureMap.remove(requestId);
+            futureMap.remove(requestId);
             throw e;
         }
         return future;
@@ -155,5 +186,36 @@ public class RpcClient {
             throw new Exception(errMsg, future.cause());
         }
         return future.channel();
+    }
+
+    /**
+     * 创建并初始化 RpcRequest
+     *
+     * @param method
+     * @param parameters
+     * @return
+     */
+    private RpcRequest buildRpcRequest(Method method, Object[] parameters) {
+        RpcRequest request = new RpcRequest();
+        //若当前计数器值超过阈值，需要重置
+        if (requestId.get() >= ID_MAX_VALUE) {
+            synchronized (this) {
+                if (requestId.get() >= ID_MAX_VALUE) {
+                    requestId.getAndSet(0);
+                }
+            }
+        }
+        //设置请求id
+        int id = requestId.getAndIncrement();
+        request.setRequestId(id);
+        //设置服务接口名称
+        request.setInterfaceName(method.getDeclaringClass().getName());
+        //设置调用方法名
+        request.setMethodName(method.getName());
+        //设置参数类型
+        request.setParameterTypes(method.getParameterTypes());
+        //设置参数值
+        request.setParameters(parameters);
+        return request;
     }
 }

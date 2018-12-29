@@ -1,8 +1,6 @@
 package com.jsj.rpc.common;
 
 
-import com.jsj.rpc.client.RpcProxy;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -22,12 +20,13 @@ public class RpcFuture implements Future<RpcResponse> {
     /**
      * get方法的最大等待时间
      */
-    private static int MAX_WAIT_MS = RpcProxy.RPC_TIMEOUT;
+    public static int MAX_WAIT_MS = 10000;
 
     /**
      * 表示异步调用是否完成
      */
     private volatile boolean done = false;
+    private volatile boolean cancelled = false;
 
     private Lock lock = new ReentrantLock();
     private Condition waitUntilDone = lock.newCondition();
@@ -45,12 +44,13 @@ public class RpcFuture implements Future<RpcResponse> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        return RpcProxy.futureMap.remove(requestId) != null;
+        cancelled = true;
+        return cancelled;
     }
 
     @Override
     public boolean isCancelled() {
-        return !RpcProxy.futureMap.containsKey(requestId);
+        return cancelled;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class RpcFuture implements Future<RpcResponse> {
         if (done) {
             return rpcResponse;
         }
-        throw new TimeoutException();
+        throw new TimeoutException("调用超时!");
     }
 
     /**

@@ -6,7 +6,6 @@ import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.CodeStrategy;
 import com.jsj.rpc.codec.DefaultCodeC;
 import com.jsj.rpc.common.RpcFuture;
-import com.jsj.rpc.common.RpcRequest;
 import com.jsj.rpc.common.RpcResponse;
 import com.jsj.rpc.exception.RpcErrorException;
 import com.jsj.rpc.exception.RpcServiceNotFoundException;
@@ -18,12 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.time.LocalTime;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * RPC 代理（用于创建 RPC 服务代理）
@@ -36,31 +30,24 @@ public class RpcProxy {
     /**
      * 连接相关配置 单位: ms
      */
-    public static int RPC_TIMEOUT = 10000;
     public static int CONNECTION_READ_IDLE = 20000;
     public static int CONNECTION_WRITE_IDLE = 10000;
-
-    private static int MAP_CAPACITY = 1 << 10;
-    private static float LOAD_FACTOR = 0.95f;
-    public static Map<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>(MAP_CAPACITY, LOAD_FACTOR);
-
-    private AtomicInteger requestId = new AtomicInteger(0);
 
     private ServiceDiscovery serviceDiscovery;
     /**
      * rpc service代理对象列表(用于客户端的同步调用),避免重复创建
      */
-    private ConcurrentHashMap<String, Object> serviceProxyInstanceMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Object> serviceProxyInstanceMap = new ConcurrentHashMap<>(16);
 
     /**
      * rpc服务的远程地址的本地缓存，减少查询zookeeper
      */
-    private ConcurrentHashMap<String, String> addressCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, String> addressCache = new ConcurrentHashMap<>(16);
 
     /**
-     * rpc服务 ip:port->本地 rpcClient 映射列表,避免重复创建
+     * rpc服务 ip:port->rpcClient 映射列表,避免重复创建
      */
-    private ConcurrentHashMap<String, RpcClient> rpcClientMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, RpcClient> rpcClientMap = new ConcurrentHashMap<>(16);
 
     /**
      * 编解码选项
@@ -103,8 +90,6 @@ public class RpcProxy {
      * @throws Exception
      */
     public RpcFuture call(final Class<?> interfaceClass, Method method, Object[] parameters) throws RpcErrorException {
-        // 创建 RPC 请求对象并设置请求属性
-        RpcRequest request = this.buildRpcRequest(method, parameters);
         // 获取 RPC 服务地址
         String interfaceClassName = interfaceClass.getName();
         String serviceAddress = this.findServiceAddress(interfaceClassName);
@@ -114,8 +99,7 @@ public class RpcProxy {
         try {
             // 创建 RPC 客户端对象并发送 RPC 请求
             client = this.getRpcClient(interfaceClassName, serviceAddress);
-            LOGGER.info("{}, rpc request:{}, 异步调用", LocalTime.now(), request);
-            future = client.invokeWithFuture(request);
+            future = client.invokeWithFuture(method, parameters);
         } catch (ConnectTimeoutException c) {
             try {
                 //若旧服务地址已经更新，则更新本地缓存，否则抛出异常
@@ -125,7 +109,7 @@ public class RpcProxy {
                 //更新地址，调用服务
                 serviceAddress = this.findServiceAddress(interfaceClassName);
                 client = this.getRpcClient(interfaceClassName, serviceAddress);
-                future = client.invokeWithFuture(request);
+                future = client.invokeWithFuture(method, parameters);
             } catch (Exception e) {
                 throw new RpcErrorException(e.getMessage());
             }
@@ -142,23 +126,14 @@ public class RpcProxy {
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass},
                 (proxy, method, parameters) -> {
                     RpcResponse rpcResponse;
-                    // 创建 RPC 请求对象并设置请求属性
-                    RpcRequest request = this.buildRpcRequest(method, parameters);
                     // 获取 RPC 服务地址
                     String interfaceClassName = interfaceClass.getName();
                     String serviceAddress = this.findServiceAddress(interfaceClassName);
                     // 创建 RPC 客户端对象并发送 RPC 请求
                     RpcClient client = this.getRpcClient(interfaceClassName, serviceAddress);
-                    LOGGER.info("rpc request:{}, 同步调用", request.toString());
                     try {
-                        //加入超时处理
-                        RpcFuture future = client.invokeWithFuture(request);
-                        rpcResponse = future.get(RPC_TIMEOUT, TimeUnit.MILLISECONDS);
-                    } catch (TimeoutException t) {
-                        //调用超时
-                        futureMap.remove(request.getRequestId());
-                        LOGGER.info("rpc request:{}, 调用超时", request.toString());
-                        throw new RpcErrorException("调用超时，request：" + request.toString());
+                        //进行同步调用
+                        rpcResponse = client.invokeSync(method, parameters);
                     } catch (ConnectTimeoutException e) {
                         //若旧服务地址已经更新，则更新本地缓存，否则抛出异常
                         if (checkLogOut(interfaceClassName, serviceAddress)) {
@@ -167,7 +142,9 @@ public class RpcProxy {
                         //更新地址，调用服务
                         serviceAddress = this.findServiceAddress(interfaceClassName);
                         client = this.getRpcClient(interfaceClassName, serviceAddress);
-                        rpcResponse = client.invokeSync(request);
+                        rpcResponse = client.invokeSync(method, parameters);
+                    } catch (Exception t) {
+                        throw new RpcErrorException(t.getMessage());
                     }
                     // 返回 RPC 响应结果
                     if (null == rpcResponse || null == rpcResponse.getServiceResult()) {
@@ -250,36 +227,5 @@ public class RpcProxy {
             throw new RpcErrorException(String.format("errorCode: %s, info: %s", RpcStateCode.SERVICE_NOT_EXISTS.getCode(), RpcStateCode.SERVICE_NOT_EXISTS.getValue()));
         }
         return serviceAddress;
-    }
-
-    /**
-     * 创建并初始化 RpcRequest
-     *
-     * @param method
-     * @param parameters
-     * @return
-     */
-    private RpcRequest buildRpcRequest(Method method, Object[] parameters) {
-        RpcRequest request = new RpcRequest();
-        //若当前计数器值超过阈值，需要重置
-        if (requestId.get() >= MAP_CAPACITY * LOAD_FACTOR) {
-            synchronized (this) {
-                if (requestId.get() >= MAP_CAPACITY * LOAD_FACTOR) {
-                    requestId.getAndSet(0);
-                }
-            }
-        }
-        //设置请求id
-        int id = requestId.getAndIncrement();
-        request.setRequestId(id);
-        //设置服务接口名称
-        request.setInterfaceName(method.getDeclaringClass().getName());
-        //设置调用方法名
-        request.setMethodName(method.getName());
-        //设置参数类型
-        request.setParameterTypes(method.getParameterTypes());
-        //设置参数值
-        request.setParameters(parameters);
-        return request;
     }
 }
