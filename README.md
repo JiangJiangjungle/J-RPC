@@ -45,7 +45,7 @@ Jmeter-5.0
 
 - **并发参数设置**
 
-![Threads](https://github.com/JiangJiangjungle/Netty-rpc/blob/dev/figures/Threads.png)
+![Threads](https://github.com/JiangJiangjungle/Netty-rpc/blob/master/figures/Threads.png)
 - **测试结果**
 
-![Result](https://github.com/JiangJiangjungle/Netty-rpc/blob/dev/figures/Result.png)
+![Result](https://github.com/JiangJiangjungle/Netty-rpc/blob/master/figures/Result.png)
