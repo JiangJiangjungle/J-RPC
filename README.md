@@ -48,4 +48,4 @@ Jmeter-5.0
 ![Threads](https://github.com/JiangJiangjungle/Netty-rpc/blob/dev/figures/Threads.png)
 - **测试结果**
 
-![Result](https://github.com/JiangJiangjungle/Netty-rpc/blob/dev/figures/Threads.png)
+![Result](https://github.com/JiangJiangjungle/Netty-rpc/blob/dev/figures/Result.png)
