@@ -37,3 +37,15 @@
 - **超时处理**
 
 考虑远程服务的调用无响应问题，增加了超时处理逻辑
+
+### 本地测试
+- **测试工具**
+
+Jmeter-5.0
+
+- **并发参数设置**
+
+![Threads](https://github.com/JiangJiangjungle/Netty-rpc/figures/Threads)
+- **测试结果**
+
+![Result](https://github.com/JiangJiangjungle/Netty-rpc/figures/Result)
