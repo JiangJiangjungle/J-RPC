@@ -23,4 +23,9 @@ public class HelloServiceImpl implements HelloService, Serializable {
         }
         return "time out";
     }
+
+    @Override
+    public int add(int x, int y) {
+        return x + y;
+    }
 }

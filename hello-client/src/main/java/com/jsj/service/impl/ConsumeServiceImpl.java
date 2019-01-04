@@ -71,4 +71,12 @@ public class ConsumeServiceImpl implements ConsumeService {
             return e.getMessage();
         }
     }
+
+    @Override
+    public String callAdd() {
+        System.out.println("同步调用HelloService 的 hello方法: " + LocalTime.now());
+        HelloService helloService = rpcProxy.getService(HelloService.class);
+        int result = helloService.add(1,1);
+        return ""+result;
+    }
 }

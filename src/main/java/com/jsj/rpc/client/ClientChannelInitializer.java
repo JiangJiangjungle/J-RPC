@@ -10,14 +10,13 @@ import io.netty.handler.timeout.IdleStateHandler;
 import java.util.concurrent.TimeUnit;
 
 public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
+    private static ChannelHandler clientHandler = new ClientHandler();
     private CodeC codeC;
     private ConnectionWatchDog connectionWatchDog;
-    private ChannelHandler clientHandler;
 
-    public ClientChannelInitializer(CodeC codeC, ReConnectionListener reConnectionListener, ChannelHandler clientHandler) {
+    public ClientChannelInitializer(CodeC codeC, ReConnectionListener reConnectionListener) {
         this.codeC = codeC;
         this.connectionWatchDog = new ConnectionWatchDog(reConnectionListener);
-        this.clientHandler = clientHandler;
     }
 
     @Override

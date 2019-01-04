@@ -14,40 +14,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
- * RPC 客户端（用于发送 RPC 请求）
+ * RPC 客户端（用于发送 RPC 请求,对于同一目标IP+目标端口，RpcClient唯一）
  *
  * @author jsj
  * @date 2018-10-10
  */
 public class RpcClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
-
-    public static int MAP_CAPACITY = 1 << 10;
-    public static float LOAD_FACTOR = 0.95f;
-
-    public static int ID_MAX_VALUE = 1 << 16;
-
     private final String targetIP;
     private final int targetPort;
 
-    private AtomicInteger requestId = new AtomicInteger(0);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
 
-    public static Map<Integer, RpcFuture> futureMap = new ConcurrentHashMap<>(MAP_CAPACITY, LOAD_FACTOR);
+    public static int ID_MAX_VALUE = 1 << 16;
+
+    private AtomicInteger requestId = new AtomicInteger(0);
 
     /**
      * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
      */
     private Connection connection = new Connection();
-
-    private static ChannelHandler clientHandler = new ClientHandler(futureMap);
 
     /**
      * 配置客户端 NIO 线程组
@@ -78,7 +69,7 @@ public class RpcClient {
     private void init() {
         connection = new Connection(targetIP, targetPort, bootstrap);
         ReConnectionListener reConnectionListener = new ReConnectionListener(connection);
-        RpcClient.bootstrap.handler(new ClientChannelInitializer(this.codeC, reConnectionListener, clientHandler));
+        RpcClient.bootstrap.handler(new ClientChannelInitializer(this.codeC, reConnectionListener));
     }
 
     /**
@@ -92,25 +83,32 @@ public class RpcClient {
     public RpcResponse invokeSync(Method method, Object[] parameters) throws Exception {
         //注册到futureMap
         RpcRequest request = this.buildRpcRequest(method, parameters);
-        Integer requestId = request.getRequestId();
-        RpcFuture future = new RpcFuture(requestId);
+        RpcFuture future = new RpcFuture(request.getRequestId());
         RpcResponse rpcResponse;
+        Channel channel = null;
+        RpcFutureHolder rpcFutureHolder = null;
         try {
-            futureMap.put(requestId, future);
-            //发出请求，并直接返回
-            this.getChannel().writeAndFlush(request);
+            channel = this.getChannel();
+            //eventLoop的缓存中添加RpcFuture
+            rpcFutureHolder = new RpcFutureHolder(channel.eventLoop());
+            rpcFutureHolder.set(channel, future);
+            //写请求并直接返回
+            channel.writeAndFlush(request);
             LOGGER.info("rpc request:{}, 同步调用", request.toString());
             rpcResponse = future.get(RpcFuture.MAX_WAIT_MS, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException t) {
+        } catch (Exception e) {
             //调用超时
-            LOGGER.info("rpc request:{}, 调用超时", request.toString());
-            throw t;
-        } finally {
-            futureMap.remove(requestId);
+            if (e instanceof TimeoutException) {
+                LOGGER.info("rpc request:{}, 调用超时", request.toString());
+            }
+            //eventLoop的缓存中删除RpcFuture
+            if (channel != null && rpcFutureHolder != null) {
+                rpcFutureHolder.remove(channel, future);
+            }
+            throw e;
         }
         return rpcResponse;
     }
-
 
     /**
      * 异步调用
@@ -123,15 +121,22 @@ public class RpcClient {
     public RpcFuture invokeWithFuture(Method method, Object[] parameters) throws Exception {
         //注册到futureMap
         RpcRequest request = this.buildRpcRequest(method, parameters);
-        Integer requestId = request.getRequestId();
-        RpcFuture future = new RpcFuture(requestId);
+        RpcFuture future = new RpcFuture(request.getRequestId());
+        Channel channel = null;
+        RpcFutureHolder rpcFutureHolder = null;
         try {
-            futureMap.put(requestId, future);
-            //发出请求，并直接返回
-            this.getChannel().writeAndFlush(request);
+            channel = this.getChannel();
+            //eventLoop的缓存中添加RpcFuture
+            rpcFutureHolder = new RpcFutureHolder(channel.eventLoop());
+            rpcFutureHolder.set(channel, future);
+            //写请求并直接返回
+            channel.writeAndFlush(request);
             LOGGER.info("rpc request:{}, 异步调用", request.toString());
         } catch (Exception e) {
-            futureMap.remove(requestId);
+            //eventLoop的缓存中删除RpcFuture
+            if (channel != null && rpcFutureHolder != null) {
+                rpcFutureHolder.remove(channel, future);
+            }
             throw e;
         }
         return future;

@@ -9,4 +9,6 @@ public interface ConsumeService {
     String callTimeOutSync();
 
     String callTimeOut();
+
+    String callAdd();
 }

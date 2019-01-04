@@ -33,4 +33,9 @@ public class CallHelloController {
     public String callTimeOutSync() {
         return consumeService.callTimeOutSync();
     }
+
+    @GetMapping("/add")
+    public String callAddSync() {
+        return consumeService.callAdd();
+    }
 }

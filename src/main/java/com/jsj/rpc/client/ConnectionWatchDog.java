@@ -41,6 +41,8 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        //当channel关闭时，清除eventLoop中channel对应的所有future
+        RpcFutureHolder.removeChannel(ctx.channel());
         LOGGER.debug("链接关闭，将进行重连.");
         ctx.channel().eventLoop().schedule(this, 5L, TimeUnit.SECONDS);
         ctx.fireChannelInactive();

@@ -8,8 +8,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 /**
  * 客户端的Handler
  *
@@ -21,19 +19,14 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
 
-    /**
-     * 异步调用所注册的Future对象
-     */
-    private Map<Integer, RpcFuture> futureMap;
+    public ClientHandler() {
 
-    public ClientHandler(Map<Integer, RpcFuture> futureMap) {
-        this.futureMap = futureMap;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
         Integer requestId = rpcResponse.getRequestId();
-        RpcFuture future = futureMap.remove(requestId);
+        RpcFuture future = RpcFutureHolder.removeFuture(channelHandlerContext.channel(), requestId);
         if (future != null) {
             //更新对应的RpcFuture
             future.done(rpcResponse);
