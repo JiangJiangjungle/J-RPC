@@ -35,12 +35,8 @@ public class RpcFutureHolder {
     public void set(Channel channel, RpcFuture future) {
         this.eventLoop.execute(() -> {
             Map<Channel, Map<Integer, RpcFuture>> cache = RpcFutureHolder.checkCache();
-            Map<Integer, RpcFuture> futureMap = cache.get(channel);
-            if (futureMap == null) {
-                cache.put(channel, new HashMap<>(FUTURE_MAP_INIT_SIZE));
-            } else {
-                futureMap.put(future.getRequestId(), future);
-            }
+            Map<Integer, RpcFuture> futureMap = cache.computeIfAbsent(channel, k -> new HashMap<>(FUTURE_MAP_INIT_SIZE));
+            futureMap.put(future.getRequestId(), future);
         });
     }
 
