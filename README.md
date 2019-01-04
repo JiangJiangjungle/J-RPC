@@ -43,6 +43,10 @@
 
 Jmeter-5.0
 
+- **序列化/反序列化选择**
+
+Protostuff
+
 - **并发参数设置**
 
 ![Threads](https://github.com/JiangJiangjungle/Netty-rpc/blob/master/figures/Threads.png)
