@@ -2,6 +2,7 @@ package com.jsj.rpc.client;
 
 import com.jsj.rpc.common.Header;
 import com.jsj.rpc.common.NettyMessage;
+import com.jsj.rpc.common.RpcFutureHolder;
 import com.jsj.rpc.util.MessageUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;

@@ -1,6 +1,5 @@
-package com.jsj.rpc.client;
+package com.jsj.rpc.common;
 
-import com.jsj.rpc.common.RpcFuture;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 

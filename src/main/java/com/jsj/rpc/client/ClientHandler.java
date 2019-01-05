@@ -1,6 +1,7 @@
 package com.jsj.rpc.client;
 
 import com.jsj.rpc.common.RpcFuture;
+import com.jsj.rpc.common.RpcFutureHolder;
 import com.jsj.rpc.common.RpcResponse;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
