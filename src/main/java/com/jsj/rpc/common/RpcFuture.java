@@ -5,9 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * 用于rpc框架的异步调用
@@ -28,8 +26,7 @@ public class RpcFuture implements Future<RpcResponse> {
     private volatile boolean done = false;
     private volatile boolean cancelled = false;
 
-    private Lock lock = new ReentrantLock();
-    private Condition waitUntilDone = lock.newCondition();
+    private Thread thread;
 
     /**
      * 返回响应
@@ -73,16 +70,8 @@ public class RpcFuture implements Future<RpcResponse> {
     public RpcResponse get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         long nanos = unit.toNanos(timeout);
         if (!done && nanos > 0L) {
-            long deadline = System.nanoTime() + nanos;
-            long ns;
-            try {
-                lock.lock();
-                while (!done && (ns = deadline - System.nanoTime()) > 0L) {
-                    waitUntilDone.await(ns, TimeUnit.NANOSECONDS);
-                }
-            } finally {
-                lock.unlock();
-            }
+            this.thread = Thread.currentThread();
+            LockSupport.parkNanos(nanos);
         }
         if (done) {
             return rpcResponse;
@@ -91,20 +80,14 @@ public class RpcFuture implements Future<RpcResponse> {
     }
 
     /**
-     * Handler收到RpcResponse后调用此方法
+     * RpcFuture获得RpcResponse后调用此方法
      *
      * @param rpcResponse
      */
     public void done(RpcResponse rpcResponse) {
         this.rpcResponse = rpcResponse;
         this.done = true;
-        try {
-            lock.lock();
-            //唤醒同步等待响应的线程
-            waitUntilDone.signalAll();
-        } finally {
-            lock.unlock();
-        }
+        LockSupport.unpark(this.thread);
     }
 
     public int getRequestId() {
@@ -115,8 +98,8 @@ public class RpcFuture implements Future<RpcResponse> {
     public String toString() {
         return "RpcFuture{" +
                 "done=" + done +
-                ", lock=" + lock +
-                ", waitUntilDone=" + waitUntilDone +
+                ", cancelled=" + cancelled +
+                ", thread=" + thread +
                 ", rpcResponse=" + rpcResponse +
                 ", requestId=" + requestId +
                 '}';
