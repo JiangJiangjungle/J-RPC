@@ -7,21 +7,17 @@
 
 - #### Netty
 
-
 # 服务注册与发现中心
 
 - #### ZooKeeper
-
 在客户端维护了一个<ServiceName,Channel>的本地缓存。
 查询服务时，首先检查对应服务是否维护了有效长连接，若存在连接则直接发送请求，以避免每次调用都需要zookeeper查询。
-
 
 # 序列化
 
 - #### Protostuff
 - #### JSON
 - #### JDK Serializable
-
 
 # RPC调用
 
