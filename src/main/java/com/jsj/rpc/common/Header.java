@@ -12,7 +12,7 @@ public class Header {
      */
     private int dataLength;
     /**
-     * 心跳连接标志 1:心跳请求 2:心跳响应 4:rpc请求 8:心跳响应
+     * 心跳连接标志 1:心跳请求 2:心跳响应 4:rpc请求 8:rpc响应
      */
     private byte type = 0;
 
