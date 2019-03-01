@@ -44,7 +44,7 @@ public class RpcClient {
     /**
      * 配置客户端 NIO 线程组
      */
-    private static EventLoopGroup group = new NioEventLoopGroup(1, new NamedThreadFactory("Rpc-netty-client", false));
+    private static EventLoopGroup group = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2, new NamedThreadFactory("Rpc-netty-client", false));
     /**
      * 创建并初始化 Netty 客户端 Bootstrap 对象
      */
@@ -90,7 +90,7 @@ public class RpcClient {
         RpcFutureHolder rpcFutureHolder = null;
         try {
             channel = this.getChannel();
-            //eventLoop的缓存中添加RpcFuture
+            //向channel对应线程的ThreadLocal中添加RpcFuture
             rpcFutureHolder = new RpcFutureHolder(channel.eventLoop());
             rpcFutureHolder.set(channel, future);
             //写请求并直接返回
@@ -173,9 +173,10 @@ public class RpcClient {
             LOGGER.debug("connectTimeout of address [{}] is [{}].", address, connectTimeout);
         }
         RpcClient.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
-        //连接到远程节点，阻塞等待直到连接完成
+        //建立tcp连接到远程节点，调用线程阻塞等待直到连接完成
         ChannelFuture future = bootstrap.connect(targetIP, targetPort);
         future.awaitUninterruptibly();
+        future.sync();
         if (!future.isDone()) {
             String errMsg = "Create connection to " + address + " timeout!";
             LOGGER.warn(errMsg);

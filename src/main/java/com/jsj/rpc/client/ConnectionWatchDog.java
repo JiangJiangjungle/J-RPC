@@ -45,7 +45,8 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
         //当channel关闭时，清除eventLoop中channel对应的所有future
         RpcFutureHolder.removeChannel(ctx.channel());
         LOGGER.debug("链接关闭，将进行重连.");
-        ctx.channel().eventLoop().schedule(this, 5L, TimeUnit.SECONDS);
+        //线程开启定时任务，准备尝试重连
+        ctx.channel().eventLoop().schedule(this, 3L, TimeUnit.SECONDS);
         ctx.fireChannelInactive();
     }
 
@@ -80,6 +81,7 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
         Bootstrap bootstrap = connection.getBootstrap();
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
         ChannelFuture future = bootstrap.connect(connection.getTargetIP(), connection.getTargetPort());
+        //不能在EventLoop中进行同步调用，这样会导致调用线程即EventLoop阻塞
         future.addListener(listener);
     }
 
