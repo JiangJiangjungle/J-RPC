@@ -22,7 +22,7 @@ public class DemoApplication {
     static String PORT = "2181";
     static ServiceDiscovery serviceDiscovery = new ZookeeperDiscovery(IP + ":" + PORT);
 
-    static RpcProxy rpcProxy = new RpcProxy(serviceDiscovery,CodeStrategy.JSON);
+    static RpcProxy rpcProxy = new RpcProxy(serviceDiscovery,CodeStrategy.PROTO_STUFF);
     static HelloService helloService = rpcProxy.getService(HelloService.class);
 
 
@@ -53,7 +53,7 @@ public class DemoApplication {
     }
 
     public static void main(String[] args) throws Exception {
-        int threads = 100;
+        int threads = 1000;
         ExecutorService executorService = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(threads * 10), new NamedThreadFactory());
         CountDownLatch countDownLatch = new CountDownLatch(1);
