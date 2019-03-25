@@ -41,18 +41,14 @@
 
 # 本地测试
 
-- #### 测试工具
+- #### 测试demo
 
-  Jmeter-5.0
+  hello-client
 
 - #### 序列化/反序列化选择
 
   Protostuff
 
-- #### 并发参数设置
-
-![Threads](https://github.com/JiangJiangjungle/Netty-rpc/blob/master/figures/Threads.png)
-
 - #### 测试结果
 
-![Result](https://github.com/JiangJiangjungle/Netty-rpc/blob/master/figures/Result.png)
+![Result](https://github.com/JiangJiangjungle/Netty-rpc/blob/master/figures/tes_result.png)
