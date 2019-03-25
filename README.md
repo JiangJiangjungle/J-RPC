@@ -51,4 +51,4 @@
 
 - #### 测试结果
 
-![Result](https://github.com/JiangJiangjungle/Netty-rpc/blob/master/figures/tes_result.png)
+![Result](https://github.com/JiangJiangjungle/My-NettyRPC/blob/master/figures/test_result.jpg)
