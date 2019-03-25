@@ -31,6 +31,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         if (future != null && !future.isCancelled()) {
             //更新对应的RpcFuture
             future.done(rpcResponse);
+        } else {
+            System.out.println("future 不存在");
         }
     }
 

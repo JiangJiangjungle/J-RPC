@@ -6,6 +6,8 @@ import com.jsj.rpc.common.RpcResponse;
 import io.netty.channel.ChannelHandlerContext;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -16,6 +18,8 @@ import java.lang.reflect.InvocationTargetException;
  * @date 2018-12-3
  */
 public class RpcTask implements Runnable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcTask.class);
 
     private ChannelHandlerContext ctx;
     private RpcRequest request;
@@ -41,6 +45,7 @@ public class RpcTask implements Runnable {
         }
         // 写入 RPC 响应对象
         ctx.writeAndFlush(response);
+        LOGGER.info("执行完毕！{} ", request.toString());
     }
 
     /**

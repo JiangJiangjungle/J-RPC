@@ -33,7 +33,7 @@ public class RpcDecoder extends ByteToMessageDecoder {
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         if (in.readableBytes() < DEFAULT_LENGTH_FIELD_OFFSET) {
-            throw new Exception("消息格式错误！");
+            return;
         }
         //标记当前的readIndex的位置
         in.markReaderIndex();

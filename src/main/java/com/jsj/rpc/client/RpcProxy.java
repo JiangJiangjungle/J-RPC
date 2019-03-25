@@ -191,13 +191,17 @@ public class RpcProxy {
         RpcClient client = rpcClientMap.get(serviceAddress);
         //若不存在则创建和初始化，并进行缓存
         if (client == null) {
-            // 从 RPC 服务地址中解析主机名与端口号
-            String[] addressArray = StringUtil.split(serviceAddress, ":");
-            String ip = addressArray[0];
-            int port = Integer.parseInt(addressArray[1]);
-            client = new RpcClient(ip, port, this.codeC);
-            rpcClientMap.put(serviceAddress, client);
-            addressCache.put(interfaceClassName, serviceAddress);
+            synchronized (this) {
+                if ((client=rpcClientMap.get(serviceAddress))==null) {
+                    // 从 RPC 服务地址中解析主机名与端口号
+                    String[] addressArray = StringUtil.split(serviceAddress, ":");
+                    String ip = addressArray[0];
+                    int port = Integer.parseInt(addressArray[1]);
+                    client = new RpcClient(ip, port, this.codeC);
+                    rpcClientMap.put(serviceAddress, client);
+                    addressCache.put(interfaceClassName, serviceAddress);
+                }
+            }
         }
         return client;
     }

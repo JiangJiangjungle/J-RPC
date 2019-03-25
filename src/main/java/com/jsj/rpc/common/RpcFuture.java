@@ -26,8 +26,6 @@ public class RpcFuture implements Future<RpcResponse> {
     private volatile boolean done = false;
     private volatile boolean cancelled = false;
 
-    private Thread thread;
-
     /**
      * 返回响应
      */
@@ -41,7 +39,10 @@ public class RpcFuture implements Future<RpcResponse> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        cancelled = true;
+        synchronized (this) {
+            this.notifyAll();
+            cancelled = true;
+        }
         return cancelled;
     }
 
@@ -57,21 +58,27 @@ public class RpcFuture implements Future<RpcResponse> {
 
     @Override
     public RpcResponse get() throws InterruptedException, ExecutionException {
-        RpcResponse rpcResponse;
-        try {
-            rpcResponse = this.get(MAX_WAIT_MS, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException t) {
-            throw new ExecutionException(t.getCause());
+        synchronized (this) {
+            if (cancelled) {
+                return null;
+            }
+            while (!done) {
+                this.wait();
+            }
         }
         return rpcResponse;
     }
 
     @Override
     public RpcResponse get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        long nanos = unit.toNanos(timeout);
-        if (!done && nanos > 0L) {
-            this.thread = Thread.currentThread();
-            LockSupport.parkNanos(nanos);
+        long millis = unit.toMillis(timeout);
+        synchronized (this) {
+            if (cancelled) {
+                return null;
+            }
+            while (!done && millis > 0L) {
+                this.wait(millis);
+            }
         }
         if (done) {
             return rpcResponse;
@@ -87,7 +94,9 @@ public class RpcFuture implements Future<RpcResponse> {
     public void done(RpcResponse rpcResponse) {
         this.rpcResponse = rpcResponse;
         this.done = true;
-        LockSupport.unpark(this.thread);
+        synchronized (this) {
+            this.notifyAll();
+        }
     }
 
     public int getRequestId() {
@@ -96,12 +105,6 @@ public class RpcFuture implements Future<RpcResponse> {
 
     @Override
     public String toString() {
-        return "RpcFuture{" +
-                "done=" + done +
-                ", cancelled=" + cancelled +
-                ", thread=" + thread +
-                ", rpcResponse=" + rpcResponse +
-                ", requestId=" + requestId +
-                '}';
+        return super.toString();
     }
 }

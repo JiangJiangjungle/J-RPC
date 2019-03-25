@@ -39,7 +39,7 @@ public class RpcClient {
     /**
      * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
      */
-    private Connection connection = new Connection();
+    private Connection connection = null;
 
     /**
      * 配置客户端 NIO 线程组
@@ -146,8 +146,12 @@ public class RpcClient {
     public Channel getChannel() throws Exception {
         Channel channel = connection.get();
         if (channel == null) {
-            channel = doCreateConnection(this.targetIP, this.targetPort, Connection.DEFAULT_CONNECT_TIMEOUT);
-            connection.bind(channel);
+            synchronized (this) {
+                if (channel == null) {
+                    channel = doCreateConnection(this.targetIP, this.targetPort, Connection.DEFAULT_CONNECT_TIMEOUT);
+                    connection.bind(channel);
+                }
+            }
         }
         //重连失败则抛出异常
         if (!channel.isActive()) {
