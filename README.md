@@ -45,10 +45,6 @@
 
   hello-client,不同线程参数配置下，各重复测试500次。
 
-- #### 序列化/反序列化选择
-
-  Protostuff
-
 - #### 测试结果
 
 ![Result](https://github.com/JiangJiangjungle/My-NettyRPC/blob/master/figures/test_result.jpg)
