@@ -1,7 +1,6 @@
 package com.jsj.rpc.client;
 
 
-import com.jsj.rpc.RpcStateCode;
 import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.CodeStrategy;
 import com.jsj.rpc.codec.DefaultCodeC;
@@ -93,6 +92,9 @@ public class RpcProxy {
         // 获取 RPC 服务地址
         String interfaceClassName = interfaceClass.getName();
         String serviceAddress = this.findServiceAddress(interfaceClassName);
+        if (serviceAddress == null) {
+            throw new RpcErrorException("远程服务：" + interfaceClassName + " 未注册！");
+        }
         //调用异步方法
         RpcFuture future;
         RpcClient client;
@@ -147,7 +149,7 @@ public class RpcProxy {
                         throw new RpcErrorException(t.getMessage());
                     }
                     // 返回 RPC 响应结果
-                    if (null == rpcResponse || null == rpcResponse.getServiceResult()) {
+                    if (null == rpcResponse || null != rpcResponse.getErrorMsg()) {
                         throw new RpcErrorException(null == rpcResponse ? null : rpcResponse.getErrorMsg());
                     }
                     return rpcResponse.getServiceResult();
@@ -162,10 +164,7 @@ public class RpcProxy {
      * @return
      * @throws Exception
      */
-    private boolean checkLogOut(String interfaceClassName, String oldAddress) throws RpcErrorException, RpcServiceNotFoundException {
-        if (serviceDiscovery == null) {
-            throw new RpcErrorException("serviceDiscovery not exists.");
-        }
+    private boolean checkLogOut(String interfaceClassName, String oldAddress) throws RpcServiceNotFoundException {
         String newAddress = serviceDiscovery.discover(interfaceClassName);
         if (oldAddress.equals(newAddress)) {
             return false;
@@ -179,20 +178,17 @@ public class RpcProxy {
     }
 
     /**
-     * 获取已经初始化的RpcClient
+     * 从缓存获取已经初始化的RpcClient，若不存在则创建再放入缓存
      *
      * @param serviceAddress
      * @return
      */
-    private RpcClient getRpcClient(String interfaceClassName, String serviceAddress) throws RpcServiceNotFoundException {
-        if (StringUtil.isEmpty(serviceAddress)) {
-            throw new RpcServiceNotFoundException();
-        }
+    private RpcClient getRpcClient(String interfaceClassName, String serviceAddress) {
         RpcClient client = rpcClientMap.get(serviceAddress);
         //若不存在则创建和初始化，并进行缓存
         if (client == null) {
             synchronized (this) {
-                if ((client=rpcClientMap.get(serviceAddress))==null) {
+                if ((client = rpcClientMap.get(serviceAddress)) == null) {
                     // 从 RPC 服务地址中解析主机名与端口号
                     String[] addressArray = StringUtil.split(serviceAddress, ":");
                     String ip = addressArray[0];
@@ -212,24 +208,25 @@ public class RpcProxy {
      * @param interfaceClassName
      * @return
      */
-    private String findServiceAddress(String interfaceClassName) throws RpcErrorException {
-        String serviceAddress = addressCache.get(interfaceClassName);
-        if (serviceAddress != null) {
-            return serviceAddress;
+    private String findServiceAddress(String interfaceClassName) {
+        String addr = addressCache.get(interfaceClassName);
+        if (addr != null) {
+            return addr;
         }
-        if (serviceDiscovery == null) {
-            throw new RpcErrorException("serviceDiscovery not exists.");
+        synchronized (this) {
+            if ((addr = addressCache.get(interfaceClassName)) == null) {
+                try {
+                    addr = serviceDiscovery.discover(interfaceClassName);
+                    if (addr!=null){
+                        LOGGER.info("通过 服务协调中心 发现服务: {} => {}", interfaceClassName, addr);
+                    }
+                } catch (RpcServiceNotFoundException r) {
+                    LOGGER.debug("服务协调中心 查询服务: {}  不存在！", interfaceClassName);
+                    return null;
+                }
+            }
         }
-        try {
-            serviceAddress = serviceDiscovery.discover(interfaceClassName);
-        } catch (RpcServiceNotFoundException r) {
-            LOGGER.debug("discover service: {}  is empty", interfaceClassName);
-            return null;
-        }
-        LOGGER.info("discover service: {} => {}", interfaceClassName, serviceAddress);
-        if (StringUtil.isEmpty(serviceAddress)) {
-            throw new RpcErrorException(String.format("errorCode: %s, info: %s", RpcStateCode.SERVICE_NOT_EXISTS.getCode(), RpcStateCode.SERVICE_NOT_EXISTS.getValue()));
-        }
-        return serviceAddress;
+
+        return addr;
     }
 }

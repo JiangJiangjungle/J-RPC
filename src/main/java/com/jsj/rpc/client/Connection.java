@@ -9,7 +9,7 @@ import io.netty.channel.Channel;
  */
 public class Connection {
 
-    private Channel channel;
+    private volatile Channel channel;
 
     public static final int DEFAULT_RECONNECT_TRY = 20;
     public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
@@ -29,10 +29,6 @@ public class Connection {
     public Connection() {
     }
 
-    public Channel get() {
-        return channel;
-    }
-
     public void unbind() {
         this.count = 0;
         channel = null;
@@ -41,6 +37,10 @@ public class Connection {
     public void bind(Channel channel) {
         this.channel = channel;
         this.count = 0;
+    }
+
+    public Channel getChannel() {
+        return channel;
     }
 
     public void addRetryCount() {

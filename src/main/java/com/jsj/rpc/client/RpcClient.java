@@ -126,7 +126,7 @@ public class RpcClient {
         Channel channel = null;
         RpcFutureHolder rpcFutureHolder = null;
         try {
-            channel = this.getChannel();
+            channel = getChannel();
             //eventLoop的缓存中添加RpcFuture
             rpcFutureHolder = new RpcFutureHolder(channel.eventLoop());
             rpcFutureHolder.set(channel, future);
@@ -144,9 +144,10 @@ public class RpcClient {
     }
 
     public Channel getChannel() throws Exception {
-        Channel channel = connection.get();
+        Channel channel = connection.getChannel();
         if (channel == null) {
             synchronized (this) {
+                channel = connection.getChannel();
                 if (channel == null) {
                     channel = doCreateConnection(this.targetIP, this.targetPort, Connection.DEFAULT_CONNECT_TIMEOUT);
                     connection.bind(channel);
