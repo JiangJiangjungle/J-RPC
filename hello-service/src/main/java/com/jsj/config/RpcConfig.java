@@ -15,7 +15,7 @@ public class RpcConfig {
 
     @Bean
     public ServiceRegistry initServiceRegistry() {
-        host = "119.23.204.78";
+        host = "139.9.77.156";
         String port = "2181";
         return new ZooKeeperRegistry(host + ":" + port);
     }
@@ -24,7 +24,7 @@ public class RpcConfig {
     public RpcServer initRpcServer(@Autowired ServiceRegistry serviceRegistry) {
         host = "127.0.0.1";
         int port = 6666;
-        return new RpcServer(host, port, serviceRegistry, CodeStrategy.PROTO_STUFF);
+        return new RpcServer(host, port, serviceRegistry, CodeStrategy.JSON);
     }
 
 
