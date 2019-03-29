@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -41,7 +43,7 @@ public class RpcProxy {
     /**
      * rpc服务的远程地址的本地缓存，减少查询zookeeper
      */
-    private ConcurrentHashMap<String, String> addressCache = new ConcurrentHashMap<>(16);
+    private Map<String, String> addressCache = new HashMap<>(16);
 
     /**
      * rpc服务 ip:port->rpcClient 映射列表,避免重复创建

@@ -46,5 +46,64 @@
   hello-client,不同线程参数配置下，各重复测试500次。
 
 - #### 测试结果
-
-![Result](https://github.com/JiangJiangjungle/My-NettyRPC/blob/master/figures/test_result.jpg)
+<table>
+    <tr>
+        <th rowspan="2">线程数</th>
+        <th colspan="2">JDK</th>
+        <th colspan="2">JSON</th>
+        <th colspan="2">PROTOSTUFF</th>
+    </tr>
+    <tr>
+        <td>同步调用</td>
+        <td>异步调用</td>
+        <td>同步调用</td>
+        <td>异步调用</td>
+        <td>同步调用</td>
+        <td>异步调用</td>
+    </tr>
+    <tr>
+        <td>100</td>
+        <td>26ms</td>
+        <td>26ms</td>
+        <td>19ms</td>
+        <td>20ms</td>
+        <td>19ms</td>
+        <td>21ms</td>
+    </tr>
+    <tr>
+        <td>200</td>
+        <td>54ms</td>
+        <td>57ms</td>
+        <td>41ms</td>
+        <td>41ms</td>
+        <td>42ms</td>
+        <td>41ms</td>
+    </tr>
+     <tr>
+        <td>500</td>
+        <td>145ms</td>
+        <td>149ms</td>
+        <td>102ms</td>
+        <td>104ms</td>
+        <td>102ms</td>
+        <td>104ms</td>
+    </tr>
+     <tr>
+        <td>1000</td>
+        <td>293ms</td>
+        <td>304ms</td>
+        <td>214ms</td>
+        <td>210ms</td>
+        <td>207ms</td>
+        <td>204ms</td>
+    </tr>   
+    <tr>
+        <td>2000</td>
+        <td>586ms</td>
+        <td>609ms</td>
+        <td>476ms</td>
+        <td>444ms</td>
+        <td>435ms</td>
+        <td>427ms</td>
+    </tr>  
+</table>

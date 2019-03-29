@@ -2,6 +2,7 @@ package com.jsj.task;
 
 import com.jsj.rpc.client.RpcProxy;
 import com.jsj.rpc.common.RpcFuture;
+import com.jsj.rpc.common.RpcResponse;
 import com.jsj.service.HelloService;
 
 import java.lang.reflect.Method;
@@ -21,11 +22,12 @@ public class FutureTestTask implements Callable<Long> {
     @Override
     public Long call() throws Exception {
         countDownLatch.countDown();
-        long now = System.currentTimeMillis();
         Method method = HelloService.class.getMethod("hello");
+        long now = System.currentTimeMillis();
         RpcFuture future = rpcProxy.call(HelloService.class, method, null);
+        RpcResponse rpcResponse = future.get();
         now = System.currentTimeMillis() - now;
-        System.out.println(future.get().toString() + " 耗时：" + now + " ms");
+        System.out.println(rpcResponse + " 耗时：" + now + " ms");
         return now;
     }
 }
