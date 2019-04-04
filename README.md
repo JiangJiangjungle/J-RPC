@@ -26,13 +26,13 @@
 
   <table>
        <tr>
-          <th colspan="21" rowspan="1">protocol_headr(7 byte)</th>
+          <th colspan="21" rowspan="1" align="center">protocol_headr(7 byte)</th>
       </tr>
       <tr>
-          <td colspan="1" rowspan="2">protocol_code (1 byte)</td>
-          <td colspan="8" rowspan="1">message_type (1 byte)</td>
-          <td colspan="8" rowspan="1">serialization_type (1 byte)</td>
-          <td colspan="4" rowspan="2">body_length (4 byte)</td>
+          <td colspan="1" rowspan="2" align="center">protocol_code (1 byte)</td>
+          <td colspan="8" rowspan="1" align="center">message_type (1 byte)</td>
+          <td colspan="8" rowspan="1" align="center">serialization_type (1 byte)</td>
+          <td colspan="4" rowspan="2" align="center">body_length (4 byte)</td>
       </tr>
       <tr>
           <td>0</td>
