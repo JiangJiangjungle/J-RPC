@@ -50,14 +50,14 @@ public class DemoApplication {
     }
 
     public static void main(String[] args) throws Exception {
-        int threads = 1;
+        int threads = 10;
         ExecutorService executorService = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(threads * 10), new NamedThreadFactory());
         CountDownLatch countDownLatch = new CountDownLatch(1);
         executorService.submit(new FutureTestTask(rpcProxy, countDownLatch));
         Thread.sleep(1000);
         System.out.println("RPC服务远程节点信息已缓存...");
-        int repeat = 1;
+        int repeat = 500;
         long sum = 0L;
         long count;
         for (int i = 1; i <= repeat; i++) {

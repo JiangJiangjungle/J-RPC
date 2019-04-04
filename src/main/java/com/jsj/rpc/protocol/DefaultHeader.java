@@ -68,4 +68,14 @@ public class DefaultHeader implements Header {
     public void setBodyLength(int bodyLength) {
         this.bodyLength = bodyLength;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultHeader{" +
+                "protocolCode=" + protocolCode +
+                ", messageType=" + messageType +
+                ", serializationType=" + serializationType +
+                ", bodyLength=" + bodyLength +
+                '}';
+    }
 }
