@@ -1,4 +1,4 @@
-package com.jsj.rpc.common;
+package com.jsj.rpc.protocol;
 
 /**
  * 自定义协议数据体

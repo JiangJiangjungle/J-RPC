@@ -1,8 +1,8 @@
 package com.jsj.rpc.client;
 
-import com.jsj.rpc.common.RpcFuture;
-import com.jsj.rpc.common.RpcFutureHolder;
-import com.jsj.rpc.common.RpcResponse;
+import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.RpcFutureHolder;
+import com.jsj.rpc.protocol.RpcResponse;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -21,7 +21,6 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
 
     public ClientHandler() {
-
     }
 
     @Override
@@ -32,7 +31,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
             //更新对应的RpcFuture
             future.done(rpcResponse);
         } else {
-            System.out.println("future 不存在");
+            throw new Exception("对应的 future 不存在");
         }
     }
 

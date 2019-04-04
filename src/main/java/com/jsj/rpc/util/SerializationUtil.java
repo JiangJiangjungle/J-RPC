@@ -5,7 +5,8 @@ import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.Schema;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
-import com.jsj.rpc.codec.CodeStrategy;
+import com.jsj.rpc.protocol.Body;
+import com.jsj.rpc.protocol.SerializationTypeEnum;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -25,7 +26,44 @@ public class SerializationUtil {
 
     private static Objenesis objenesis = new ObjenesisStd(true);
 
-    private SerializationUtil() {
+    /**
+     * 序列化（对象 -> 字节数组）
+     *
+     * @param obj
+     * @param codeC
+     * @return
+     * @throws IOException
+     */
+    public static byte[] serialize(Body obj, byte codeC) throws IOException {
+        if (obj == null) return null;
+        SerializationTypeEnum s = SerializationTypeEnum.get(codeC);
+        switch (s) {
+            case JDK:
+                return SerializationUtil.serializeWithJDK(obj);
+            case JSON:
+                return SerializationUtil.serializeWithJSON(obj);
+            case PROTO_STUFF:
+                return SerializationUtil.serializeWithProtostuff(obj);
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * 反序列化（字节数组 -> 对象）
+     */
+    public static <T> T deserialize(byte codeC, Class<T> cls, byte[] data) throws ClassNotFoundException, IOException {
+        SerializationTypeEnum s = SerializationTypeEnum.get(codeC);
+        switch (s) {
+            case JDK:
+                return SerializationUtil.deserializeWithJDK(data);
+            case JSON:
+                return SerializationUtil.deserializeWithJSON(data, cls);
+            case PROTO_STUFF:
+                return SerializationUtil.deserializeWithProtostuff(data, cls);
+            default:
+                return null;
+        }
     }
 
     /**
@@ -66,20 +104,6 @@ public class SerializationUtil {
     }
 
     /**
-     * 基于 JSON 序列化（对象 -> 字节数组）
-     */
-    public static <T> byte[] serialize(T obj, CodeStrategy codeStrategy) throws IOException {
-        if (obj == null) return null;
-        if (CodeStrategy.JDK == codeStrategy) {
-            return SerializationUtil.serializeWithJDK(obj);
-        } else if (CodeStrategy.JSON == codeStrategy) {
-            return SerializationUtil.serializeWithJSON(obj);
-        } else {
-            return SerializationUtil.serializeWithProtostuff(obj);
-        }
-    }
-
-    /**
      * 基于 Protostuff 反序列化（字节数组 -> 对象）
      */
     public static <T> T deserializeWithProtostuff(byte[] data, Class<T> cls) {
@@ -106,23 +130,6 @@ public class SerializationUtil {
     public static <T> T deserializeWithJDK(byte[] data) throws ClassNotFoundException, IOException {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(data); ObjectInputStream ois = new ObjectInputStream(bis)) {
             return (T) ois.readObject();
-        }
-    }
-
-    /**
-     * 反序列化（字节数组 -> 对象）
-     */
-    public static <T> T deserialize(byte[] data, Class<T> cls, CodeStrategy codeStrategy) throws ClassNotFoundException, IOException {
-        if (data == null) {
-            return null;
-        } else if (CodeStrategy.JDK == codeStrategy) {
-            T t = SerializationUtil.deserializeWithJDK(data);
-            System.out.println(t.toString());
-            return t;
-        } else if (CodeStrategy.JSON == codeStrategy) {
-            return SerializationUtil.deserializeWithJSON(data, cls);
-        } else {
-            return SerializationUtil.deserializeWithProtostuff(data, cls);
         }
     }
 

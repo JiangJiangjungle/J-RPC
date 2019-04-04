@@ -1,8 +1,8 @@
-package com.jsj.rpc.server;
+package com.jsj.rpc;
 
-import com.jsj.rpc.RpcStateCode;
-import com.jsj.rpc.common.RpcRequest;
-import com.jsj.rpc.common.RpcResponse;
+import com.jsj.rpc.protocol.*;
+import com.jsj.rpc.server.RpcServer;
+import com.jsj.rpc.util.MessageUtil;
 import io.netty.channel.ChannelHandlerContext;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
@@ -23,10 +23,12 @@ public class RpcTask implements Runnable {
 
     private ChannelHandlerContext ctx;
     private RpcRequest request;
+    private SerializationTypeEnum serializationType;
 
-    public RpcTask(ChannelHandlerContext ctx, RpcRequest request) {
+    public RpcTask(ChannelHandlerContext ctx, RpcRequest request, SerializationTypeEnum serializationType) {
         this.ctx = ctx;
         this.request = request;
+        this.serializationType = serializationType;
     }
 
     @Override
@@ -43,8 +45,10 @@ public class RpcTask implements Runnable {
             response.setErrorMsg(String.format("errorCode: %s, state: %s, cause: %s", RpcStateCode.FAIL.getCode(),
                     RpcStateCode.FAIL.getValue(), e.getMessage()));
         }
-        // 写入 RPC 响应对象
-        ctx.writeAndFlush(response);
+        //根据 RPC 响应对象封装Message
+        Message message = MessageUtil.createMessage(MessageTypeEnum.RPC_RESPONSE, serializationType, response);
+        // 写入 Message
+        ctx.writeAndFlush(message);
         LOGGER.info("执行完毕！{} ", request.toString());
     }
 

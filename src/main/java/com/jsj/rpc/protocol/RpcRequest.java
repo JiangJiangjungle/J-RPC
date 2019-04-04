@@ -1,4 +1,6 @@
-package com.jsj.rpc.common;
+package com.jsj.rpc.protocol;
+
+import com.jsj.rpc.protocol.Body;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -9,7 +11,7 @@ import java.util.Arrays;
  * @author jsj
  * @date 2018-10-9
  */
-public class RpcRequest implements Body,Serializable {
+public class RpcRequest implements Body, Serializable {
     /**
      * 请求id
      */

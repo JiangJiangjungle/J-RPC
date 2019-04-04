@@ -6,5 +6,5 @@ public interface HelloService {
 
     String timeOut();
 
-    int add(int x,int y);
+    int add(int x, int y);
 }

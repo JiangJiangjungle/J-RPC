@@ -1,4 +1,6 @@
-package com.jsj.rpc.common;
+package com.jsj.rpc.protocol;
+
+import com.jsj.rpc.protocol.Body;
 
 import java.io.Serializable;
 

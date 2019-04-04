@@ -4,16 +4,13 @@ package com.jsj;
 import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.client.RpcProxy;
 import com.jsj.rpc.codec.CodeStrategy;
-import com.jsj.rpc.common.RpcFuture;
-import com.jsj.rpc.common.RpcResponse;
+import com.jsj.rpc.protocol.SerializationTypeEnum;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.registry.impl.ZookeeperDiscovery;
 import com.jsj.task.FutureTestTask;
 import com.jsj.service.HelloService;
 import com.jsj.task.SyncTestTask;
 
-import java.lang.reflect.Method;
-import java.time.LocalTime;
 import java.util.concurrent.*;
 
 public class DemoApplication {
@@ -22,7 +19,7 @@ public class DemoApplication {
     static String PORT = "2181";
     static ServiceDiscovery serviceDiscovery = new ZookeeperDiscovery(IP + ":" + PORT);
 
-    static RpcProxy rpcProxy = new RpcProxy(serviceDiscovery,CodeStrategy.JSON);
+    static RpcProxy rpcProxy = new RpcProxy(serviceDiscovery, SerializationTypeEnum.JSON);
     static HelloService helloService = rpcProxy.getService(HelloService.class);
 
 
@@ -53,14 +50,14 @@ public class DemoApplication {
     }
 
     public static void main(String[] args) throws Exception {
-        int threads = 200;
+        int threads = 1;
         ExecutorService executorService = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(threads * 10), new NamedThreadFactory());
         CountDownLatch countDownLatch = new CountDownLatch(1);
         executorService.submit(new FutureTestTask(rpcProxy, countDownLatch));
         Thread.sleep(1000);
         System.out.println("RPC服务远程节点信息已缓存...");
-        int repeat = 500;
+        int repeat = 1;
         long sum = 0L;
         long count;
         for (int i = 1; i <= repeat; i++) {

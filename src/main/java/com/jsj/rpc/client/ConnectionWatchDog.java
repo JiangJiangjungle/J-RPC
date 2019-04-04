@@ -1,8 +1,7 @@
 package com.jsj.rpc.client;
 
-import com.jsj.rpc.common.Header;
-import com.jsj.rpc.common.NettyMessage;
-import com.jsj.rpc.common.RpcFutureHolder;
+import com.jsj.rpc.protocol.*;
+import com.jsj.rpc.RpcFutureHolder;
 import com.jsj.rpc.util.MessageUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -18,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2018-10-24
  */
 @ChannelHandler.Sharable
-public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage> implements Runnable {
+public class ConnectionWatchDog extends SimpleChannelInboundHandler<Message> implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWatchDog.class);
     private ReConnectionListener listener;
 
@@ -27,11 +26,16 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, NettyMessage message) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Message message) throws Exception {
         //若是心跳响应则直接返回，否则交给下一handler处理
-        Header header = message.getHeader();
-        if (Header.RPC_RESPONSE == header.getType()) {
-            channelHandlerContext.fireChannelRead(message.getContent());
+        byte messageType = message.getHeader().messageType();
+        if (!message.emptyBody() && MessageTypeEnum.RPC_RESPONSE.getValue() == messageType) {
+            LOGGER.debug("收到来自服务端的RPC响应：{}", message);
+            channelHandlerContext.fireChannelRead(message.getBody());
+        } else if (message.emptyBody() && MessageTypeEnum.HEART_BEAT_RESPONSE.getValue() == messageType) {
+            LOGGER.debug("收到来自服务端的心跳响应：{}", message);
+        } else {
+            LOGGER.debug("接收到错误的消息类型：{}", message);
         }
     }
 
@@ -60,7 +64,7 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<NettyMessage
                     break;
                 case WRITER_IDLE:
                     LOGGER.debug("发送心跳包，channel：{}", ctx.channel());
-                    ctx.writeAndFlush(MessageUtil.buildHeartBeatRequest());
+                    ctx.writeAndFlush(MessageUtil.createHeartBeatRequestMessage());
                     break;
                 default:
                     break;

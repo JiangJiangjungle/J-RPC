@@ -1,4 +1,4 @@
-package com.jsj.rpc.common;
+package com.jsj.rpc;
 
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;

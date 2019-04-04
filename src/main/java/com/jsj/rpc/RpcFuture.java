@@ -1,11 +1,12 @@
-package com.jsj.rpc.common;
+package com.jsj.rpc;
 
+
+import com.jsj.rpc.protocol.RpcResponse;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * 用于rpc框架的异步调用

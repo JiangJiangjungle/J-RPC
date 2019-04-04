@@ -1,5 +1,6 @@
 package com.jsj.rpc.codec;
 
+import com.jsj.rpc.protocol.SerializationTypeEnum;
 import io.netty.channel.ChannelHandler;
 
 /**
@@ -10,19 +11,19 @@ import io.netty.channel.ChannelHandler;
  */
 public class DefaultCodeC implements CodeC {
 
-    private final CodeStrategy strategy;
+    private final SerializationTypeEnum serializationType;
 
-    public DefaultCodeC(CodeStrategy strategy) {
-        this.strategy = strategy;
+    public DefaultCodeC(SerializationTypeEnum serializationType) {
+        this.serializationType = serializationType;
     }
 
     @Override
     public ChannelHandler newEncoder() {
-        return new RpcEncoder(this.strategy);
+        return new RpcEncoder(serializationType);
     }
 
     @Override
     public ChannelHandler newDecoder() {
-        return new RpcDecoder(this.strategy);
+        return new RpcDecoder();
     }
 }

@@ -5,7 +5,9 @@ import com.jsj.rpc.RpcService;
 import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.CodeStrategy;
 import com.jsj.rpc.codec.DefaultCodeC;
+import com.jsj.rpc.protocol.SerializationTypeEnum;
 import com.jsj.rpc.registry.ServiceRegistry;
+import com.sun.xml.internal.ws.developer.Serialization;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -76,18 +78,13 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
      * @param targetIP
      * @param targetPort
      */
-    private CodeC codeC;
+    private static CodeC codeC = new DefaultCodeC(SerializationTypeEnum.NONE);
 
     public RpcServer(String ip, int port, ServiceRegistry serviceRegistry) {
-        this(ip, port, serviceRegistry, CodeStrategy.DEAULT);
-    }
-
-    public RpcServer(String ip, int port, ServiceRegistry serviceRegistry, CodeStrategy codeStrategy) {
         this.ip = ip;
         this.port = port;
         this.addr = this.ip + ":" + this.port;
         this.serviceRegistry = serviceRegistry;
-        this.codeC = new DefaultCodeC(codeStrategy);
     }
 
     /**

@@ -2,12 +2,12 @@ package com.jsj.rpc.client;
 
 
 import com.jsj.rpc.codec.CodeC;
-import com.jsj.rpc.codec.CodeStrategy;
 import com.jsj.rpc.codec.DefaultCodeC;
-import com.jsj.rpc.common.RpcFuture;
-import com.jsj.rpc.common.RpcResponse;
+import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.protocol.RpcResponse;
 import com.jsj.rpc.exception.RpcErrorException;
 import com.jsj.rpc.exception.RpcServiceNotFoundException;
+import com.jsj.rpc.protocol.SerializationTypeEnum;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.util.StringUtil;
 import io.netty.channel.ConnectTimeoutException;
@@ -56,12 +56,12 @@ public class RpcProxy {
     private final CodeC codeC;
 
     public RpcProxy(ServiceDiscovery serviceDiscovery) {
-        this(serviceDiscovery, CodeStrategy.DEAULT);
+        this(serviceDiscovery, SerializationTypeEnum.PROTO_STUFF);
     }
 
-    public RpcProxy(ServiceDiscovery serviceDiscovery, CodeStrategy codeStrategy) {
+    public RpcProxy(ServiceDiscovery serviceDiscovery, SerializationTypeEnum serializationType) {
         this.serviceDiscovery = serviceDiscovery;
-        this.codeC = new DefaultCodeC(codeStrategy);
+        this.codeC = new DefaultCodeC(serializationType);
     }
 
     /**
@@ -219,7 +219,7 @@ public class RpcProxy {
             if ((addr = addressCache.get(interfaceClassName)) == null) {
                 try {
                     addr = serviceDiscovery.discover(interfaceClassName);
-                    if (addr!=null){
+                    if (addr != null) {
                         LOGGER.info("通过 服务协调中心 发现服务: {} => {}", interfaceClassName, addr);
                     }
                 } catch (RpcServiceNotFoundException r) {

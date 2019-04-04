@@ -1,8 +1,8 @@
 package com.jsj.task;
 
 import com.jsj.rpc.client.RpcProxy;
-import com.jsj.rpc.common.RpcFuture;
-import com.jsj.rpc.common.RpcResponse;
+import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.protocol.RpcResponse;
 import com.jsj.service.HelloService;
 
 import java.lang.reflect.Method;

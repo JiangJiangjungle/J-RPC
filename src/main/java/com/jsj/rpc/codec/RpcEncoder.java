@@ -1,10 +1,9 @@
 package com.jsj.rpc.codec;
 
 
-import com.jsj.rpc.common.Body;
-import com.jsj.rpc.common.Header;
-import com.jsj.rpc.common.RpcRequest;
-import com.jsj.rpc.util.SerializationUtil;
+import com.jsj.rpc.protocol.*;
+import com.jsj.rpc.exception.CodecException;
+import com.jsj.rpc.util.MessageUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -17,23 +16,22 @@ import io.netty.handler.codec.MessageToByteEncoder;
  */
 public class RpcEncoder extends MessageToByteEncoder {
 
-    private final CodeStrategy strategy;
+    private final SerializationTypeEnum serializationType;
 
-    public RpcEncoder(CodeStrategy strategy) {
-        this.strategy = strategy;
+    public RpcEncoder(SerializationTypeEnum serializationType) {
+        this.serializationType = serializationType;
     }
 
     @Override
     public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws Exception {
-        if (in instanceof Header) {
-            Header header = (Header) in;
-            out.writeInt(header.getDataLength());
-            out.writeByte(header.getType());
+        if (in instanceof Message) {
+            MessageUtil.messageTransToByteBuf((Message) in, out);
+        } else if (in instanceof Body) {
+            MessageTypeEnum messageTypeEnum = in instanceof RpcRequest ? MessageTypeEnum.RPC_REQUEST : MessageTypeEnum.RPC_RESPONSE;
+            Message msg = MessageUtil.createMessage(messageTypeEnum, serializationType, (Body) in);
+            MessageUtil.messageTransToByteBuf(msg, out);
         } else {
-            byte[] data = SerializationUtil.serialize((Body) in, strategy);
-            out.writeInt(data.length);
-            out.writeByte(in instanceof RpcRequest ? Header.RPC_REQUEST : Header.RPC_RESPONSE);
-            out.writeBytes(data);
+            throw new CodecException("传入非法的对象类型,无法进行编码！");
         }
     }
 }
