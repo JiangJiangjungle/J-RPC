@@ -32,9 +32,9 @@ public class RpcClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
 
-    public static int ID_MAX_VALUE = 1 << 16;
+    public static final int THRESHOLD = Integer.MAX_VALUE >> 1;
 
-    private AtomicInteger requestId = new AtomicInteger(0);
+    private AtomicInteger idCount = new AtomicInteger(0);
 
     /**
      * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
@@ -214,16 +214,15 @@ public class RpcClient {
     private RpcRequest buildRpcRequest(Method method, Object[] parameters) {
         RpcRequest request = new RpcRequest();
         //若当前计数器值超过阈值，需要重置
-        if (requestId.get() >= ID_MAX_VALUE) {
+        if (idCount.get() >= THRESHOLD) {
             synchronized (this) {
-                if (requestId.get() >= ID_MAX_VALUE) {
-                    requestId.getAndSet(0);
+                if (idCount.get() >= THRESHOLD) {
+                    idCount.getAndSet(0);
                 }
             }
         }
         //设置请求id
-        int id = requestId.getAndIncrement();
-        request.setRequestId(id);
+        request.setRequestId(idCount.getAndIncrement());
         //设置服务接口名称
         request.setInterfaceName(method.getDeclaringClass().getName());
         //设置调用方法名

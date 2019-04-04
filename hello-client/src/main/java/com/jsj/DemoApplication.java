@@ -3,12 +3,11 @@ package com.jsj;
 
 import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.client.RpcProxy;
-import com.jsj.rpc.codec.CodeStrategy;
 import com.jsj.rpc.protocol.SerializationTypeEnum;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.registry.impl.ZookeeperDiscovery;
-import com.jsj.task.FutureTestTask;
 import com.jsj.service.HelloService;
+import com.jsj.task.FutureTestTask;
 import com.jsj.task.SyncTestTask;
 
 import java.util.concurrent.*;

@@ -1,7 +1,5 @@
 package com.jsj.rpc.protocol;
 
-import com.jsj.rpc.protocol.Body;
-
 import java.io.Serializable;
 import java.util.Arrays;
 

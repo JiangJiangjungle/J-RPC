@@ -24,8 +24,35 @@
 
 - #### 简单的自定义通信协议
 
-  | 数据长度（4byte） | 消息类型（1byte） | 数据(不定长) |
-  | :-------- | --------:| :--: |
+  <table>
+       <tr>
+          <th colspan="21" rowspan="1">protocol_headr(7 byte)</th>
+      </tr>
+      <tr>
+          <td colspan="1" rowspan="2">protocol_code (1 byte)</td>
+          <td colspan="8" rowspan="1">message_type (1 byte)</td>
+          <td colspan="8" rowspan="1">serialization_type (1 byte)</td>
+          <td colspan="4" rowspan="2">body_length (4 byte)</td>
+      </tr>
+      <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>heart_beat_response</td>
+          <td>heart_beat_request</td>
+          <td>rpc_response</td>
+          <td>rpc_request</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>proto_stuff</td>
+          <td>json</td>
+          <td>jdk</td>
+      </tr>
+  </table>
 
 - #### 心跳检测机制
 
