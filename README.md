@@ -26,31 +26,15 @@
 
   <table>
        <tr>
-          <th colspan="21" rowspan="1" align="center">protocol_headr(7 byte)</th>
+          <th colspan="7" rowspan="1" align="center">protocol_headr(7 byte)</th>
+          <th colspan="1" rowspan="1" align="center">protocol_body</th>
       </tr>
       <tr>
-          <td colspan="1" rowspan="2" align="center">protocol_code (1 byte)</td>
-          <td colspan="8" rowspan="1" align="center">message_type (1 byte)</td>
-          <td colspan="8" rowspan="1" align="center">serialization_type (1 byte)</td>
-          <td colspan="4" rowspan="2" align="center">body_length (4 byte)</td>
-      </tr>
-      <tr>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>heart_beat_response</td>
-          <td>heart_beat_request</td>
-          <td>rpc_response</td>
-          <td>rpc_request</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>proto_stuff</td>
-          <td>json</td>
-          <td>jdk</td>
+          <td colspan="1" rowspan="1" align="center">protocol_code (1 byte)</td>
+          <td colspan="1" rowspan="1" align="center">message_type (1 byte)</td>
+          <td colspan="1" rowspan="1" align="center">serialization_type (1 byte)</td>
+          <td colspan="4" rowspan="1" align="center">body_length (4 byte)</td>
+          <td colspan="1" rowspan="1" align="center">...</td>
       </tr>
   </table>
 
