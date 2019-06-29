@@ -27,11 +27,11 @@ public class ReConnectionListener implements ChannelFutureListener {
             connection.bind(channel);
         } else {
             connection.addRetryCount();
-            if (connection.getCount() < Connection.DEFAULT_RECONNECT_TRY) {
+            if (connection.getCount() < connection.RECONNECT_TRY) {
                 ChannelPipeline channelPipeline = channel.pipeline();
                 channelPipeline.fireChannelInactive();
             } else {
-                LOGGER.info("Fail to Reconnect. Retry:{}.", Connection.DEFAULT_RECONNECT_TRY);
+                LOGGER.info("Fail to Reconnect. Retry:{}.", connection.RECONNECT_TRY);
                 connection.unbind();
             }
         }

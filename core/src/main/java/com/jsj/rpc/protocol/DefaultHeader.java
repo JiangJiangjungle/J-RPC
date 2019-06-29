@@ -21,7 +21,7 @@ public class DefaultHeader implements Header {
     /**
      * 序列化类型（1byte）
      */
-    private final byte serializationType;
+    private final byte serializerType;
 
     /**
      * 协议体数据长度（4byte)
@@ -33,14 +33,14 @@ public class DefaultHeader implements Header {
      */
     public static byte PROTOCOL_CODE = (byte) 0xAC;
 
-    public DefaultHeader(byte messageType, byte serializationType, int bodyLength) {
-        this(PROTOCOL_CODE, messageType, serializationType, bodyLength);
+    public DefaultHeader(byte messageType, byte serializerType, int bodyLength) {
+        this(PROTOCOL_CODE, messageType, serializerType, bodyLength);
     }
 
-    public DefaultHeader(byte protocolCode, byte messageType, byte serializationType, int bodyLength) {
+    public DefaultHeader(byte protocolCode, byte messageType, byte serializerType, int bodyLength) {
         this.protocolCode = protocolCode;
         this.messageType = messageType;
-        this.serializationType = serializationType;
+        this.serializerType = serializerType;
         this.bodyLength = bodyLength;
     }
 
@@ -56,7 +56,7 @@ public class DefaultHeader implements Header {
 
     @Override
     public byte serializationType() {
-        return this.serializationType;
+        return this.serializerType;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class DefaultHeader implements Header {
         return "DefaultHeader{" +
                 "protocolCode=" + protocolCode +
                 ", messageType=" + messageType +
-                ", serializationType=" + serializationType +
+                ", serializerType=" + serializerType +
                 ", bodyLength=" + bodyLength +
                 '}';
     }

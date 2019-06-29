@@ -1,6 +1,7 @@
 package com.jsj.rpc.task;
 
 import com.jsj.rpc.RpcStateCode;
+import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.server.RpcServer;
 import com.jsj.rpc.util.MessageUtil;
@@ -24,9 +25,9 @@ public class RpcTask implements Runnable {
 
     private ChannelHandlerContext ctx;
     private RpcRequest request;
-    private SerializationTypeEnum serializationType;
+    private SerializerTypeEnum serializationType;
 
-    public RpcTask(ChannelHandlerContext ctx, RpcRequest request, SerializationTypeEnum serializationType) {
+    public RpcTask(ChannelHandlerContext ctx, RpcRequest request, SerializerTypeEnum serializationType) {
         this.ctx = ctx;
         this.request = request;
         this.serializationType = serializationType;

@@ -10,6 +10,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author jiangshenjie
+ */
 public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
     private static ChannelHandler clientHandler = new ClientHandler();
     private CodeC codeC;

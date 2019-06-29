@@ -1,5 +1,7 @@
 package com.jsj.rpc.util;
 
+import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
+import com.jsj.rpc.exception.SerializationException;
 import com.jsj.rpc.protocol.RpcRequest;
 import com.jsj.rpc.protocol.RpcResponse;
 import com.jsj.rpc.protocol.*;
@@ -29,8 +31,8 @@ public class MessageUtil {
      *
      * @return
      */
-    public static Message createMessage(MessageTypeEnum messageType, SerializationTypeEnum serializationType, Body content) {
-        Header header = new DefaultHeader(messageType.getValue(), serializationType.getValue(), 0);
+    public static Message createMessage(MessageTypeEnum messageType, SerializerTypeEnum serializerType, Body content) {
+        Header header = new DefaultHeader(messageType.getValue(), serializerType.getValue(), 0);
         return createMessage(header, content);
     }
 
@@ -40,7 +42,7 @@ public class MessageUtil {
      * @return
      */
     public static Message createHeartBeatRequestMessage() {
-        return createMessage(MessageTypeEnum.HEART_BEAT_REQUEST, SerializationTypeEnum.NONE, null);
+        return createMessage(MessageTypeEnum.HEART_BEAT_REQUEST, SerializerTypeEnum.NONE, null);
     }
 
     /**
@@ -49,7 +51,7 @@ public class MessageUtil {
      * @return
      */
     public static Message createHeartBeatResponseMessage() {
-        return createMessage(MessageTypeEnum.HEART_BEAT_RESPONSE, SerializationTypeEnum.NONE, null);
+        return createMessage(MessageTypeEnum.HEART_BEAT_RESPONSE, SerializerTypeEnum.NONE, null);
     }
 
     /**
@@ -74,7 +76,7 @@ public class MessageUtil {
      * @return
      * @throws IOException
      */
-    public static Body byteBufTransToBody(Header header, ByteBuf in) throws ClassNotFoundException, IOException {
+    public static Body byteBufTransToBody(Header header, ByteBuf in) throws SerializationException {
         if (header.bodyLength() == 0) return null;
         byte[] data = new byte[header.bodyLength()];
         in.readBytes(data);
@@ -91,11 +93,11 @@ public class MessageUtil {
      * @param msg
      * @param out
      */
-    public static void messageTransToByteBuf(Message msg, ByteBuf out) throws IOException {
+    public static void messageTransToByteBuf(Message msg, ByteBuf out) throws SerializationException {
         Header header = msg.getHeader();
         int bodyLength = 0;
         byte[] data = null;
-        if (!msg.emptyBody() && SerializationTypeEnum.NONE.getValue() != header.serializationType()) {
+        if (!msg.emptyBody() && SerializerTypeEnum.NONE.getValue() != header.serializationType()) {
             data = SerializationUtil.serialize(msg.getBody(), header.serializationType());
             bodyLength = data.length;
         }

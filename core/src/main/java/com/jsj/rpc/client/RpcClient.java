@@ -137,7 +137,7 @@ public class RpcClient {
     }
 
     /**
-     * 建立Channel连接（借鉴 SOFA-BOLT 框架）
+     * 建立Channel连接
      *
      * @param targetIP
      * @param targetPort

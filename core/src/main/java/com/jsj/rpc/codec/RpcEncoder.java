@@ -1,6 +1,7 @@
 package com.jsj.rpc.codec;
 
 
+import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.exception.CodecException;
 import com.jsj.rpc.util.MessageUtil;
@@ -16,9 +17,9 @@ import io.netty.handler.codec.MessageToByteEncoder;
  */
 public class RpcEncoder extends MessageToByteEncoder {
 
-    private final SerializationTypeEnum serializationType;
+    private final SerializerTypeEnum serializationType;
 
-    public RpcEncoder(SerializationTypeEnum serializationType) {
+    public RpcEncoder(SerializerTypeEnum serializationType) {
         this.serializationType = serializationType;
     }
 

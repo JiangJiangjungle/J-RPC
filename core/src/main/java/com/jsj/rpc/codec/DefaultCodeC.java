@@ -1,6 +1,6 @@
 package com.jsj.rpc.codec;
 
-import com.jsj.rpc.protocol.SerializationTypeEnum;
+import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import io.netty.channel.ChannelHandler;
 
 /**
@@ -11,9 +11,9 @@ import io.netty.channel.ChannelHandler;
  */
 public class DefaultCodeC implements CodeC {
 
-    private final SerializationTypeEnum serializationType;
+    private final SerializerTypeEnum serializationType;
 
-    public DefaultCodeC(SerializationTypeEnum serializationType) {
+    public DefaultCodeC(SerializerTypeEnum serializationType) {
         this.serializationType = serializationType;
     }
 

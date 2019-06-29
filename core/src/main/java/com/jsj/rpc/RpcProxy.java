@@ -7,7 +7,7 @@ import com.jsj.rpc.codec.DefaultCodeC;
 import com.jsj.rpc.protocol.RpcResponse;
 import com.jsj.rpc.exception.RpcErrorException;
 import com.jsj.rpc.exception.RpcServiceNotFoundException;
-import com.jsj.rpc.protocol.SerializationTypeEnum;
+import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.util.StringUtil;
 import io.netty.channel.ConnectTimeoutException;
@@ -56,10 +56,10 @@ public class RpcProxy {
     private final CodeC codeC;
 
     public RpcProxy(ServiceDiscovery serviceDiscovery) {
-        this(serviceDiscovery, SerializationTypeEnum.PROTO_STUFF);
+        this(serviceDiscovery, SerializerTypeEnum.PROTO_STUFF);
     }
 
-    public RpcProxy(ServiceDiscovery serviceDiscovery, SerializationTypeEnum serializationType) {
+    public RpcProxy(ServiceDiscovery serviceDiscovery, SerializerTypeEnum serializationType) {
         this.serviceDiscovery = serviceDiscovery;
         this.codeC = new DefaultCodeC(serializationType);
         rpcClientMap = new ConcurrentHashMap<>(16);

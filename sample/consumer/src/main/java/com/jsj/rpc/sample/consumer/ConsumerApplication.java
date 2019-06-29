@@ -2,7 +2,7 @@ package com.jsj.rpc.sample.consumer;
 
 import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.RpcProxy;
-import com.jsj.rpc.protocol.SerializationTypeEnum;
+import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.registry.impl.ZooKeeperRegistry;
 import com.jsj.rpc.sample.consumer.task.FutureTestTask;
@@ -44,7 +44,7 @@ public class ConsumerApplication {
     public static void main(String[] args) throws Exception {
         //初始化
         ServiceDiscovery serviceDiscovery = new ZooKeeperRegistry(IP ,PORT);
-        RpcProxy rpcProxy = new RpcProxy(serviceDiscovery, SerializationTypeEnum.JSON);
+        RpcProxy rpcProxy = new RpcProxy(serviceDiscovery, SerializerTypeEnum.JSON);
         HelloService helloService = rpcProxy.getService(HelloService.class);
         //线程设置
         int threads = 10;

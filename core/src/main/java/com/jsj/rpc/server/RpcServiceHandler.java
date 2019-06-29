@@ -3,7 +3,7 @@ package com.jsj.rpc.server;
 import com.jsj.rpc.task.RpcTask;
 import com.jsj.rpc.protocol.Message;
 import com.jsj.rpc.protocol.RpcRequest;
-import com.jsj.rpc.protocol.SerializationTypeEnum;
+import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -32,7 +32,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<Message> {
     public void channelRead0(final ChannelHandlerContext ctx, Message message) throws Exception {
         LOGGER.info("服务端收到 rpc request:{}", message.getBody().toString());
         //交由业务线程池执行
-        SerializationTypeEnum serializationType = SerializationTypeEnum.get(message.getHeader().serializationType());
+        SerializerTypeEnum serializationType = SerializerTypeEnum.get(message.getHeader().serializationType());
         threadPool.execute(new RpcTask(ctx, (RpcRequest) message.getBody(), serializationType));
     }
 
