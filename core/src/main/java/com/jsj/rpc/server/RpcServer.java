@@ -5,6 +5,7 @@ import com.jsj.rpc.RpcService;
 import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.DefaultCodeC;
 import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
+import com.jsj.rpc.config.ServerConnectConfiguration;
 import com.jsj.rpc.registry.ServiceRegistry;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -36,34 +37,23 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
     private static final String SEPARATOR = ":";
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
 
-    private String ip;
-
-    private int port;
-
-    private String addr;
-
     /**
      * Netty 的连接线程池
      */
-    private static EventLoopGroup bossGroup = new NioEventLoopGroup(1, new NamedThreadFactory(
+    private EventLoopGroup bossGroup = new NioEventLoopGroup(1, new NamedThreadFactory(
             "Rpc-netty-server-boss", false));
     /**
-     * Netty 的Task执行线程池
+     * Netty 的I/O线程池
      */
-    private static EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
+    private EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
             new NamedThreadFactory("Rpc-netty-server-worker", true));
 
     /**
      * 用户线程池，用于处理实际rpc业务
      */
-    private static ExecutorService threadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 2,
+    private ExecutorService threadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 2,
             Runtime.getRuntime().availableProcessors() * 2, 60L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(1000), new NamedThreadFactory());
-
-    /**
-     * 服务注册中心
-     */
-    private ServiceRegistry serviceRegistry;
 
     /**
      * 用于存储已经注册的服务实例
@@ -78,11 +68,30 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
      */
     private static CodeC codeC = new DefaultCodeC(SerializerTypeEnum.NONE);
 
+    /**
+     * 服务端连接配置项
+     */
+    private ServerConnectConfiguration configuration;
+
+    private String ip;
+
+    private int port;
+
+    /**
+     * 服务注册中心
+     */
+    private ServiceRegistry serviceRegistry;
+
     public RpcServer(String ip, int port, ServiceRegistry serviceRegistry) {
+        this(ip, port, serviceRegistry, new ServerConnectConfiguration());
+    }
+
+    public RpcServer(String ip, int port, ServiceRegistry serviceRegistry, ServerConnectConfiguration configuration) {
+        this.configuration = configuration;
         this.ip = ip;
         this.port = port;
-        this.addr = this.ip + SEPARATOR + this.port;
         this.serviceRegistry = serviceRegistry;
+        this.configuration = configuration;
     }
 
     /**
@@ -139,6 +148,7 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
         RpcService rpcService;
         String serviceName;
         Object serviceBean;
+        String addr = this.ip+SEPARATOR+port;
         for (Map.Entry<String, Object> entry : serviceBeanMap.entrySet()) {
             //service实例
             serviceBean = entry.getValue();
@@ -146,9 +156,9 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
             //service接口名称
             serviceName = rpcService.value().getName();
             //注册
-            this.serviceRegistry.register(serviceName, this.addr);
+            this.serviceRegistry.register(serviceName, addr);
             serviceInstanceMap.put(serviceName, serviceBean);
-            LOGGER.debug("register service: {} => {}", serviceName, this.addr);
+            LOGGER.debug("register service: {} => {}", serviceName, addr);
         }
     }
 
@@ -159,20 +169,28 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
      * @param workerGroup
      * @return
      */
-    private ServerBootstrap initServerBootstrap(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
+    public ServerBootstrap initServerBootstrap(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
         return new ServerBootstrap()
                 .group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 1024)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(new ServerChannelInitializer(codeC, new RpcServiceHandler(threadPool)));
+                .option(ChannelOption.SO_BACKLOG, configuration.getBackLog())
+                .childOption(ChannelOption.SO_KEEPALIVE, configuration.getKeepAlive())
+                .childHandler(new ServerChannelInitializer(codeC, new RpcServiceHandler(threadPool), configuration.getChannelAliveTime()));
     }
 
-    public String ip() {
-        return this.ip;
+    public String getIp() {
+        return ip;
     }
 
-    public int port() {
-        return this.port;
+    public int getPort() {
+        return port;
+    }
+
+    public EventLoopGroup getBossGroup() {
+        return bossGroup;
+    }
+
+    public EventLoopGroup getWorkerGroup() {
+        return workerGroup;
     }
 }

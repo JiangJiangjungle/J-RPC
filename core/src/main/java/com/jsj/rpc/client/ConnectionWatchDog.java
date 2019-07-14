@@ -1,7 +1,7 @@
 package com.jsj.rpc.client;
 
 import com.jsj.rpc.protocol.*;
-import com.jsj.rpc.RpcFutureHolder;
+import com.jsj.rpc.ChannelDataHolder;
 import com.jsj.rpc.util.MessageUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -47,7 +47,7 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<Message> imp
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //当channel关闭时，清除eventLoop中channel对应的所有future
-        RpcFutureHolder.removeChannel(ctx.channel());
+        ChannelDataHolder.removeChannel(ctx.channel());
         LOGGER.info("Channel closed, trying to reconnect.");
         //线程开启定时任务，准备尝试重连
         ctx.channel().eventLoop().schedule(this, 3L, TimeUnit.SECONDS);

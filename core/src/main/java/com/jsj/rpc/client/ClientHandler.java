@@ -1,7 +1,7 @@
 package com.jsj.rpc.client;
 
 import com.jsj.rpc.RpcFuture;
-import com.jsj.rpc.RpcFutureHolder;
+import com.jsj.rpc.ChannelDataHolder;
 import com.jsj.rpc.protocol.RpcResponse;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,7 +26,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
         Integer requestId = rpcResponse.getRequestId();
-        RpcFuture future = RpcFutureHolder.removeFuture(channelHandlerContext.channel(), requestId);
+        RpcFuture future = ChannelDataHolder.removeFuture(channelHandlerContext.channel(), requestId);
         if (future != null && !future.isCancelled()) {
             //更新对应的RpcFuture
             future.done(rpcResponse);

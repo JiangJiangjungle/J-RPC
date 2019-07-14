@@ -4,6 +4,7 @@ package com.jsj.rpc;
 import com.jsj.rpc.client.RpcClient;
 import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.DefaultCodeC;
+import com.jsj.rpc.config.ClientConnectConfiguration;
 import com.jsj.rpc.protocol.RpcResponse;
 import com.jsj.rpc.exception.RpcErrorException;
 import com.jsj.rpc.exception.RpcServiceNotFoundException;
@@ -55,14 +56,21 @@ public class RpcProxy {
      */
     private final CodeC codeC;
 
+    private final ClientConnectConfiguration configuration;
+
     public RpcProxy(ServiceDiscovery serviceDiscovery) {
         this(serviceDiscovery, SerializerTypeEnum.PROTO_STUFF);
     }
 
     public RpcProxy(ServiceDiscovery serviceDiscovery, SerializerTypeEnum serializationType) {
+        this(serviceDiscovery, serializationType, new ClientConnectConfiguration());
+    }
+
+    public RpcProxy(ServiceDiscovery serviceDiscovery, SerializerTypeEnum serializationType, ClientConnectConfiguration configuration) {
         this.serviceDiscovery = serviceDiscovery;
         this.codeC = new DefaultCodeC(serializationType);
-        rpcClientMap = new ConcurrentHashMap<>(16);
+        this.configuration = configuration;
+        this.rpcClientMap = new ConcurrentHashMap<>(16);
     }
 
     /**
@@ -197,7 +205,7 @@ public class RpcProxy {
                     String[] addressArray = StringUtil.split(serviceAddress, ":");
                     String ip = addressArray[0];
                     int port = Integer.parseInt(addressArray[1]);
-                    client = new RpcClient(ip, port, this.codeC);
+                    client = new RpcClient(ip, port, configuration,this.codeC);
                     rpcClientMap.put(serviceAddress, client);
                     addressCache.put(interfaceClassName, serviceAddress);
                 }
@@ -227,7 +235,7 @@ public class RpcProxy {
                         LOGGER.info("Find Service Success: [{}->{}]", interfaceClassName, addr);
                     }
                 } catch (RpcServiceNotFoundException r) {
-                    LOGGER.debug("Service : [{}] Not Exists! Error msg:[{}]", interfaceClassName,r.getMessage());
+                    LOGGER.debug("Service : [{}] Not Exists! Error msg:[{}]", interfaceClassName, r.getMessage());
                     return null;
                 }
             }
