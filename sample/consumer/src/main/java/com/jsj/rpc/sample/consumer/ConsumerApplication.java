@@ -64,8 +64,5 @@ public class ConsumerApplication {
         }
         System.out.println("------测试结束--------");
         System.out.println("在线程数为：" + threads + " 的条件下，累计平均响应时间：" + sum / (repeat * threads) + " ms.");
-        while (true){
-
-        }
     }
 }
