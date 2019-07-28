@@ -1,7 +1,5 @@
 package com.jsj.rpc.registry;
 
-import com.jsj.rpc.exception.RpcServiceNotFoundException;
-
 /**
  * Service服务中心
  *

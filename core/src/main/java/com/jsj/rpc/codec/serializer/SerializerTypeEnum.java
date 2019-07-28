@@ -12,25 +12,25 @@ import java.util.Map;
  */
 public enum SerializerTypeEnum {
     /**
-     * none
+     * default
      */
-    NONE("none", (byte) 0,new ProtostuffSerializer()),
+    DEFAULT("default", (byte) 0, new ProtostuffSerializer()),
     /**
      * jdk
      */
-    JDK("jdk", (byte) 1,new JDKSerializer()),
+    JDK("jdk", (byte) 1, new JDKSerializer()),
     /**
      * json
      */
-    JSON("json", (byte) 2,new JSONSerializer()),
+    JSON("json", (byte) 2, new JSONSerializer()),
     /**
      * kryo
      */
-    KRYO("kryo", (byte) 3,new ProtostuffSerializer()),
+    KRYO("kryo", (byte) 3, new ProtostuffSerializer()),
     /**
      * protostuff
      */
-    PROTO_STUFF("protostuff", (byte) 4,new ProtostuffSerializer());
+    PROTO_STUFF("proto_stuff", (byte) 4, new ProtostuffSerializer());
 
     private static final Map<Byte, SerializerTypeEnum> LOOK_UP = new HashMap<>();
 

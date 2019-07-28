@@ -7,7 +7,6 @@ package com.jsj.rpc;
  * @date 2018-10-9
  */
 public enum RpcStateCode {
-
     // 成功
     SUCCESS(1, "调用rpc成功"),
     // 失败

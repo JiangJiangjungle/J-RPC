@@ -1,8 +1,8 @@
 package com.jsj.rpc.sample.consumer;
 
+import com.jsj.rpc.DefaultRpcProxy;
 import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.RpcProxy;
-import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.registry.impl.ZooKeeperRegistry;
 import com.jsj.rpc.sample.consumer.task.FutureTestTask;
@@ -28,7 +28,7 @@ public class ConsumerApplication {
         return sum;
     }
 
-    public static long testASync(int threads, ExecutorService executorService,RpcProxy rpcProxy) throws Exception {
+    public static long testASync(int threads, ExecutorService executorService, DefaultRpcProxy rpcProxy) throws Exception {
         long sum = 0L;
         Future<Long>[] futureList = new Future[threads];
         CountDownLatch countDownLatch = new CountDownLatch(threads);
@@ -44,7 +44,7 @@ public class ConsumerApplication {
     public static void main(String[] args) throws Exception {
         //初始化
         ServiceDiscovery serviceDiscovery = new ZooKeeperRegistry(IP ,PORT);
-        RpcProxy rpcProxy = new RpcProxy(serviceDiscovery, SerializerTypeEnum.JSON);
+        RpcProxy rpcProxy = new DefaultRpcProxy(serviceDiscovery);
         HelloService helloService = rpcProxy.getService(HelloService.class);
         //线程设置
         int threads = 10;

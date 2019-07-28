@@ -1,7 +1,8 @@
 package com.jsj.rpc.client;
 
-import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.ChannelDataHolder;
+import com.jsj.rpc.protocol.Message;
+import com.jsj.rpc.protocol.MessageTypeEnum;
 import com.jsj.rpc.util.MessageUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -29,10 +30,13 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<Message> imp
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Message message) throws Exception {
         //若是心跳响应则直接返回，否则交给下一handler处理
         byte messageType = message.getHeader().messageType();
+        //rpc响应
         if (!message.emptyBody() && MessageTypeEnum.RPC_RESPONSE.getValue() == messageType) {
             LOGGER.info("Received RPC Response from server：{}", message);
             channelHandlerContext.fireChannelRead(message.getBody());
-        } else if (message.emptyBody() && MessageTypeEnum.HEART_BEAT_RESPONSE.getValue() == messageType) {
+        }
+        //心跳响应
+        else if (message.emptyBody() && MessageTypeEnum.HEART_BEAT_RESPONSE.getValue() == messageType) {
             LOGGER.info("Received HeartBeat Response from server：{}", message);
         } else {
             LOGGER.error("Received Error Message Type：{}", message);
@@ -64,6 +68,7 @@ public class ConnectionWatchDog extends SimpleChannelInboundHandler<Message> imp
                     break;
                 case WRITER_IDLE:
                     LOGGER.debug("Send HeartBeat，channel：{}", ctx.channel());
+                    //写入心跳请求
                     ctx.writeAndFlush(MessageUtil.createHeartBeatRequestMessage());
                     break;
                 default:

@@ -5,7 +5,6 @@ import com.jsj.rpc.RpcProxy;
 import com.jsj.rpc.protocol.RpcResponse;
 import com.jsj.sample.api.service.HelloService;
 
-
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -25,7 +24,7 @@ public class FutureTestTask implements Callable<Long> {
         countDownLatch.countDown();
         Method method = HelloService.class.getMethod("hello");
         long now = System.currentTimeMillis();
-        RpcFuture future = rpcProxy.call(HelloService.class, method, null);
+        RpcFuture<RpcResponse> future = rpcProxy.call(HelloService.class, method, null);
         RpcResponse rpcResponse = future.get();
         now = System.currentTimeMillis() - now;
         System.out.println(rpcResponse + " 耗时：" + now + " ms");

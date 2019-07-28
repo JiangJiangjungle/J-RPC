@@ -5,12 +5,17 @@ import io.netty.channel.Channel;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 每个channel保存在绑定的EventLoop线程的ThreadLocal数据
+ *
+ * @author jiangshenjie
+ */
 public class ChannelData {
-    public static int FUTURE_MAP_INIT_SIZE = 32;
+    private static int FUTURE_MAP_INIT_SIZE = 32;
 
     private Channel channel;
     private long lastReceive;
-    private Map<Integer, RpcFuture> rpcFutureMap = new HashMap<>(FUTURE_MAP_INIT_SIZE);
+    private Map<Integer, DefaultRpcFuture> rpcFutureMap = new HashMap<>(FUTURE_MAP_INIT_SIZE);
 
     public ChannelData(Channel channel, long lastReceive) {
         this.channel = channel;
@@ -21,16 +26,16 @@ public class ChannelData {
         this.lastReceive = lastReceive;
     }
 
-    public RpcFuture getRpcFuture(Integer id) {
+    public DefaultRpcFuture getRpcFuture(Integer id) {
         return this.rpcFutureMap.get(id);
     }
 
-    public RpcFuture removeRpcFuture(Integer id) {
+    public DefaultRpcFuture removeRpcFuture(Integer id) {
         return this.rpcFutureMap.remove(id);
     }
 
-    public void putRpcFuture(RpcFuture rpcFuture) {
-        this.rpcFutureMap.put(rpcFuture.getRequestId(), rpcFuture);
+    public void putRpcFuture(DefaultRpcFuture defaultRpcFuture) {
+        this.rpcFutureMap.put(defaultRpcFuture.getRequestId(), defaultRpcFuture);
     }
 
     public boolean expire(int channelAliveTime) {

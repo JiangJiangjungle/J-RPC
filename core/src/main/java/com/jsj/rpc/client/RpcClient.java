@@ -1,13 +1,15 @@
 package com.jsj.rpc.client;
 
 
-import com.jsj.rpc.NamedThreadFactory;
-import com.jsj.rpc.codec.CodeC;
-import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.ChannelDataHolder;
-import com.jsj.rpc.config.ClientConnectConfiguration;
+import com.jsj.rpc.DefaultRpcFuture;
+import com.jsj.rpc.NamedThreadFactory;
+import com.jsj.rpc.config.DefaultClientConfiguration;
+import com.jsj.rpc.protocol.Message;
+import com.jsj.rpc.protocol.MessageTypeEnum;
 import com.jsj.rpc.protocol.RpcRequest;
 import com.jsj.rpc.protocol.RpcResponse;
+import com.jsj.rpc.util.MessageUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -37,8 +39,8 @@ public class RpcClient {
     private static EventLoopGroup group = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
             new NamedThreadFactory("Rpc-netty-client", false));
 
-    private final String targetIP;
-    private final int targetPort;
+    private final String ip;
+    private final int port;
 
     /**
      * 创建并初始化 Netty 客户端 Bootstrap 对象
@@ -53,26 +55,17 @@ public class RpcClient {
     /**
      * 客户端连接配置项
      */
-    private ClientConnectConfiguration configuration;
+    private DefaultClientConfiguration configuration;
 
     /**
      * writeAndFlush（）实际是提交一个task到EventLoopGroup，所以channel是可复用的
      */
     private Connection connection;
 
-    /**
-     * 编解码方案
-     *
-     * @param targetIP
-     * @param targetPort
-     */
-    private CodeC codeC;
-
-    public RpcClient(String targetIP, int targetPort, ClientConnectConfiguration configuration, CodeC codeC) {
-        this.targetIP = targetIP;
-        this.targetPort = targetPort;
+    public RpcClient(String ip, int port, DefaultClientConfiguration configuration) {
+        this.ip = ip;
+        this.port = port;
         this.configuration = configuration;
-        this.codeC = codeC;
         this.init();
     }
 
@@ -80,9 +73,9 @@ public class RpcClient {
         this.idCount = new AtomicInteger(0);
         this.bootstrap = new Bootstrap().group(group).channel(NioSocketChannel.class)
                 .option(ChannelOption.TCP_NODELAY, configuration.getTcpNoDelay());
-        this.connection = new Connection(targetIP, targetPort, bootstrap);
+        this.connection = new Connection(ip, port, bootstrap);
         ReConnectionListener reConnectionListener = new ReConnectionListener(connection);
-        bootstrap.handler(new ClientChannelInitializer(this.codeC, reConnectionListener));
+        bootstrap.handler(new ClientChannelInitializer(this.configuration, reConnectionListener));
     }
 
     /**
@@ -98,7 +91,7 @@ public class RpcClient {
         RpcRequest request = this.buildRpcRequest(method, parameters);
         LOGGER.info("Rpc Request:{}, Sync", request.toString());
         try {
-            RpcFuture future = invoke(request);
+            DefaultRpcFuture future = invoke(request);
             rpcResponse = future.get(configuration.getRpcRequestTimeout(), TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             //调用超时
@@ -118,7 +111,7 @@ public class RpcClient {
      * @return
      * @throws Exception
      */
-    public RpcFuture invokeWithFuture(Method method, Object[] parameters) throws Exception {
+    public DefaultRpcFuture invokeWithFuture(Method method, Object[] parameters) throws Exception {
         RpcRequest request = this.buildRpcRequest(method, parameters);
         LOGGER.info("Rpc Request:{}, ASync", request.toString());
         return invoke(request);
@@ -130,13 +123,13 @@ public class RpcClient {
      * @return
      * @throws Exception
      */
-    public Channel getChannel() throws Exception {
+    private Channel getChannel() throws Exception {
         Channel channel = connection.getChannel();
         if (channel == null) {
             synchronized (this) {
                 channel = connection.getChannel();
                 if (channel == null) {
-                    channel = doCreateConnection(this.targetIP, this.targetPort, configuration.getConnectTimeout());
+                    channel = doCreateConnection(this.ip, this.port, configuration.getConnectTimeout());
                     connection.bind(channel);
                 }
             }
@@ -194,9 +187,9 @@ public class RpcClient {
      * @return
      * @throws Exception
      */
-    private RpcFuture invoke(RpcRequest request) throws Exception {
+    private DefaultRpcFuture invoke(RpcRequest request) throws Exception {
         //注册到futureMap
-        RpcFuture future = new RpcFuture(request.getRequestId());
+        DefaultRpcFuture future = new DefaultRpcFuture(request.getRequestId());
         Channel channel = null;
         ChannelDataHolder channelDataHolder = null;
         try {
@@ -204,8 +197,9 @@ public class RpcClient {
             //eventLoop的缓存中添加RpcFuture
             channelDataHolder = new ChannelDataHolder(channel.eventLoop());
             channelDataHolder.set(channel, future);
-            //写请求并直接返回
-            channel.writeAndFlush(request);
+            //封装Message，写入rpc请求
+            Message rpcRequestMessage = MessageUtil.createMessage(MessageTypeEnum.RPC_REQUEST, this.configuration.getSerializerTypeEnum(), request);
+            channel.writeAndFlush(rpcRequestMessage);
         } catch (Exception e) {
             //eventLoop的缓存中删除RpcFuture
             if (channel != null && channelDataHolder != null) {

@@ -1,14 +1,18 @@
 package com.jsj.rpc.server;
 
 import com.jsj.rpc.ChannelDataHolder;
-import com.jsj.rpc.config.ServerConnectConfiguration;
-import com.jsj.rpc.protocol.*;
+import com.jsj.rpc.protocol.Header;
+import com.jsj.rpc.protocol.Message;
+import com.jsj.rpc.protocol.MessageTypeEnum;
 import com.jsj.rpc.util.MessageUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author jiangshenjie
+ */
 public class ServerConnectionHandler extends SimpleChannelInboundHandler<Message> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerConnectionHandler.class);
 

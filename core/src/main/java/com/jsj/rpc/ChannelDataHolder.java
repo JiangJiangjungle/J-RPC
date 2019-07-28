@@ -58,7 +58,7 @@ public class ChannelDataHolder {
      * @param channel
      * @param id
      */
-    public static RpcFuture removeFuture(Channel channel, Integer id) {
+    public static DefaultRpcFuture removeFuture(Channel channel, Integer id) {
         Map<Channel, ChannelData> cache = checkCache();
         ChannelData channelData = cache.get(channel);
         if (channelData == null) {
@@ -95,7 +95,7 @@ public class ChannelDataHolder {
      * @param channel
      * @param future
      */
-    public void set(Channel channel, RpcFuture future) {
+    public void set(Channel channel, DefaultRpcFuture future) {
         this.eventLoop.execute(() -> {
             Map<Channel, ChannelData> cache = ChannelDataHolder.checkCache();
             ChannelData channelData = cache.get(channel);
@@ -113,7 +113,7 @@ public class ChannelDataHolder {
      * @param channel
      * @param future
      */
-    public void remove(Channel channel, RpcFuture future) {
+    public void remove(Channel channel, DefaultRpcFuture future) {
         this.eventLoop.execute(() -> {
             Map<Channel, ChannelData> cache = ChannelDataHolder.checkCache();
             ChannelData channelData = cache.get(channel);

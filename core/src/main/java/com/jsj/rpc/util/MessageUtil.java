@@ -2,8 +2,6 @@ package com.jsj.rpc.util;
 
 import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import com.jsj.rpc.exception.SerializationException;
-import com.jsj.rpc.protocol.RpcRequest;
-import com.jsj.rpc.protocol.RpcResponse;
 import com.jsj.rpc.protocol.*;
 import io.netty.buffer.ByteBuf;
 
@@ -42,7 +40,7 @@ public class MessageUtil {
      * @return
      */
     public static Message createHeartBeatRequestMessage() {
-        return createMessage(MessageTypeEnum.HEART_BEAT_REQUEST, SerializerTypeEnum.NONE, null);
+        return createMessage(MessageTypeEnum.HEART_BEAT_REQUEST, SerializerTypeEnum.DEFAULT, null);
     }
 
     /**
@@ -51,7 +49,7 @@ public class MessageUtil {
      * @return
      */
     public static Message createHeartBeatResponseMessage() {
-        return createMessage(MessageTypeEnum.HEART_BEAT_RESPONSE, SerializerTypeEnum.NONE, null);
+        return createMessage(MessageTypeEnum.HEART_BEAT_RESPONSE, SerializerTypeEnum.DEFAULT, null);
     }
 
     /**
@@ -97,7 +95,7 @@ public class MessageUtil {
         Header header = msg.getHeader();
         int bodyLength = 0;
         byte[] data = null;
-        if (!msg.emptyBody() && SerializerTypeEnum.NONE.getValue() != header.serializationType()) {
+        if (!msg.emptyBody()) {
             data = SerializationUtil.serialize(msg.getBody(), header.serializationType());
             bodyLength = data.length;
         }

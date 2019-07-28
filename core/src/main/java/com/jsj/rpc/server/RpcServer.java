@@ -4,8 +4,7 @@ import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.RpcService;
 import com.jsj.rpc.codec.CodeC;
 import com.jsj.rpc.codec.DefaultCodeC;
-import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
-import com.jsj.rpc.config.ServerConnectConfiguration;
+import com.jsj.rpc.config.DefaultServerConfiguration;
 import com.jsj.rpc.registry.ServiceRegistry;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -49,7 +48,7 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
             new NamedThreadFactory("Rpc-netty-server-worker", true));
 
     /**
-     * 用户线程池，用于处理实际rpc业务
+     * 用户业务线程池，用于处理实际rpc业务
      */
     private ExecutorService threadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 2,
             Runtime.getRuntime().availableProcessors() * 2, 60L, TimeUnit.MILLISECONDS,
@@ -61,17 +60,14 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
     public static Map<String, Object> serviceInstanceMap = new HashMap<>();
 
     /**
-     * 编解码方案
-     *
-     * @param targetIP
-     * @param targetPort
+     * 编解码器
      */
-    private static CodeC codeC = new DefaultCodeC(SerializerTypeEnum.NONE);
+    private CodeC codeC;
 
     /**
      * 服务端连接配置项
      */
-    private ServerConnectConfiguration configuration;
+    private DefaultServerConfiguration configuration;
 
     private String ip;
 
@@ -83,15 +79,15 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
     private ServiceRegistry serviceRegistry;
 
     public RpcServer(String ip, int port, ServiceRegistry serviceRegistry) {
-        this(ip, port, serviceRegistry, new ServerConnectConfiguration());
+        this(ip, port, serviceRegistry, new DefaultServerConfiguration());
     }
 
-    public RpcServer(String ip, int port, ServiceRegistry serviceRegistry, ServerConnectConfiguration configuration) {
-        this.configuration = configuration;
+    public RpcServer(String ip, int port, ServiceRegistry serviceRegistry, DefaultServerConfiguration configuration) {
         this.ip = ip;
         this.port = port;
         this.serviceRegistry = serviceRegistry;
         this.configuration = configuration;
+        this.codeC = DefaultCodeC.getInstance();
     }
 
     /**
@@ -129,7 +125,7 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
                 //等待服务端监听端口关闭
                 future.channel().closeFuture().sync();
             } catch (InterruptedException i) {
-                LOGGER.error("rpc server 出现异常，端口：{}, cause:", port, i.getMessage());
+                LOGGER.error("rpc server 出现异常，端口：{}, cause: {}", port, i.getMessage());
             } finally {
                 //优雅退出，释放 NIO 线程组
                 workerGroup.shutdownGracefully();
@@ -148,7 +144,7 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
         RpcService rpcService;
         String serviceName;
         Object serviceBean;
-        String addr = this.ip+SEPARATOR+port;
+        String addr = this.ip + SEPARATOR + port;
         for (Map.Entry<String, Object> entry : serviceBeanMap.entrySet()) {
             //service实例
             serviceBean = entry.getValue();
@@ -173,9 +169,11 @@ public class RpcServer implements ApplicationListener<ContextRefreshedEvent> {
         return new ServerBootstrap()
                 .group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, configuration.getBackLog())
-                .childOption(ChannelOption.SO_KEEPALIVE, configuration.getKeepAlive())
-                .childHandler(new ServerChannelInitializer(codeC, new RpcServiceHandler(threadPool), configuration.getChannelAliveTime()));
+                //允许server端口reuse
+                .option(ChannelOption.SO_REUSEADDR, this.configuration.getReUseAddr())
+                .option(ChannelOption.SO_BACKLOG, this.configuration.getBackLog())
+                .childOption(ChannelOption.SO_KEEPALIVE, this.configuration.getKeepAlive())
+                .childHandler(new ServerChannelInitializer(codeC, new RpcServiceHandler(this.threadPool), this.configuration.getChannelAliveTime()));
     }
 
     public String getIp() {

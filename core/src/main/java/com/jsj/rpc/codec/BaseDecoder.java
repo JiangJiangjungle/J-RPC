@@ -1,7 +1,8 @@
 package com.jsj.rpc.codec;
 
 
-import com.jsj.rpc.protocol.*;
+import com.jsj.rpc.protocol.Body;
+import com.jsj.rpc.protocol.Header;
 import com.jsj.rpc.util.MessageUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,7 +16,7 @@ import java.util.List;
  * @author jsj
  * @date 2018-11-6
  */
-public class RpcDecoder extends ByteToMessageDecoder {
+public class BaseDecoder extends ByteToMessageDecoder {
 
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
