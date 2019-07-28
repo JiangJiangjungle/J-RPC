@@ -4,8 +4,6 @@ package com.jsj.rpc.registry.impl;
 import com.jsj.rpc.exception.RpcServiceNotFoundException;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.registry.ServiceRegistry;
-import com.jsj.rpc.util.CollectionUtil;
-import org.apache.curator.CuratorZookeeperClient;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -15,7 +13,6 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -97,7 +94,7 @@ public class ZooKeeperRegistry implements ServiceRegistry, ServiceDiscovery {
             String servicePath = ZK_REGISTRY_PATH + "/" + serviceName;
             // 获取所有 address 节点
             List<String> addressList = client.getChildren().forPath(servicePath);
-            if (CollectionUtil.isEmpty(addressList)) {
+            if (addressList == null || addressList.isEmpty()) {
                 throw new RpcServiceNotFoundException(String.format("未发现任何节点注册信息！: %s", servicePath));
             }
             //选取 serviceAddress 节点
@@ -139,7 +136,7 @@ public class ZooKeeperRegistry implements ServiceRegistry, ServiceDiscovery {
      * @return
      */
     private String chooseServiceAddress(List<String> addressList) {
-        if (CollectionUtil.isEmpty(addressList)) {
+        if (addressList == null || addressList.isEmpty()) {
             return null;
         }
         String address;
