@@ -1,7 +1,7 @@
 package com.jsj.rpc.server;
 
-import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
-import com.jsj.rpc.protocol.RpcRequest;
+import com.jsj.rpc.RpcRequest;
+import com.jsj.rpc.common.serializer.SerializerTypeEnum;
 import io.netty.channel.ChannelHandlerContext;
 
 /**

@@ -1,14 +1,15 @@
 package com.jsj.rpc.client;
 
 
-import com.jsj.rpc.ChannelDataHolder;
 import com.jsj.rpc.DefaultRpcFuture;
-import com.jsj.rpc.NamedThreadFactory;
-import com.jsj.rpc.config.DefaultClientConfiguration;
-import com.jsj.rpc.protocol.Message;
-import com.jsj.rpc.protocol.MessageTypeEnum;
-import com.jsj.rpc.protocol.RpcRequest;
-import com.jsj.rpc.protocol.RpcResponse;
+import com.jsj.rpc.RpcRequest;
+import com.jsj.rpc.RpcResponse;
+import com.jsj.rpc.client.handler.ClientChannelInitializer;
+import com.jsj.rpc.common.NamedThreadFactory;
+import com.jsj.rpc.common.channel.ChannelDataHolder;
+import com.jsj.rpc.common.config.DefaultClientConfiguration;
+import com.jsj.rpc.common.message.Message;
+import com.jsj.rpc.common.message.MessageTypeEnum;
 import com.jsj.rpc.util.MessageUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;

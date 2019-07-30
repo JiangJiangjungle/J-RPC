@@ -1,8 +1,8 @@
 package com.jsj.rpc.sample.consumer;
 
-import com.jsj.rpc.DefaultRpcProxy;
-import com.jsj.rpc.NamedThreadFactory;
-import com.jsj.rpc.RpcProxy;
+import com.jsj.rpc.client.DefaultRpcProxy;
+import com.jsj.rpc.client.RpcProxy;
+import com.jsj.rpc.common.NamedThreadFactory;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.registry.impl.ZooKeeperRegistry;
 import com.jsj.rpc.sample.consumer.task.FutureTestTask;

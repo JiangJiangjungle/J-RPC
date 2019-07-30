@@ -1,8 +1,6 @@
 package com.jsj.rpc;
 
 
-import com.jsj.rpc.protocol.RpcResponse;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 

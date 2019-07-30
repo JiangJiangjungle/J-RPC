@@ -1,9 +1,9 @@
 package com.jsj.rpc.util;
 
-import com.jsj.rpc.codec.serializer.Serializer;
+import com.jsj.rpc.common.message.Body;
+import com.jsj.rpc.common.serializer.Serializer;
+import com.jsj.rpc.common.serializer.SerializerTypeEnum;
 import com.jsj.rpc.exception.SerializationException;
-import com.jsj.rpc.protocol.Body;
-import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 
 /**
  * 序列化工具类（提供 Java原生、JSON 和 Protostuff 3种序列化/反序列化实现）

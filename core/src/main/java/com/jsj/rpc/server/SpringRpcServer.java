@@ -1,7 +1,7 @@
 package com.jsj.rpc.server;
 
 import com.jsj.rpc.RpcService;
-import com.jsj.rpc.config.DefaultServerConfiguration;
+import com.jsj.rpc.common.config.DefaultServerConfiguration;
 import com.jsj.rpc.registry.ServiceRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;

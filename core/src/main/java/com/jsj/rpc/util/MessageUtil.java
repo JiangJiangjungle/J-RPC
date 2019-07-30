@@ -1,8 +1,10 @@
 package com.jsj.rpc.util;
 
-import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
+import com.jsj.rpc.RpcRequest;
+import com.jsj.rpc.RpcResponse;
+import com.jsj.rpc.common.message.*;
+import com.jsj.rpc.common.serializer.SerializerTypeEnum;
 import com.jsj.rpc.exception.SerializationException;
-import com.jsj.rpc.protocol.*;
 import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;

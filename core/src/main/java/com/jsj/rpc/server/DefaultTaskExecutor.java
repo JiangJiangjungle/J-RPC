@@ -1,12 +1,12 @@
 package com.jsj.rpc.server;
 
-import com.jsj.rpc.NamedThreadFactory;
+import com.jsj.rpc.RpcRequest;
+import com.jsj.rpc.RpcResponse;
 import com.jsj.rpc.RpcStateCode;
-import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
-import com.jsj.rpc.protocol.Message;
-import com.jsj.rpc.protocol.MessageTypeEnum;
-import com.jsj.rpc.protocol.RpcRequest;
-import com.jsj.rpc.protocol.RpcResponse;
+import com.jsj.rpc.common.NamedThreadFactory;
+import com.jsj.rpc.common.message.Message;
+import com.jsj.rpc.common.message.MessageTypeEnum;
+import com.jsj.rpc.common.serializer.SerializerTypeEnum;
 import com.jsj.rpc.util.MessageUtil;
 import io.netty.channel.ChannelHandlerContext;
 import net.sf.cglib.reflect.FastClass;
