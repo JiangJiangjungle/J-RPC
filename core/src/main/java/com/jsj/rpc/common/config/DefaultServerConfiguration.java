@@ -1,14 +1,11 @@
 package com.jsj.rpc.common.config;
 
-import com.jsj.rpc.common.codec.CodeC;
-import com.jsj.rpc.common.codec.DefaultCodeC;
-
 /**
  * 服务端连接配置
  *
  * @author jiangshenjie
  */
-public class DefaultServerConfiguration {
+public class DefaultServerConfiguration extends Configuration {
     /**
      * 未接收到心跳包后的TCP连接最大存活时间，单位：ms
      */
@@ -28,12 +25,6 @@ public class DefaultServerConfiguration {
      * 绑定地址重用
      */
     private Boolean reUseAddr = true;
-
-    /**
-     * 编解码器
-     */
-    private CodeC codeC = DefaultCodeC.getInstance();
-
 
     public DefaultServerConfiguration() {
     }
@@ -68,13 +59,5 @@ public class DefaultServerConfiguration {
 
     public void setReUseAddr(Boolean reUseAddr) {
         this.reUseAddr = reUseAddr;
-    }
-
-    public CodeC getCodeC() {
-        return codeC;
-    }
-
-    public void setCodeC(CodeC codeC) {
-        this.codeC = codeC;
     }
 }

@@ -1,7 +1,5 @@
 package com.jsj.rpc.common.config;
 
-import com.jsj.rpc.common.codec.CodeC;
-import com.jsj.rpc.common.codec.DefaultCodeC;
 import com.jsj.rpc.common.serializer.SerializerTypeEnum;
 
 /**
@@ -9,7 +7,7 @@ import com.jsj.rpc.common.serializer.SerializerTypeEnum;
  *
  * @author jiangshenjie
  */
-public class DefaultClientConfiguration {
+public class DefaultClientConfiguration extends Configuration {
     /**
      * 客户端断线重连的最大重试次数
      */
@@ -39,12 +37,11 @@ public class DefaultClientConfiguration {
      */
     private int writeIdle = 10000;
 
+    /**
+     * 序列化方案
+     */
     private SerializerTypeEnum serializerTypeEnum = SerializerTypeEnum.DEFAULT;
 
-    /**
-     * 编码方案
-     */
-    private CodeC codeC = DefaultCodeC.getInstance();
 
     public DefaultClientConfiguration() {
     }
@@ -105,14 +102,6 @@ public class DefaultClientConfiguration {
 
     public void setWriteIdle(int writeIdle) {
         this.writeIdle = writeIdle;
-    }
-
-    public CodeC getCodeC() {
-        return codeC;
-    }
-
-    public void setCodeC(CodeC codeC) {
-        this.codeC = codeC;
     }
 
     public SerializerTypeEnum getSerializerTypeEnum() {
