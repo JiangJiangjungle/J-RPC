@@ -1,5 +1,8 @@
 package com.jsj.rpc.config;
 
+import com.jsj.rpc.codec.CodeC;
+import com.jsj.rpc.codec.DefaultCodeC;
+
 /**
  * 服务端连接配置
  *
@@ -11,6 +14,9 @@ public class DefaultServerConfiguration {
      */
     private Integer channelAliveTime = 20000;
 
+    /**
+     * back_log
+     */
     private Integer backLog = 1024;
 
     /**
@@ -23,12 +29,13 @@ public class DefaultServerConfiguration {
      */
     private Boolean reUseAddr = true;
 
+    /**
+     * 编解码器
+     */
+    private CodeC codeC = DefaultCodeC.getInstance();
+
 
     public DefaultServerConfiguration() {
-    }
-
-    public DefaultServerConfiguration(Integer channelAliveTime) {
-        this.channelAliveTime = channelAliveTime;
     }
 
     public Integer getChannelAliveTime() {
@@ -61,5 +68,13 @@ public class DefaultServerConfiguration {
 
     public void setReUseAddr(Boolean reUseAddr) {
         this.reUseAddr = reUseAddr;
+    }
+
+    public CodeC getCodeC() {
+        return codeC;
+    }
+
+    public void setCodeC(CodeC codeC) {
+        this.codeC = codeC;
     }
 }

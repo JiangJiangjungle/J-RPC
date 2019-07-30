@@ -1,16 +1,13 @@
 package com.jsj.rpc.server;
 
-import com.jsj.rpc.task.RpcTask;
+import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import com.jsj.rpc.protocol.Message;
 import com.jsj.rpc.protocol.RpcRequest;
-import com.jsj.rpc.codec.serializer.SerializerTypeEnum;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutorService;
 
 /**
  * RPC server（用于处理RPC Service请求）
@@ -19,13 +16,13 @@ import java.util.concurrent.ExecutorService;
  * @date 2018-10-8
  */
 @ChannelHandler.Sharable
-public class RpcServiceHandler extends SimpleChannelInboundHandler<Message> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcServiceHandler.class);
+public class RpcServiceChannelHandler extends SimpleChannelInboundHandler<Message> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcServiceChannelHandler.class);
 
-    private ExecutorService threadPool;
+    private TaskExecutor executor;
 
-    public RpcServiceHandler(ExecutorService threadPool) {
-        this.threadPool = threadPool;
+    public RpcServiceChannelHandler(TaskExecutor executor) {
+        this.executor = executor;
     }
 
     @Override
@@ -33,7 +30,7 @@ public class RpcServiceHandler extends SimpleChannelInboundHandler<Message> {
         LOGGER.info("服务端收到 rpc request:{}", message.getBody().toString());
         //交由业务线程池执行
         SerializerTypeEnum serializationType = SerializerTypeEnum.get(message.getHeader().serializationType());
-        threadPool.execute(new RpcTask(ctx, (RpcRequest) message.getBody(), serializationType));
+        executor.execute(ctx, (RpcRequest) message.getBody(), serializationType);
     }
 
     @Override

@@ -11,11 +11,14 @@ import com.jsj.sample.api.service.HelloService;
 
 import java.util.concurrent.*;
 
+/**
+ * @author jiangshenjie
+ */
 public class ConsumerApplication {
     static String IP = "139.9.77.156";
     static int PORT = 2181;
 
-    public static long testSync(int threads, ExecutorService executorService,HelloService helloService) throws Exception {
+    public static long testSync(int threads, ExecutorService executorService, HelloService helloService) throws Exception {
         long sum = 0L;
         Future<Long>[] futureList = new Future[threads];
         CountDownLatch countDownLatch = new CountDownLatch(threads);

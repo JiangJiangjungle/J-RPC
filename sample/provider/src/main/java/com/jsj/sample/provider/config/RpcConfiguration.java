@@ -2,12 +2,16 @@ package com.jsj.sample.provider.config;
 
 import com.jsj.rpc.registry.ServiceRegistry;
 import com.jsj.rpc.registry.impl.ZooKeeperRegistry;
-import com.jsj.rpc.server.RpcServer;
+import com.jsj.rpc.server.DefaultRpcServer;
+import com.jsj.rpc.server.SpringRpcServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * @author jiangshenjie
+ */
 @Configuration
 public class RpcConfiguration {
     @Value("${rpc.registry.ip}")
@@ -15,9 +19,9 @@ public class RpcConfiguration {
     @Value("${rpc.registry.port}")
     private int registryPort;
     @Value("${rpc.provider.ip}")
-    private String serviceIP;
+    private String ip;
     @Value("${rpc.provider.port}")
-    private int servicePort;
+    private int port;
 
     @Bean
     public ServiceRegistry serviceRegistry() {
@@ -25,7 +29,7 @@ public class RpcConfiguration {
     }
 
     @Bean
-    public RpcServer initRpcServer(@Autowired ServiceRegistry serviceRegistry) {
-        return new RpcServer(serviceIP, servicePort, serviceRegistry);
+    public DefaultRpcServer initRpcServer(@Autowired ServiceRegistry serviceRegistry) {
+        return new SpringRpcServer(ip, port, serviceRegistry);
     }
 }

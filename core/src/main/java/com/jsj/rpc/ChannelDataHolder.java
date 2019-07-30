@@ -39,7 +39,7 @@ public class ChannelDataHolder {
             cache.put(channel, channelData);
         }
         channelData.update(lastReceive);
-        LOGGER.info("channel: [{}] updated lastReceiveTimeStamp", channel);
+        LOGGER.info("channel: {} updated.", channel);
     }
 
     /**
@@ -84,7 +84,7 @@ public class ChannelDataHolder {
             }
             cache.remove(channel);
             removed = true;
-            LOGGER.info("channel :[{}] expired and closed.", channel);
+            LOGGER.info("channel: {} expired and closed.", channel);
         }
         return removed;
     }

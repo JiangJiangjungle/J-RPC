@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit;
  * @date 2018-10-24
  */
 @ChannelHandler.Sharable
-public class ConnectionWatchDog extends SimpleChannelInboundHandler<Message> implements Runnable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWatchDog.class);
+public class ClientConnectionWatchDog extends SimpleChannelInboundHandler<Message> implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientConnectionWatchDog.class);
     private ReConnectionListener listener;
 
-    public ConnectionWatchDog(ReConnectionListener reConnectionListener) {
+    public ClientConnectionWatchDog(ReConnectionListener reConnectionListener) {
         this.listener = reConnectionListener;
     }
 

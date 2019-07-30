@@ -7,7 +7,9 @@ import io.netty.channel.EventLoop;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 定时删除无效channel，避免TCP半连接占用过多文件描述符,EventLoop线程执行
+ * 定时任务：删除无效channel，避免TCP半连接占用过多文件描述符,EventLoop线程执行
+ *
+ * @author jiangshenjie
  */
 public class ChannelRemoveTask implements Runnable {
     private Channel channel;

@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
  * @date 2018-10-4
  */
 @ChannelHandler.Sharable
-public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
+public class ClientChannelHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientChannelHandler.class);
 
-    public ClientHandler() {
+    public ClientChannelHandler() {
     }
 
     @Override

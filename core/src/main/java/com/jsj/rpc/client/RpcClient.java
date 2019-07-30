@@ -144,22 +144,22 @@ public class RpcClient {
     /**
      * 建立Channel连接
      *
-     * @param targetIP
-     * @param targetPort
+     * @param ip
+     * @param port
      * @param connectTimeout
      * @return
      * @throws Exception
      */
-    private Channel doCreateConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {
+    private Channel doCreateConnection(String ip, int port, int connectTimeout) throws Exception {
         // prevent unreasonable value, at least 1000
         connectTimeout = Math.max(connectTimeout, 1000);
-        String address = targetIP + ":" + targetPort;
+        String address = ip + ":" + port;
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("ConnectTimeout of address [{}] is [{}].", address, connectTimeout);
         }
         this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
         //建立tcp连接到远程节点，调用线程阻塞等待直到连接完成
-        ChannelFuture future = bootstrap.connect(targetIP, targetPort);
+        ChannelFuture future = bootstrap.connect(ip, port);
         future.awaitUninterruptibly();
         future.sync();
         if (!future.isDone()) {

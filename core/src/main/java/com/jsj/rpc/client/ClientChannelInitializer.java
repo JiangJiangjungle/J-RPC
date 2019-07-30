@@ -13,13 +13,13 @@ import java.util.concurrent.TimeUnit;
  * @author jiangshenjie
  */
 public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
-    private static ChannelHandler clientHandler = new ClientHandler();
+    private static ChannelHandler clientHandler = new ClientChannelHandler();
     private DefaultClientConfiguration configuration;
-    private ConnectionWatchDog connectionWatchDog;
+    private ClientConnectionWatchDog connectionWatchDog;
 
     public ClientChannelInitializer(DefaultClientConfiguration configuration, ReConnectionListener reConnectionListener) {
         this.configuration = configuration;
-        this.connectionWatchDog = new ConnectionWatchDog(reConnectionListener);
+        this.connectionWatchDog = new ClientConnectionWatchDog(reConnectionListener);
     }
 
     @Override

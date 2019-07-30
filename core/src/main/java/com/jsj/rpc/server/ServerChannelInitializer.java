@@ -35,7 +35,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
                 .addLast(codeC.newEncoder())
                 //入方向解码
                 .addLast(codeC.newDecoder())
-                .addLast(new ServerConnectionHandler())
+                .addLast(new ServerConnectionChannelHandler())
                 //业务处理
                 .addLast(serverHandler);
     }

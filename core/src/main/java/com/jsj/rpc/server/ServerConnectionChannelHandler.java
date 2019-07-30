@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
 /**
  * @author jiangshenjie
  */
-public class ServerConnectionHandler extends SimpleChannelInboundHandler<Message> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServerConnectionHandler.class);
+public class ServerConnectionChannelHandler extends SimpleChannelInboundHandler<Message> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerConnectionChannelHandler.class);
 
-    public ServerConnectionHandler() {
+    public ServerConnectionChannelHandler() {
     }
 
     @Override

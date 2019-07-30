@@ -10,11 +10,14 @@ import java.lang.reflect.Method;
  * @author jiangshenjie
  */
 public interface RpcProxy {
+
     /**
      * 获取一个注册的RPC service代理对象，用于同步调用
      *
      * @param interfaceClass
+     * @param <T>
      * @return
+     * @throws Exception
      */
     <T> T getService(final Class<? extends T> interfaceClass) throws Exception;
 
