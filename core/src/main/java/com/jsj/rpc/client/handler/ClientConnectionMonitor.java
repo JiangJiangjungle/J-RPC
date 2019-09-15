@@ -3,6 +3,7 @@ package com.jsj.rpc.client.handler;
 import com.jsj.rpc.client.Connection;
 import com.jsj.rpc.client.ReConnectionListener;
 import com.jsj.rpc.common.channel.ChannelDataHolder;
+import com.jsj.rpc.common.message.Body;
 import com.jsj.rpc.common.message.Message;
 import com.jsj.rpc.common.message.MessageTypeEnum;
 import com.jsj.rpc.util.MessageUtil;
@@ -20,11 +21,11 @@ import java.util.concurrent.TimeUnit;
  * @date 2018-10-24
  */
 @ChannelHandler.Sharable
-public class ClientConnectionWatchDog extends SimpleChannelInboundHandler<Message> implements Runnable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientConnectionWatchDog.class);
+public class ClientConnectionMonitor extends SimpleChannelInboundHandler<Message> implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientConnectionMonitor.class);
     private ReConnectionListener listener;
 
-    public ClientConnectionWatchDog(ReConnectionListener reConnectionListener) {
+    public ClientConnectionMonitor(ReConnectionListener reConnectionListener) {
         this.listener = reConnectionListener;
     }
 
@@ -32,16 +33,17 @@ public class ClientConnectionWatchDog extends SimpleChannelInboundHandler<Messag
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Message message) throws Exception {
         //若是心跳响应则直接返回，否则交给下一handler处理
         byte messageType = message.getHeader().messageType();
+        Channel channel = channelHandlerContext.channel();
         //rpc响应
         if (!message.emptyBody() && MessageTypeEnum.RPC_RESPONSE.getValue() == messageType) {
-            LOGGER.info("Received RPC Response from server：{}", message);
-            channelHandlerContext.fireChannelRead(message.getBody());
-        }
-        //心跳响应
+            Body response = message.getBody();
+            LOGGER.info("RPC Response: [{}] From [{}].", response, channel.remoteAddress());
+            channelHandlerContext.fireChannelRead(response);
+        }//心跳响应
         else if (message.emptyBody() && MessageTypeEnum.HEART_BEAT_RESPONSE.getValue() == messageType) {
-            LOGGER.info("Received HeartBeat Response from server：{}", message);
+            LOGGER.info("HeartBeat Response From [{}].", channel.remoteAddress());
         } else {
-            LOGGER.error("Received Error Message Type：{}", message);
+            LOGGER.error("Error Message: [{}] From [{}].", message, channel.remoteAddress());
         }
     }
 
@@ -54,7 +56,7 @@ public class ClientConnectionWatchDog extends SimpleChannelInboundHandler<Messag
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //当channel关闭时，清除eventLoop中channel对应的所有future
         ChannelDataHolder.removeChannel(ctx.channel());
-        LOGGER.info("Channel closed, trying to reconnect.");
+        LOGGER.info("Trying to reconnect.");
         //线程开启定时任务，准备尝试重连
         ctx.channel().eventLoop().schedule(this, 3L, TimeUnit.SECONDS);
         ctx.fireChannelInactive();
@@ -71,7 +73,7 @@ public class ClientConnectionWatchDog extends SimpleChannelInboundHandler<Messag
                 case WRITER_IDLE:
                     LOGGER.debug("Send HeartBeat，channel：{}", ctx.channel());
                     //写入心跳请求
-                    ctx.writeAndFlush(MessageUtil.createHeartBeatRequestMessage());
+                    ctx.writeAndFlush(MessageUtil.createHeartBeatRequest());
                     break;
                 default:
                     break;
@@ -87,6 +89,11 @@ public class ClientConnectionWatchDog extends SimpleChannelInboundHandler<Messag
         ctx.close();
     }
 
+    /**
+     * 重连逻辑
+     *
+     * @param connectTimeout
+     */
     private void reConn(int connectTimeout) {
         Connection connection = listener.getConnection();
         Bootstrap bootstrap = connection.getBootstrap();

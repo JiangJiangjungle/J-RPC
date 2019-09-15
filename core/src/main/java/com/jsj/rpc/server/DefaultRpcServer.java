@@ -4,8 +4,8 @@ import com.jsj.rpc.RpcService;
 import com.jsj.rpc.common.NamedThreadFactory;
 import com.jsj.rpc.common.config.DefaultServerConfiguration;
 import com.jsj.rpc.registry.ServiceRegistry;
-import com.jsj.rpc.server.handler.RpcServiceChannelHandler;
 import com.jsj.rpc.server.handler.ServerChannelInitializer;
+import com.jsj.rpc.server.handler.ServerRequestHandler;
 import com.jsj.rpc.util.StringUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -17,6 +17,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,9 +27,7 @@ import java.util.Map;
  * @date 2018-10-8
  */
 public class DefaultRpcServer implements RpcServer {
-
     protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultRpcServer.class);
-    private static final String SEPARATOR = ":";
     /**
      * Netty 的连接线程池
      */
@@ -39,20 +38,22 @@ public class DefaultRpcServer implements RpcServer {
      */
     private EventLoopGroup workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
             new NamedThreadFactory("Rpc-netty-server-worker", true));
-
-    /**
-     * 业务处理器
-     */
-    private TaskExecutor taskExecutor = new DefaultTaskExecutor();
-
     /**
      * 服务端连接配置项
      */
     private DefaultServerConfiguration configuration;
-
     private String ip;
-
     private int port;
+
+    /**
+     * 业务处理器
+     */
+    private BusinessTaskExecutor businessTaskExecutor;
+
+    /**
+     * 用于存储已经注册的服务接口
+     */
+    private Map<String, Object> registeredServices;
 
     /**
      * 服务注册中心
@@ -68,6 +69,8 @@ public class DefaultRpcServer implements RpcServer {
         this.port = port;
         this.serviceRegistry = serviceRegistry;
         this.configuration = configuration;
+        this.registeredServices = new HashMap<>(16);
+        this.businessTaskExecutor = new DefaultBusinessTaskExecutor(registeredServices);
     }
 
     @Override
@@ -83,15 +86,13 @@ public class DefaultRpcServer implements RpcServer {
             return false;
         }
         RpcService rpcService;
-        String addr = this.ip + SEPARATOR + port;
         rpcService = serviceBean.getClass().getAnnotation(RpcService.class);
         //service接口名称
         serviceName = rpcService.value().getName();
         //注册
-        this.serviceRegistry.register(serviceName, addr);
-        //添加到TaskExecutor
-        this.taskExecutor.addInstance(serviceName, serviceBean);
-        LOGGER.debug("register service: {} , addr: {}", serviceName, addr);
+        registeredServices.put(serviceName, serviceBean);
+        this.serviceRegistry.register(serviceName, this.ip, this.port);
+        LOGGER.info("Service: [{}] at ip: [{}], port: [{}] registered!", serviceName, this.ip, this.port);
         return true;
     }
 
@@ -99,23 +100,24 @@ public class DefaultRpcServer implements RpcServer {
      * 启动 Netty RPC服务端
      */
     private void doRunServer() {
-        new Thread(() -> {
+        Runnable task = () -> {
             try {
                 //创建并初始化 Netty 服务端辅助启动对象 ServerBootstrap
                 ServerBootstrap serverBootstrap = DefaultRpcServer.this.initServerBootstrap(bossGroup, workerGroup);
                 //绑定对应ip和端口，同步等待成功
                 ChannelFuture future = serverBootstrap.bind(ip, port).sync();
-                LOGGER.info("rpc server 已启动，端口：{}", port);
+                LOGGER.info("Rpc Server Start Succeed! Port：[{}]", port);
                 //等待服务端监听端口关闭
                 future.channel().closeFuture().sync();
             } catch (InterruptedException i) {
-                LOGGER.error("rpc server 出现异常，端口：{}, cause: {}", port, i.getMessage());
+                LOGGER.error("Rpc Server Start Failed! Port：[{}] Cause: {}", port, i.getMessage());
             } finally {
                 //优雅退出，释放 NIO 线程组
                 workerGroup.shutdownGracefully();
                 bossGroup.shutdownGracefully();
             }
-        }, "rpc-server-thread").start();
+        };
+        new Thread(task, "rpc-server-thread").start();
     }
 
     /**
@@ -146,6 +148,7 @@ public class DefaultRpcServer implements RpcServer {
                 .option(ChannelOption.SO_BACKLOG, this.configuration.getBackLog())
                 .childOption(ChannelOption.SO_KEEPALIVE, this.configuration.getKeepAlive())
                 .childHandler(new ServerChannelInitializer(this.configuration.getCodeC(),
-                        new RpcServiceChannelHandler(this.taskExecutor), this.configuration.getChannelAliveTime()));
+                        new ServerRequestHandler(this.businessTaskExecutor),
+                        this.configuration.getChannelAliveTime()));
     }
 }

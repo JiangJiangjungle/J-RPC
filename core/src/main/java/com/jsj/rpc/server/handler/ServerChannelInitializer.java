@@ -28,14 +28,15 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         EventLoop eventLoop = socketChannel.eventLoop();
         //创建定时任务：检查channel是否过期并删除
-        eventLoop.schedule(new ChannelRemoveTask(socketChannel, eventLoop, channelAliveTime), channelAliveTime, TimeUnit.MILLISECONDS);
+        eventLoop.schedule(new ChannelRemoveTask(socketChannel, eventLoop, channelAliveTime), channelAliveTime,
+                TimeUnit.MILLISECONDS);
         ChannelPipeline pipeline = socketChannel.pipeline();
         //
         pipeline//出方向编码
                 .addLast(codeC.newEncoder())
                 //入方向解码
                 .addLast(codeC.newDecoder())
-                .addLast(new ServerConnectionChannelHandler())
+                .addLast(new ServerConnectionMonitor())
                 //业务处理
                 .addLast(serverHandler);
     }

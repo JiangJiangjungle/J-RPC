@@ -18,12 +18,12 @@ public class ConsumerApplication {
     static String IP = "139.9.77.156";
     static int PORT = 2181;
 
-    public static long testSync(int threads, ExecutorService executorService, HelloService helloService) throws Exception {
+    public static long testSync(int threads, ThreadPoolExecutor threadPoolExecutor, HelloService helloService) throws Exception {
         long sum = 0L;
         Future<Long>[] futureList = new Future[threads];
         CountDownLatch countDownLatch = new CountDownLatch(threads);
         for (int j = 0; j < threads; j++) {
-            futureList[j] = executorService.submit(new SyncTestTask(helloService, countDownLatch));
+            futureList[j] = threadPoolExecutor.submit(new SyncTestTask(helloService, countDownLatch));
         }
         for (int j = 0; j < threads; j++) {
             sum += futureList[+j].get();
@@ -31,12 +31,12 @@ public class ConsumerApplication {
         return sum;
     }
 
-    public static long testASync(int threads, ExecutorService executorService, DefaultRpcProxy rpcProxy) throws Exception {
+    public static long testASync(int threads, ThreadPoolExecutor threadPoolExecutor, DefaultRpcProxy rpcProxy) throws Exception {
         long sum = 0L;
         Future<Long>[] futureList = new Future[threads];
         CountDownLatch countDownLatch = new CountDownLatch(threads);
         for (int j = 0; j < threads; j++) {
-            futureList[j] = executorService.submit(new FutureTestTask(rpcProxy, countDownLatch));
+            futureList[j] = threadPoolExecutor.submit(new FutureTestTask(rpcProxy, countDownLatch));
         }
         for (int j = 0; j < threads; j++) {
             sum += futureList[+j].get();
@@ -50,18 +50,18 @@ public class ConsumerApplication {
         RpcProxy rpcProxy = new DefaultRpcProxy(serviceDiscovery);
         HelloService helloService = rpcProxy.getService(HelloService.class);
         //线程设置
-        int threads = 10;
-        ExecutorService executorService = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(threads * 10), new NamedThreadFactory());
+        int threads = 100;
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(threads, threads, 0L,
+                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(threads * 10), new NamedThreadFactory());
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        executorService.submit(new FutureTestTask(rpcProxy, countDownLatch));
+        threadPoolExecutor.submit(new FutureTestTask(rpcProxy, countDownLatch));
         System.out.println("RPC服务远程地址已本地缓存.");
         Thread.sleep(1000);
-        int repeat = 500;
+        int repeat = 100;
         long sum = 0L;
         long count;
         for (int i = 1; i <= repeat; i++) {
-            count = testSync(threads, executorService,helloService);
+            count = testSync(threads, threadPoolExecutor, helloService);
             sum += count;
             System.out.println("第" + i + "次测试，平均响应时间：" + count / (threads) + " ms.");
         }

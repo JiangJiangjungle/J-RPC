@@ -5,6 +5,7 @@ import com.jsj.rpc.common.message.Header;
 import com.jsj.rpc.common.message.Message;
 import com.jsj.rpc.common.message.MessageTypeEnum;
 import com.jsj.rpc.util.MessageUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -13,10 +14,10 @@ import org.slf4j.LoggerFactory;
 /**
  * @author jiangshenjie
  */
-public class ServerConnectionChannelHandler extends SimpleChannelInboundHandler<Message> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServerConnectionChannelHandler.class);
+public class ServerConnectionMonitor extends SimpleChannelInboundHandler<Message> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerConnectionMonitor.class);
 
-    public ServerConnectionChannelHandler() {
+    public ServerConnectionMonitor() {
     }
 
     @Override
@@ -27,9 +28,18 @@ public class ServerConnectionChannelHandler extends SimpleChannelInboundHandler<
         //若是心跳请求则直接返回，否则交给下一handler处理
         if (MessageTypeEnum.HEART_BEAT_REQUEST.getValue() == header.messageType()) {
             LOGGER.debug("服务端收到心跳请求，channel:" + channelHandlerContext.channel());
-            channelHandlerContext.writeAndFlush(MessageUtil.createHeartBeatResponseMessage());
+            channelHandlerContext.writeAndFlush(MessageUtil.createHeartBeatResponse());
         } else {
             channelHandlerContext.fireChannelRead(message);
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        //当channel关闭时，清除ThreadLocal中channel的所有缓存
+        Channel channel = ctx.channel();
+        ChannelDataHolder.removeChannel(channel);
+        LOGGER.info("Channel: {} closed.", channel);
+        ctx.fireChannelInactive();
     }
 }

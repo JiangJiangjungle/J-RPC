@@ -41,7 +41,7 @@ public class MessageUtil {
      *
      * @return
      */
-    public static Message createHeartBeatRequestMessage() {
+    public static Message createHeartBeatRequest() {
         return createMessage(MessageTypeEnum.HEART_BEAT_REQUEST, SerializerTypeEnum.DEFAULT, null);
     }
 
@@ -50,7 +50,7 @@ public class MessageUtil {
      *
      * @return
      */
-    public static Message createHeartBeatResponseMessage() {
+    public static Message createHeartBeatResponse() {
         return createMessage(MessageTypeEnum.HEART_BEAT_RESPONSE, SerializerTypeEnum.DEFAULT, null);
     }
 

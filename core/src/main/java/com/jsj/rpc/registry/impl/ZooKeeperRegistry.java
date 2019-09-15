@@ -26,12 +26,12 @@ public class ZooKeeperRegistry implements ServiceRegistry, ServiceDiscovery {
     /**
      * 连接最大重试次数
      */
-    private final static int MAX_RETRYS = 3;
+    private final static int MAX_RETRY = 3;
     private final static int BASE_SLEEP_TIMEOUT = 1000;
     /**
      * ZooKeeper连接的重试策略
      */
-    private final static RetryPolicy RETRY_POLICY = new ExponentialBackoffRetry(BASE_SLEEP_TIMEOUT, MAX_RETRYS);
+    private final static RetryPolicy RETRY_POLICY = new ExponentialBackoffRetry(BASE_SLEEP_TIMEOUT, MAX_RETRY);
     /**
      * 会话超时参数
      */
@@ -63,20 +63,20 @@ public class ZooKeeperRegistry implements ServiceRegistry, ServiceDiscovery {
     }
 
     @Override
-    public void register(String serviceName, String serviceAddress) {
+    public void register(String serviceName, String ip, int port) {
         CuratorFramework client = createCuratorFramework();
+        String serviceAddress = ip + SEPARATOR + port;
         try {
             client.start();
-            LOGGER.info("Zookeeper 已连接！");
+            LOGGER.info("zookeeper connected.");
             // 检查 registry 节点和 service 节点（持久）
             this.checkNodeExists(client, serviceName);
             String servicePath = ZK_REGISTRY_PATH + "/" + serviceName;
             // 创建 address 节点（临时），只有停止服务后才能断开连接
             String addressPath = servicePath + "/address-";
-            String addressNode = client.create()
-                    .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
+            client.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
                     .forPath(addressPath, serviceAddress.getBytes());
-            LOGGER.info("创建 address 节点: {}", addressNode);
+            LOGGER.info("service [{}] at [{}] has registered.", serviceName, serviceAddress);
         } catch (Exception e) {
             throw new RuntimeException("RPC server 注册时发生异常");
         }
@@ -87,7 +87,7 @@ public class ZooKeeperRegistry implements ServiceRegistry, ServiceDiscovery {
         CuratorFramework client = createCuratorFramework();
         try {
             client.start();
-            LOGGER.info("Zookeeper 已连接！");
+            LOGGER.info("zookeeper connected.");
             // 检查 registry 节点和 service 节点（持久）
             this.checkNodeExists(client, serviceName);
             // 获取 service 节点
@@ -125,7 +125,6 @@ public class ZooKeeperRegistry implements ServiceRegistry, ServiceDiscovery {
         Stat stat = client.checkExists().forPath(servicePath);
         if (stat == null) {
             client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath);
-            LOGGER.info("创建 service 节点: {}", servicePath);
         }
     }
 
@@ -141,15 +140,9 @@ public class ZooKeeperRegistry implements ServiceRegistry, ServiceDiscovery {
         }
         String address;
         int size = addressList.size();
-        if (size == 1) {
-            // 若只有一个地址，则获取该地址
-            address = addressList.get(0);
-            LOGGER.debug("选取任意唯一节点: {}", address);
-        } else {
-            //todo 若存在多个地址，则随机获取一个地址，可以考虑利用zooKeeper做更好的负载均衡
-            address = addressList.get(ThreadLocalRandom.current().nextInt(size));
-            LOGGER.debug("选取任意一个节点: {}", address);
-        }
+        //若存在多个地址，则随机获取一个地址，可以考虑更好的负载均衡
+        address = addressList.get(ThreadLocalRandom.current().nextInt(size));
+        LOGGER.debug("choose address: {}", address);
         return address;
     }
 

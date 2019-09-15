@@ -14,27 +14,27 @@ import java.util.concurrent.TimeUnit;
  * @author jiangshenjie
  */
 public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
-    private static ChannelHandler clientHandler = new ClientChannelHandler();
+    private static ChannelHandler clientHandler = new ClientResponseHandler();
     private DefaultClientConfiguration configuration;
-    private ClientConnectionWatchDog connectionWatchDog;
+    private ClientConnectionMonitor connectionMonitor;
 
     public ClientChannelInitializer(DefaultClientConfiguration configuration, ReConnectionListener reConnectionListener) {
         this.configuration = configuration;
-        this.connectionWatchDog = new ClientConnectionWatchDog(reConnectionListener);
+        this.connectionMonitor = new ClientConnectionMonitor(reConnectionListener);
     }
 
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline pipeline = socketChannel.pipeline();
         //
-        pipeline.addLast(new IdleStateHandler(configuration.getReadIdle(), configuration.getWriteIdle(),
-                0, TimeUnit.MILLISECONDS))
+        pipeline.addLast(new IdleStateHandler(configuration.getReadIdle(), configuration.getWriteIdle(), 0,
+                TimeUnit.MILLISECONDS))
                 //出方向编码
                 .addLast(configuration.getCodeC().newEncoder())
                 //入方向解码
                 .addLast(configuration.getCodeC().newDecoder())
-                //前置连接监视处理器
-                .addLast(connectionWatchDog)
+                //前置连接监视器
+                .addLast(connectionMonitor)
                 //业务处理
                 .addLast(clientHandler);
     }

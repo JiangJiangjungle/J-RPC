@@ -40,17 +40,18 @@ public class ChannelDataHolder {
             cache.put(channel, channelData);
         }
         channelData.update(lastReceive);
-        LOGGER.info("channel: {} updated.", channel);
+        LOGGER.info("Channel: {} updated.", channel);
     }
 
     /**
-     * 当channel关闭时，清除eventLoop中channel对应的所有future，对应EventLoop线程执行
+     * 当channel关闭时，清除eventLoop中channel对应的所有缓存，在对应的EventLoop线程中执行本方法
      *
      * @param channel
      */
     public static void removeChannel(Channel channel) {
         Map<Channel, ChannelData> cache = checkCache();
         cache.remove(channel);
+        LOGGER.info("Channel {}: ThreadLocal data clear.", channel);
     }
 
     /**
@@ -75,6 +76,7 @@ public class ChannelDataHolder {
     public static boolean removeIfExpire(Channel channel, int channelAliveTime) {
         boolean removed = false;
         Map<Channel, ChannelData> cache = ChannelDataHolder.checkCache();
+        //若channelData不存在说明已经被删除，返回true
         ChannelData channelData = cache.get(channel);
         if (channelData == null) {
             return true;
@@ -85,7 +87,7 @@ public class ChannelDataHolder {
             }
             cache.remove(channel);
             removed = true;
-            LOGGER.info("channel: {} expired and closed.", channel);
+            LOGGER.info("Channel: {} expired and closed.", channel);
         }
         return removed;
     }
@@ -133,6 +135,11 @@ public class ChannelDataHolder {
         CACHE.remove();
     }
 
+    /**
+     * 检查ThreadLocal
+     *
+     * @return
+     */
     private static Map<Channel, ChannelData> checkCache() {
         Map<Channel, ChannelData> cache = CACHE.get();
         if (cache == null) {

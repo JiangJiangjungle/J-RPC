@@ -4,18 +4,10 @@ import com.jsj.rpc.RpcRequest;
 import com.jsj.rpc.RpcResponse;
 import com.jsj.rpc.RpcStateCode;
 import com.jsj.rpc.common.NamedThreadFactory;
-import com.jsj.rpc.common.message.Message;
-import com.jsj.rpc.common.message.MessageTypeEnum;
-import com.jsj.rpc.common.serializer.SerializerTypeEnum;
-import com.jsj.rpc.util.MessageUtil;
-import io.netty.channel.ChannelHandlerContext;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,23 +17,27 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author jiangshenjie
  */
-public class DefaultTaskExecutor implements TaskExecutor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultTaskExecutor.class);
+public class DefaultBusinessTaskExecutor implements BusinessTaskExecutor {
     /**
      * 用户业务线程池，用于处理实际rpc业务
      */
-    private ExecutorService threadPool = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 2,
+    private static ExecutorService threadPool = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors() * 2,
             Runtime.getRuntime().availableProcessors() * 2, 60L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(1000), new NamedThreadFactory());
 
     /**
-     * 用于存储已经注册的服务实例
+     * 本服务端注册的服务接口实例
      */
-    private Map<String, Object> serviceInstanceMap = new HashMap<>();
+    private Map<String, Object> registeredServices;
+
+    public DefaultBusinessTaskExecutor(Map<String, Object> registeredServices) {
+        this.registeredServices = registeredServices;
+    }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, RpcRequest request, SerializerTypeEnum serializationType) {
-        threadPool.execute(() -> {
+    public void execute(RpcRequest request, TaskCallbackHandler<RpcResponse> handler) {
+        Runnable task = () -> {
             // 创建并初始化 RPC 响应对象
             RpcResponse response = new RpcResponse();
             response.setRequestId(request.getRequestId());
@@ -51,20 +47,14 @@ public class DefaultTaskExecutor implements TaskExecutor {
                 //结果添加到响应
                 response.setServiceResult(serviceResult);
             } catch (Exception e) {
+                e.printStackTrace();
                 response.setErrorMsg(String.format("ErrorCode: %s, state: %s, cause: %s", RpcStateCode.FAIL.getCode(),
                         RpcStateCode.FAIL.getValue(), e.getMessage()));
             }
-            //根据 RPC 响应对象封装Message
-            Message message = MessageUtil.createMessage(MessageTypeEnum.RPC_RESPONSE, serializationType, response);
-            // 写入 Message
-            ctx.writeAndFlush(message);
-            LOGGER.info("执行完毕！{} ", request.toString());
-        });
-    }
-
-    @Override
-    public void addInstance(String serviceName, Object instance) {
-        this.serviceInstanceMap.put(serviceName, instance);
+            //在业务线程中执行回调函数
+            handler.callback(response);
+        };
+        threadPool.execute(task);
     }
 
     /**
@@ -92,7 +82,7 @@ public class DefaultTaskExecutor implements TaskExecutor {
      * @return
      */
     private Object getServiceBean(String serviceName) {
-        Object serviceBean = this.serviceInstanceMap.get(serviceName);
+        Object serviceBean = this.registeredServices.get(serviceName);
         if (serviceBean == null) {
             throw new RuntimeException(String.format("can not find service bean by key: %s", serviceName));
         }

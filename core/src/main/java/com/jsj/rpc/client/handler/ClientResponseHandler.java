@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
  * @date 2018-10-4
  */
 @ChannelHandler.Sharable
-public class ClientChannelHandler extends SimpleChannelInboundHandler<RpcResponse> {
+public class ClientResponseHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientChannelHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientResponseHandler.class);
 
-    public ClientChannelHandler() {
+    public ClientResponseHandler() {
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<RpcRespons
             //更新对应的RpcFuture
             future.done(rpcResponse);
         } else {
-            LOGGER.error("DefaultRpcFuture : [requestId: {}] not exists", rpcResponse.getRequestId());
+            LOGGER.error("RpcFuture : [requestId: {}] not exists", rpcResponse.getRequestId());
             throw new Exception("DefaultRpcFuture not exists");
         }
     }

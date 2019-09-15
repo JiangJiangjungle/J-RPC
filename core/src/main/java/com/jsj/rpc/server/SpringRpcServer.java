@@ -11,6 +11,8 @@ import java.util.Map;
 
 /**
  * 基于Spring的服务端启动器，自动扫描带@RpcService注解的服务实例
+ *
+ * @author jiangshenjie
  */
 public class SpringRpcServer extends DefaultRpcServer implements ApplicationListener<ContextRefreshedEvent> {
 
