@@ -32,7 +32,7 @@ public class MessageUtil {
      * @return
      */
     public static Message createMessage(MessageTypeEnum messageType, SerializerTypeEnum serializerType, Body content) {
-        Header header = new DefaultHeader(messageType.getValue(), serializerType.getValue(), 0);
+        Header header = new DefaultHeader(messageType.getValue(), serializerType.getValue());
         return createMessage(header, content);
     }
 
@@ -59,9 +59,8 @@ public class MessageUtil {
      *
      * @param in
      * @return
-     * @throws IOException
      */
-    public static Header byteBufTransToHeader(ByteBuf in) throws IOException {
+    public static Header byteBufTransToHeader(ByteBuf in) {
         byte protocolCode = in.readByte();
         byte messageType = in.readByte();
         byte serializationType = in.readByte();
@@ -84,50 +83,6 @@ public class MessageUtil {
             return SerializationUtil.deserialize(header.serializationType(), RpcRequest.class, data);
         } else {
             return SerializationUtil.deserialize(header.serializationType(), RpcResponse.class, data);
-        }
-    }
-
-    /**
-     * Message对象写入缓冲区
-     *
-     * @param msg
-     * @param out
-     */
-    public static void messageTransToByteBuf(Message msg, ByteBuf out) throws SerializationException {
-        Header header = msg.getHeader();
-        int bodyLength = 0;
-        byte[] data = null;
-        if (!msg.emptyBody()) {
-            data = SerializationUtil.serialize(msg.getBody(), header.serializationType());
-            bodyLength = data.length;
-        }
-        header.setBodyLength(bodyLength);
-        headerTransToByteBuf(header, out);
-        bodyTransToByteBuf(data, out);
-    }
-
-    /**
-     * Header对象转换成字节写入缓冲区
-     *
-     * @param header
-     * @param out
-     */
-    public static void headerTransToByteBuf(Header header, ByteBuf out) {
-        out.writeByte(header.protocolCode());
-        out.writeByte(header.messageType());
-        out.writeByte(header.serializationType());
-        out.writeInt(header.bodyLength());
-    }
-
-    /**
-     * Body对象序列化后的字节写入缓冲区
-     *
-     * @param data
-     * @param out
-     */
-    private static void bodyTransToByteBuf(byte[] data, ByteBuf out) {
-        if (data != null) {
-            out.writeBytes(data);
         }
     }
 }

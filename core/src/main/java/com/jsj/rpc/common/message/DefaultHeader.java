@@ -1,5 +1,8 @@
 package com.jsj.rpc.common.message;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+
 /**
  * 自定义协议首部
  *
@@ -33,8 +36,8 @@ public class DefaultHeader implements Header {
      */
     public static byte PROTOCOL_CODE = (byte) 0xAC;
 
-    public DefaultHeader(byte messageType, byte serializerType, int bodyLength) {
-        this(PROTOCOL_CODE, messageType, serializerType, bodyLength);
+    public DefaultHeader(byte messageType, byte serializerType) {
+        this(PROTOCOL_CODE, messageType, serializerType, 0);
     }
 
     public DefaultHeader(byte protocolCode, byte messageType, byte serializerType, int bodyLength) {
@@ -67,6 +70,13 @@ public class DefaultHeader implements Header {
     @Override
     public void setBodyLength(int bodyLength) {
         this.bodyLength = bodyLength;
+    }
+
+    @Override
+    public ByteBuf getBytes() {
+        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer(Header.PROTOCOL_HEADER_BYTES);
+        byteBuf.writeByte(protocolCode).writeByte(messageType).writeByte(serializerType).writeInt(bodyLength);
+        return byteBuf;
     }
 
     @Override
