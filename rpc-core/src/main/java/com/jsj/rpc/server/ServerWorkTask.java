@@ -33,7 +33,7 @@ public class ServerWorkTask implements Runnable {
         } catch (Exception e) {
             log.warn("Execute ServerWorkTask error, request id: {}, err msg: {}."
                     , request.getRequestId(), e.getMessage());
-            meta.setErrorMessage(e.getMessage());
+            meta.setErrorMessage(String.format("%s: %s", e.getClass().getName(), e.getMessage()));
         }
         ctx.channel().writeAndFlush(meta)
                 .addListener(future -> {

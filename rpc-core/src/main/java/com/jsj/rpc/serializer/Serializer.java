@@ -1,5 +1,7 @@
 package com.jsj.rpc.serializer;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * 序列化工具
  *
@@ -11,13 +13,13 @@ public interface Serializer {
     /**
      * 反序列化
      *
-     * @param bytes
+     * @param byteBuf
      * @param clazz
      * @param <T>
      * @return
      * @throws Exception
      */
-    <T> T deSerialize(byte[] bytes, Class<T> clazz) throws SerializeException;
+    <T> T deSerialize(ByteBuf byteBuf, Class<T> clazz) throws SerializeException;
 
     /**
      * 序列化
@@ -27,5 +29,5 @@ public interface Serializer {
      * @return
      * @throws Exception
      */
-    <T> byte[] serialize(T obj) throws SerializeException;
+    <T> ByteBuf serialize(T obj) throws SerializeException;
 }

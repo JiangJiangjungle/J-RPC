@@ -14,6 +14,8 @@ import io.netty.buffer.Unpooled;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * header：magic_num(1 byte) | body_length(4 byte)
  * body: msg content
@@ -53,11 +55,11 @@ public class RpcProtocol implements Protocol {
             headBuf.writeInt(0);
             compositeByteBuf.addComponent(true, headBuf);
         } else {
-            byte[] bodyBytes = serializer.serialize(message);
+            ByteBuf bodyBuf = serializer.serialize(message);
             //body length
-            headBuf.writeInt(bodyBytes.length);
+            headBuf.writeInt(bodyBuf.readableBytes());
             compositeByteBuf.addComponent(true, headBuf);
-            compositeByteBuf.writeBytes(bodyBytes);
+            compositeByteBuf.addComponent(true, bodyBuf);
         }
         return compositeByteBuf;
     }
@@ -83,7 +85,7 @@ public class RpcProtocol implements Protocol {
 
     @Override
     public RpcRequest decodeRequest(RpcPacket packet) throws Exception {
-        RequestMeta meta = serializer.deSerialize(packet.getBytes(), RequestMeta.class);
+        RequestMeta meta = serializer.deSerialize(packet.getBody(), RequestMeta.class);
         RpcRequest request = new RpcRequest().values(meta);
         RpcMethodDetail methodDetail = serviceManager.getService(request.getServiceName(), request.getMethodName());
         if (methodDetail == null) {
@@ -98,7 +100,7 @@ public class RpcProtocol implements Protocol {
 
     @Override
     public RpcResponse decodeResponse(RpcPacket packet) throws SerializeException {
-        ResponseMeta meta = serializer.deSerialize(packet.getBytes(), ResponseMeta.class);
+        ResponseMeta meta = serializer.deSerialize(packet.getBody(), ResponseMeta.class);
         RpcResponse response = new RpcResponse();
         response.setRequestId(meta.getRequestId());
         response.setResult(meta.getResult());

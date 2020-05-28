@@ -6,12 +6,18 @@
 
     <parent>
         <groupId>com.jsj.rpc</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>my-netty-rpc</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>rpc-sample</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.jsj.rpc</groupId>
+            <artifactId>rpc-core</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

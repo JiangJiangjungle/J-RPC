@@ -14,6 +14,7 @@ public interface ServiceRegistry {
      * @param serviceName
      * @param ip
      * @param port
+     * @throws Exception
      */
     void register(String serviceName, String ip, int port) throws Exception;
 }
