@@ -1,13 +1,12 @@
 package com.jsj.rpc.client;
 
 import com.jsj.rpc.*;
-import com.jsj.rpc.protocol.Protocol;
-import com.jsj.rpc.protocol.ProtocolManager;
-import com.jsj.rpc.protocol.RequestMeta;
-import com.jsj.rpc.protocol.RpcRequest;
+import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.registry.ServiceDiscovery;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -60,8 +59,8 @@ public class RpcClient {
         return RpcProxy.getProxy(rpcClient, clazz);
     }
 
-    public <T> RpcFuture<T> invoke(Class<T> serviceInterface, Method method
-            , RpcCallback callback, Object... args) throws Exception {
+    public <T> RpcFuture<T> invoke(Class<?> serviceInterface, Method method
+            , RpcCallback<T> callback, Object... args) throws Exception {
         RpcRequest request = new RpcRequest();
         request.setRequestId(requestIdCounter.getAndIncrement());
         request.setServiceName(serviceInterface.getName());
@@ -72,8 +71,8 @@ public class RpcClient {
         return sendRequest(request);
     }
 
-    public <T> RpcFuture<T> invoke(Class<T> serviceInterface, String methodName
-            , RpcCallback callback, Object... args) throws Exception {
+    public <T> RpcFuture<T> invoke(Class<?> serviceInterface, String methodName
+            , RpcCallback<T> callback, Object... args) throws Exception {
         Class<?>[] argClasses = new Class[args.length];
         for (int i = 0; i < args.length; i++) {
             argClasses[i] = args[i].getClass();
@@ -142,12 +141,12 @@ public class RpcClient {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             channelInfo.addRpcFuture(defaultRpcFuture);
         });
-        RequestMeta meta = new RequestMeta();
-        meta.setRequestId(request.getRequestId());
-        meta.setServiceName(request.getServiceName());
-        meta.setMethodName(request.getMethodName());
-        meta.setParams(request.getParams());
-        channel.writeAndFlush(meta).addListener(ioFuture -> {
+        RpcMeta.RequestMeta meta = request.requestMeta();
+        byte[] bytes = meta.toByteArray();
+        ByteBuf byteBuf = Unpooled.buffer(bytes.length);
+        byteBuf.writeBytes(bytes);
+        RpcPacket packet = new RpcPacket(byteBuf);
+        channel.writeAndFlush(packet).addListener(ioFuture -> {
             if (!ioFuture.isSuccess()) {
                 log.warn("Send rpc request failed, request id: {}.", meta.getRequestId());
             } else {

@@ -2,10 +2,10 @@ package com.jsj.rpc.client;
 
 import com.jsj.rpc.HelloService;
 import com.jsj.rpc.RpcCallback;
+import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.User;
 import com.jsj.rpc.registry.LocalServiceDiscovery;
 import lombok.extern.slf4j.Slf4j;
-
-import java.lang.reflect.Method;
 
 /**
  * @author jiangshenjie
@@ -18,18 +18,25 @@ public class DemoClient {
         RpcClient client = new RpcClient(serviceDiscovery);
         client.init();
         //直接调用
-        client.invoke(HelloService.class, "hello", new DemoRpcCallback(), "wsh");
+        User.UserInfo.Builder userInfoBuilder = User.UserInfo.newBuilder();
+        userInfoBuilder.setName("jsj");
+        userInfoBuilder.setAge(20);
+        userInfoBuilder.setId(1L);
+        User.UserInfo userInfo = userInfoBuilder.build();
+        RpcFuture<User.UserDetail> rpcFuture = client.invoke(HelloService.class, "hello", new DemoRpcCallback(), userInfo);
+        log.info("rpc result: {}.", rpcFuture.get());
         //代理对象调用
         HelloService helloService = RpcClient.getProxy(client, HelloService.class);
-        String result = helloService.hello("jsj");
-        log.info("rpc result by proxy: {}.", result);
+        User.UserDetail userDetail = helloService.hello(userInfo);
+        log.info("rpc result by proxy: {}.", userDetail);
         client.shutdown();
     }
 
+
     @Slf4j
-    private static class DemoRpcCallback implements RpcCallback<String> {
+    private static class DemoRpcCallback implements RpcCallback<User.UserDetail> {
         @Override
-        public void handleResult(String result) {
+        public void handleResult(User.UserDetail result) {
             log.info("rpc callback handle result: {}.", result);
         }
 

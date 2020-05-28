@@ -2,6 +2,7 @@ package com.jsj.rpc.client;
 
 import com.jsj.rpc.RpcCallback;
 import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.RpcMethodDetail;
 import com.jsj.rpc.protocol.RpcRequest;
 import com.jsj.rpc.protocol.RpcResponse;
 import lombok.Getter;
@@ -73,43 +74,6 @@ public class DefaultRpcFuture<T> implements RpcFuture<T> {
         return this.isDone;
     }
 
-    //
-//    @Override
-//    public RpcFuture addCallback(RpcCallback callback) {
-//        this.callback = callback;
-//        return this;
-//    }
-//
-//    @Override
-//    public RpcResponse get() throws InterruptedException, ExecutionException {
-//        synchronized (this) {
-//            if (this.cancelled) {
-//                return null;
-//            }
-//            while (!this.isDone) {
-//                this.wait();
-//            }
-//        }
-//        return this.response;
-//    }
-//
-//    @Override
-//    public RpcResponse get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-//        long millis = unit.toMillis(timeout);
-//        synchronized (this) {
-//            if (this.cancelled) {
-//                return null;
-//            }
-//            while (!this.isDone && millis > 0L) {
-//                this.wait(millis);
-//            }
-//        }
-//        if (!this.isDone) {
-//            throw new TimeoutException();
-//        }
-//        return this.response;
-//    }
-//
     protected RpcFuture<T> setResponse(RpcResponse response) {
         if (this.cancelled) {
             return this;
@@ -118,18 +82,17 @@ public class DefaultRpcFuture<T> implements RpcFuture<T> {
             if (this.cancelled) {
                 return this;
             }
+            RpcCallback<T> callback = (RpcCallback<T>) request.getCallback();
+            if (callback != null) {
+                if (response.getException() != null) {
+                    callback.handleException(response.getException());
+                } else {
+                    callback.handleResult((T) response.getResult());
+                }
+            }
             this.response = response;
             this.isDone = true;
             this.notifyAll();
-        }
-        RpcCallback<T> callback = (RpcCallback<T>) request.getCallback();
-        if (callback == null) {
-            return this;
-        }
-        if (response.getException() != null) {
-            callback.handleException(response.getException());
-        } else {
-            callback.handleResult((T) response.getResult());
         }
         return this;
     }

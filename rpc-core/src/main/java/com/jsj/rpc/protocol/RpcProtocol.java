@@ -1,20 +1,16 @@
 package com.jsj.rpc.protocol;
 
+import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcInvokeException;
 import com.jsj.rpc.RpcMethodDetail;
 import com.jsj.rpc.protocol.exception.BadSchemaException;
 import com.jsj.rpc.protocol.exception.NotEnoughDataException;
-import com.jsj.rpc.serializer.JsonSerializer;
-import com.jsj.rpc.serializer.SerializeException;
-import com.jsj.rpc.serializer.Serializer;
 import com.jsj.rpc.server.ServiceManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * header：magic_num(1 byte) | body_length(4 byte)
@@ -30,33 +26,28 @@ public class RpcProtocol implements Protocol {
      * 默认协议版本号(1 byte)
      */
     private static byte MAGIC_NUM = (byte) 0x00;
-    /**
-     * 序列化/反序列化
-     */
-    private Serializer serializer = new JsonSerializer();
     private ServiceManager serviceManager = ServiceManager.getInstance();
 
     public RpcProtocol() {
     }
 
-    public RpcProtocol(Serializer serializer, ServiceManager serviceManager) {
-        this.serializer = serializer;
+    public RpcProtocol(ServiceManager serviceManager) {
         this.serviceManager = serviceManager;
     }
 
     @Override
-    public ByteBuf encodeMsg(Object message) throws SerializeException {
+    public ByteBuf encodePacket(RpcPacket packet) throws Exception {
         CompositeByteBuf compositeByteBuf = Unpooled.compositeBuffer(2);
         ByteBuf headBuf = Unpooled.buffer(FIXED_HEADER_LEN);
         //protocol version
         headBuf.writeByte(MAGIC_NUM);
-        if (message == null) {
+        if (packet == null) {
             //body length
             headBuf.writeInt(0);
             compositeByteBuf.addComponent(true, headBuf);
         } else {
-            ByteBuf bodyBuf = serializer.serialize(message);
             //body length
+            ByteBuf bodyBuf = packet.getBody();
             headBuf.writeInt(bodyBuf.readableBytes());
             compositeByteBuf.addComponent(true, headBuf);
             compositeByteBuf.addComponent(true, bodyBuf);
@@ -85,27 +76,40 @@ public class RpcProtocol implements Protocol {
 
     @Override
     public RpcRequest decodeRequest(RpcPacket packet) throws Exception {
-        RequestMeta meta = serializer.deSerialize(packet.getBody(), RequestMeta.class);
-        RpcRequest request = new RpcRequest().values(meta);
-        RpcMethodDetail methodDetail = serviceManager.getService(request.getServiceName(), request.getMethodName());
+        RpcMeta.RequestMeta requestMeta = RpcMeta.RequestMeta.parseFrom(packet.getBody().nioBuffer());
+        RpcMethodDetail methodDetail = serviceManager.getService(requestMeta.getServiceName(), requestMeta.getMethodName());
         if (methodDetail == null) {
-            String errMsg = String.format("No such method, serviceName: %s, methodName: %s"
-                    , request.getServiceName(), request.getMethodName());
-            throw new Exception(errMsg);
+            String errMsg = String.format("rpc interface name: %s, method name: %s"
+                    , requestMeta.getServiceName(), requestMeta.getMethodName());
+            throw new NoSuchMethodException(errMsg);
         }
+        //参数类型转换
+        Class[] paramTypes = methodDetail.getMethod().getParameterTypes();
+        Object[] params = new Object[paramTypes.length];
+        for (int i = 0; i < paramTypes.length; i++) {
+            Object param = requestMeta.getParams(i).unpack(paramTypes[i]);
+            params[i] = param;
+        }
+        RpcRequest request = new RpcRequest();
+        request.setRequestId(requestMeta.getRequestId());
+        request.setServiceName(requestMeta.getServiceName());
+        request.setMethodName(requestMeta.getMethodName());
+        request.setParams(params);
         request.setMethod(methodDetail.getMethod());
         request.setTarget(methodDetail.getTarget());
         return request;
     }
 
     @Override
-    public RpcResponse decodeResponse(RpcPacket packet) throws SerializeException {
-        ResponseMeta meta = serializer.deSerialize(packet.getBody(), ResponseMeta.class);
+    public RpcResponse decodeResponse(RpcPacket packet, ChannelInfo channelInfo) throws Exception {
+        RpcMeta.ResponseMeta responseMeta = RpcMeta.ResponseMeta.parseFrom(packet.getBody().nioBuffer());
+        RpcRequest request = channelInfo.getRpcFuture(responseMeta.getRequestId()).getRequest();
+        Class returnType = request.getMethod().getReturnType();
         RpcResponse response = new RpcResponse();
-        response.setRequestId(meta.getRequestId());
-        response.setResult(meta.getResult());
-        if (meta.getErrorMessage() != null) {
-            response.setException(new RpcInvokeException(meta.getErrorMessage()));
+        response.setRequestId(responseMeta.getRequestId());
+        response.setResult(responseMeta.getResult().unpack(returnType));
+        if (responseMeta.getErrMsg() != null && !"".equals(responseMeta.getErrMsg())) {
+            response.setException(new RpcInvokeException(responseMeta.getErrMsg()));
         }
         return response;
     }

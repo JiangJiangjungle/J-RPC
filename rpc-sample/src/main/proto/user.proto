@@ -1,0 +1,16 @@
+syntax = "proto3"; // 指定使用 proto3 语法
+import "google/protobuf/any.proto";
+
+option java_package = "com.jsj.rpc"; // 指定包名
+option java_outer_classname = "User"; // 指定类名
+
+message UserInfo {
+    uint64 id = 1; //id
+    string name = 2; //name
+    uint32 age = 3; //age
+}
+
+message UserDetail {
+    UserInfo userInfo = 1; //user info
+    string password = 3; //password
+}

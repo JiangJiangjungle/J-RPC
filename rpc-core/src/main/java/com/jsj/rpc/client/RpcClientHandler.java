@@ -26,7 +26,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcPacket> {
         try {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(ctx.channel());
             Protocol protocol = channelInfo.getProtocol();
-            RpcResponse response = protocol.decodeResponse(packet);
+            RpcResponse response = protocol.decodeResponse(packet, channelInfo);
             DefaultRpcFuture<?> rpcFuture = channelInfo.getAndRemoveRpcFuture(response.getRequestId());
             //在业务线程执行回调函数
             rpcClient.getWorkerThreadPool().submit(() -> {

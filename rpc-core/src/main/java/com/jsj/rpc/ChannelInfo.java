@@ -52,6 +52,10 @@ public class ChannelInfo {
         return rpcFutures.remove(requestId);
     }
 
+    public DefaultRpcFuture<?> getRpcFuture(Long requestId) {
+        return rpcFutures.get(requestId);
+    }
+
     public void addRpcFuture(DefaultRpcFuture<?> rpcFuture) {
         rpcFutures.put(rpcFuture.getRequest().getRequestId(), rpcFuture);
     }
