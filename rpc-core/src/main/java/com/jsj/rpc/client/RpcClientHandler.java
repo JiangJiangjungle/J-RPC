@@ -50,6 +50,6 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcPacket> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //注销服务实例
         rpcClient.getServiceInstanceManager().removeInstance(ctx.channel());
-        log.info("Channel [remote address: {}] inactive", ctx.channel().remoteAddress());
+        log.info("Channel [remote address: {}] closed", ctx.channel().remoteAddress());
     }
 }

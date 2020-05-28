@@ -24,6 +24,7 @@
         <version.logback>1.2.3</version.logback>
         <version.netty>4.1.42.Final</version.netty>
         <version.fastjson>1.2.47</version.fastjson>
+        <version.cglib>3.2.5</version.cglib>
         <version.mockito>1.9.0</version.mockito>
         <version.com.jsj.rpc-core>1.0-SNAPSHOT</version.com.jsj.rpc-core>
         <version.com.jsj.rpc-sample>1.0-SNAPSHOT</version.com.jsj.rpc-sample>
@@ -87,6 +88,12 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>${version.fastjson}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/cglib/cglib -->
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>${version.cglib}</version>
             </dependency>
             <!-- slf4j-api -->
             <dependency>

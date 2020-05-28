@@ -1,9 +1,6 @@
 package com.jsj.rpc.client;
 
-import com.jsj.rpc.BasicSocketChannelInitializer;
-import com.jsj.rpc.ChannelInfo;
-import com.jsj.rpc.NamedThreadFactory;
-import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.*;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.ProtocolManager;
 import com.jsj.rpc.protocol.RequestMeta;
@@ -19,9 +16,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author jiangshenjie
@@ -46,6 +45,8 @@ public class RpcClient {
      */
     private ServiceDiscovery serviceDiscovery;
 
+    private AtomicLong requestIdCounter;
+
     public RpcClient(ServiceDiscovery serviceDiscovery) {
         this(new RpcClientOptions(), serviceDiscovery);
     }
@@ -55,7 +56,34 @@ public class RpcClient {
         this.clientOptions = clientOptions;
     }
 
+    public static <T> T getProxy(RpcClient rpcClient, Class<T> clazz) {
+        return RpcProxy.getProxy(rpcClient, clazz);
+    }
+
+    public <T> RpcFuture<T> invoke(Class<T> serviceInterface, Method method
+            , RpcCallback callback, Object... args) throws Exception {
+        RpcRequest request = new RpcRequest();
+        request.setRequestId(requestIdCounter.getAndIncrement());
+        request.setServiceName(serviceInterface.getName());
+        request.setMethod(method);
+        request.setMethodName(method.getName());
+        request.setParams(args);
+        request.setCallback(callback);
+        return sendRequest(request);
+    }
+
+    public <T> RpcFuture<T> invoke(Class<T> serviceInterface, String methodName
+            , RpcCallback callback, Object... args) throws Exception {
+        Class<?>[] argClasses = new Class[args.length];
+        for (int i = 0; i < args.length; i++) {
+            argClasses[i] = args[i].getClass();
+        }
+        Method method = serviceInterface.getDeclaredMethod(methodName, argClasses);
+        return invoke(serviceInterface, method, callback, args);
+    }
+
     public void init() {
+        requestIdCounter = new AtomicLong(0L);
         serviceInstanceManager = new ServiceInstanceManager();
         protocol = ProtocolManager.getInstance().getProtocol(clientOptions.getProtocolType());
         workerGroup = new NioEventLoopGroup(clientOptions.getIoThreadNumber()
@@ -91,7 +119,7 @@ public class RpcClient {
      * @return
      * @throws Exception
      */
-    public Channel selectChannel(RpcRequest request) throws Exception {
+    protected Channel selectChannel(RpcRequest request) throws Exception {
         String serviceName = request.getServiceName();
         Channel channel = serviceInstanceManager.selectInstance(serviceName);
         //若本地缓存没有就从服务中心获取服务实例信息
@@ -106,7 +134,7 @@ public class RpcClient {
         return channel;
     }
 
-    public <T> RpcFuture<T> sendRequest(RpcRequest request) throws Exception {
+    protected <T> RpcFuture<T> sendRequest(RpcRequest request) throws Exception {
         Channel channel = selectChannel(request);
         DefaultRpcFuture<T> defaultRpcFuture = new DefaultRpcFuture<>(request);
         //必须在channel对应的eventLoop中获取ChannelInfo
