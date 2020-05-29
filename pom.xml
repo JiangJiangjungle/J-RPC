@@ -175,31 +175,46 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <!--远程仓库 -->
+        <repository>
+            <!--远程仓库唯一标识符。可以用来匹配在settings.xml文件里配置的远程仓库 -->
+            <id>jsj-nexus-release</id>
+            <name>jsj-nexus-release</name>
+            <url>http://119.23.204.78:8081/nexus/content/groups/release</url>
+        </repository>
+        <snapshotRepository>
+            <id>jsj-nexus-snapshots</id>
+            <name>jsj-nexus-snapshots</name>
+            <url>http://119.23.204.78:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
-            <!--protobuf插件-->
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.5.1</version>
-                <configuration>
-                    <protocArtifact>
-                        com.google.protobuf:protoc:${version.protobuf}:exe:${os.detected.classifier}
-                    </protocArtifact>
-                    <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>
-                        io.grpc:protoc-gen-grpc-java:${version.grpc}:exe:${os.detected.classifier}
-                    </pluginArtifact>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>compile-custom</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--            &lt;!&ndash;protobuf插件&ndash;&gt;-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.xolstice.maven.plugins</groupId>-->
+            <!--                <artifactId>protobuf-maven-plugin</artifactId>-->
+            <!--                <version>0.5.1</version>-->
+            <!--                <configuration>-->
+            <!--                    <protocArtifact>-->
+            <!--                        com.google.protobuf:protoc:${version.protobuf}:exe:${os.detected.classifier}-->
+            <!--                    </protocArtifact>-->
+            <!--                    <pluginId>grpc-java</pluginId>-->
+            <!--                    <pluginArtifact>-->
+            <!--                        io.grpc:protoc-gen-grpc-java:${version.grpc}:exe:${os.detected.classifier}-->
+            <!--                    </pluginArtifact>-->
+            <!--                </configuration>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <goals>-->
+            <!--                            <goal>compile</goal>-->
+            <!--                            <goal>compile-custom</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
         </plugins>
     </build>
 
