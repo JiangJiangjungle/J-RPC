@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -180,36 +179,5 @@ public class RpcClient {
             workerThreadPool.shutdown();
         }
         log.info("rpc client shutdown.");
-    }
-
-    /**
-     * 建立Channel连接
-     *
-     * @param endpoint
-     * @return
-     * @throws Exception
-     */
-    protected Channel createConnection(Endpoint endpoint) throws Exception {
-        ChannelFuture future = bootstrap.connect(endpoint.getIp(), endpoint.getPort());
-        //阻塞等待
-        future.awaitUninterruptibly();
-        future.sync();
-        if (!future.isDone()) {
-            String errMsg = String.format("Create connection to %s:%s timeout!", endpoint.getIp(), endpoint.getPort());
-            log.warn(errMsg);
-            throw new Exception(errMsg);
-        }
-        if (future.isCancelled()) {
-            String errMsg = String.format("Create connection to %s:%s cancelled by user!", endpoint.getIp(), endpoint.getPort());
-            log.warn(errMsg);
-            throw new Exception(errMsg);
-        }
-        if (!future.isSuccess()) {
-            String errMsg = String.format("Create connection to %s:%s error!", endpoint.getIp(), endpoint.getPort());
-            log.warn(errMsg);
-            throw new Exception(errMsg, future.cause());
-        }
-        log.info("Create connection to {}:{} success.", endpoint.getIp(), endpoint.getPort());
-        return future.channel();
     }
 }

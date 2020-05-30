@@ -141,7 +141,6 @@ public class ChannelManager {
         ChannelFuture future = rpcClient.getBootstrap().connect(endpoint.getIp(), endpoint.getPort());
         //阻塞等待
         future.awaitUninterruptibly();
-        future.sync();
         if (!future.isDone()) {
             String errMsg = String.format("Create connection to %s:%s timeout!", endpoint.getIp(), endpoint.getPort());
             log.warn(errMsg);
