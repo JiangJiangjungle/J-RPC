@@ -32,11 +32,11 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 @Getter
 public class RpcClient {
-    private final Endpoint endpoint;
-    private final RpcClientOptions clientOptions;
-    private NioEventLoopGroup workerGroup;
-    private Bootstrap bootstrap;
-    private Protocol protocol;
+    protected final Endpoint endpoint;
+    protected final RpcClientOptions clientOptions;
+    protected NioEventLoopGroup workerGroup;
+    protected Bootstrap bootstrap;
+    protected Protocol protocol;
     /**
      * 业务线程池
      */
