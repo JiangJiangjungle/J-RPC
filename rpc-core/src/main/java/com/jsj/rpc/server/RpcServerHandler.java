@@ -4,7 +4,6 @@ import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.RpcPacket;
 import com.jsj.rpc.protocol.RpcRequest;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author jiangshenjie
  */
-@ChannelHandler.Sharable
 @Slf4j
 @Getter
 public class RpcServerHandler extends SimpleChannelInboundHandler<RpcPacket> {
