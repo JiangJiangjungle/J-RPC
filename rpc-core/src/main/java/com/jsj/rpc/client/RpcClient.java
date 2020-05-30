@@ -53,6 +53,7 @@ public class RpcClient {
     public RpcClient(RpcClientOptions clientOptions, ServiceDiscovery serviceDiscovery) {
         this.serviceDiscovery = serviceDiscovery;
         this.clientOptions = clientOptions;
+        this.init();
     }
 
     public static <T> T getProxy(RpcClient rpcClient, Class<T> clazz) {
@@ -81,7 +82,7 @@ public class RpcClient {
         return invoke(serviceInterface, method, callback, args);
     }
 
-    public void init() {
+    protected void init() {
         requestIdCounter = new AtomicLong(0L);
         serviceInstanceManager = new ServiceInstanceManager();
         protocol = ProtocolManager.getInstance().getProtocol(clientOptions.getProtocolType());

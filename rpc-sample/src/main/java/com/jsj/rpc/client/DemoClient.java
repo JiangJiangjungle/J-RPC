@@ -16,7 +16,6 @@ public class DemoClient {
         LocalServiceDiscovery serviceDiscovery = new LocalServiceDiscovery();
         serviceDiscovery.addEndpoint(HelloService.class.getName(), new Endpoint("127.0.0.1", 2333));
         RpcClient client = new RpcClient(serviceDiscovery);
-        client.init();
         //直接调用
         User.UserInfo.Builder userInfoBuilder = User.UserInfo.newBuilder();
         userInfoBuilder.setName("jsj");

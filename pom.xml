@@ -192,29 +192,45 @@
 
     <build>
         <plugins>
-            <!--            &lt;!&ndash;protobuf插件&ndash;&gt;-->
-            <!--            <plugin>-->
-            <!--                <groupId>org.xolstice.maven.plugins</groupId>-->
-            <!--                <artifactId>protobuf-maven-plugin</artifactId>-->
-            <!--                <version>0.5.1</version>-->
-            <!--                <configuration>-->
-            <!--                    <protocArtifact>-->
-            <!--                        com.google.protobuf:protoc:${version.protobuf}:exe:${os.detected.classifier}-->
-            <!--                    </protocArtifact>-->
-            <!--                    <pluginId>grpc-java</pluginId>-->
-            <!--                    <pluginArtifact>-->
-            <!--                        io.grpc:protoc-gen-grpc-java:${version.grpc}:exe:${os.detected.classifier}-->
-            <!--                    </pluginArtifact>-->
-            <!--                </configuration>-->
-            <!--                <executions>-->
-            <!--                    <execution>-->
-            <!--                        <goals>-->
-            <!--                            <goal>compile</goal>-->
-            <!--                            <goal>compile-custom</goal>-->
-            <!--                        </goals>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--            </plugin>-->
+            <!-- deploy时要将源码放上去，需要加入这个插件 -->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+<!--            &lt;!&ndash;protobuf插件&ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.xolstice.maven.plugins</groupId>-->
+<!--                <artifactId>protobuf-maven-plugin</artifactId>-->
+<!--                <version>0.5.1</version>-->
+<!--                <configuration>-->
+<!--                    <protocArtifact>-->
+<!--                        com.google.protobuf:protoc:${version.protobuf}:exe:${os.detected.classifier}-->
+<!--                    </protocArtifact>-->
+<!--                    <pluginId>grpc-java</pluginId>-->
+<!--                    <pluginArtifact>-->
+<!--                        io.grpc:protoc-gen-grpc-java:${version.grpc}:exe:${os.detected.classifier}-->
+<!--                    </pluginArtifact>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>compile</goal>-->
+<!--                            <goal>compile-custom</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
