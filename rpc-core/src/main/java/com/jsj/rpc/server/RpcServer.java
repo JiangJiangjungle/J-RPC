@@ -1,10 +1,10 @@
 package com.jsj.rpc.server;
 
 import com.jsj.rpc.BasicSocketChannelInitializer;
-import com.jsj.rpc.NamedThreadFactory;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.ProtocolManager;
 import com.jsj.rpc.registry.ServiceRegistry;
+import com.jsj.rpc.util.NamedThreadFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
@@ -80,13 +80,13 @@ public class RpcServer {
     private void init() {
         protocol = ProtocolManager.getInstance().getProtocol(serverOptions.getProtocolType());
         bossGroup = new NioEventLoopGroup(serverOptions.getAcceptThreadNumber()
-                , new NamedThreadFactory("com.jsj.rpc-server-accept-thread", false));
+                , new NamedThreadFactory("rpc-server-accept-thread", false));
         workerGroup = new NioEventLoopGroup(serverOptions.getIoThreadNumber()
-                , new NamedThreadFactory("com.jsj.rpc-server-io-thread", false));
+                , new NamedThreadFactory("rpc-server-io-thread", false));
         workerThreadPool = new ThreadPoolExecutor(serverOptions.getWorkerThreadNumber()
                 , serverOptions.getWorkerThreadNumber(), 0L, TimeUnit.MILLISECONDS
                 , new LinkedBlockingDeque<>(serverOptions.getWorkerThreadPoolQueueSize())
-                , new NamedThreadFactory("com.jsj.rpc-server-worker-thread", false));
+                , new NamedThreadFactory("rpc-server-worker-thread", false));
         serverBootstrap = new ServerBootstrap()
                 //NioEventGroup
                 .group(bossGroup, workerGroup)

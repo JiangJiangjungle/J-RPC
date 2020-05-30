@@ -2,7 +2,6 @@ package com.jsj.rpc.client;
 
 import com.jsj.rpc.RpcCallback;
 import com.jsj.rpc.RpcFuture;
-import com.jsj.rpc.RpcMethodDetail;
 import com.jsj.rpc.protocol.RpcRequest;
 import com.jsj.rpc.protocol.RpcResponse;
 import lombok.Getter;
