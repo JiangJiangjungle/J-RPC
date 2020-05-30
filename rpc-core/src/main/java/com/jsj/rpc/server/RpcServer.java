@@ -1,15 +1,18 @@
 package com.jsj.rpc.server;
 
-import com.jsj.rpc.BasicSocketChannelInitializer;
+import com.jsj.rpc.codec.BaseDecoder;
+import com.jsj.rpc.codec.BaseEncoder;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.ProtocolManager;
 import com.jsj.rpc.registry.ServiceRegistry;
 import com.jsj.rpc.util.NamedThreadFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Getter;
 import lombok.Setter;
@@ -87,6 +90,7 @@ public class RpcServer {
                 , serverOptions.getWorkerThreadNumber(), 0L, TimeUnit.MILLISECONDS
                 , new LinkedBlockingDeque<>(serverOptions.getWorkerThreadPoolQueueSize())
                 , new NamedThreadFactory("rpc-server-worker-thread", false));
+        final RpcServer rpcServer = this;
         serverBootstrap = new ServerBootstrap()
                 //NioEventGroup
                 .group(bossGroup, workerGroup)
@@ -102,7 +106,18 @@ public class RpcServer {
                 .childOption(ChannelOption.SO_SNDBUF, serverOptions.getSendBufferSize())
                 .childOption(ChannelOption.SO_RCVBUF, serverOptions.getReceiveBufferSize())
                 //ChannelHandlerInitializer
-                .childHandler(new BasicSocketChannelInitializer(protocol, new RpcServerHandler(this)));
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline()
+                                //出方向编码
+                                .addLast(new BaseEncoder(protocol))
+                                //入方向解码
+                                .addLast(new BaseDecoder(protocol))
+                                //业务处理
+                                .addLast(new RpcServerHandler(rpcServer));
+                    }
+                });
     }
 
     public boolean start() {

@@ -1,9 +1,10 @@
 package com.jsj.rpc.client;
 
-import com.jsj.rpc.BasicSocketChannelInitializer;
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcCallback;
 import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.codec.BaseDecoder;
+import com.jsj.rpc.codec.BaseEncoder;
 import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.util.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
@@ -12,8 +13,10 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +102,7 @@ public class RpcClient {
                     , new LinkedBlockingDeque<>(clientOptions.getWorkerThreadPoolQueueSize())
                     , new NamedThreadFactory("rpc-client-work-thread", false));
         }
+        final RpcClient rpcClient = this;
         // init netty bootstrap
         bootstrap = new Bootstrap()
                 //NioEventGroup
@@ -116,7 +120,18 @@ public class RpcClient {
                 .option(ChannelOption.SO_SNDBUF, clientOptions.getSendBufferSize())
                 .option(ChannelOption.SO_RCVBUF, clientOptions.getReceiveBufferSize())
                 //ChannelHandlerInitializer
-                .handler(new BasicSocketChannelInitializer(protocol, new RpcClientHandler(this)));
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline()
+                                //出方向编码
+                                .addLast(new BaseEncoder(protocol))
+                                //入方向解码
+                                .addLast(new BaseDecoder(protocol))
+                                //业务处理
+                                .addLast(new RpcClientHandler(rpcClient));
+                    }
+                });
     }
 
     /**

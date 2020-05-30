@@ -4,18 +4,21 @@ import com.jsj.rpc.HelloService;
 import com.jsj.rpc.RpcCallback;
 import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.User;
-import com.jsj.rpc.registry.LocalServiceDiscovery;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author jiangshenjie
  */
 @Slf4j
-public class DemoClient {
+public class DemoRpcClient {
     public static void main(String[] args) throws Exception {
-        LocalServiceDiscovery serviceDiscovery = new LocalServiceDiscovery();
-        serviceDiscovery.addEndpoint(HelloService.class.getName(), new Endpoint("127.0.0.1", 2333));
-        RpcClient client = new RpcClient(serviceDiscovery);
+        Endpoint serverInfo = new Endpoint("127.0.0.1", 2333);
+        RpcClient client = testInvoke(serverInfo);
+        client.shutdown();
+    }
+
+    public static RpcClient testInvoke(Endpoint serverInfo) throws Exception {
+        RpcClient client = new RpcClient(serverInfo);
         //直接调用
         User.UserInfo.Builder userInfoBuilder = User.UserInfo.newBuilder();
         userInfoBuilder.setName("jsj");
@@ -28,7 +31,7 @@ public class DemoClient {
         HelloService helloService = RpcClient.getProxy(client, HelloService.class);
         User.UserDetail userDetail = helloService.hello(userInfo);
         log.info("rpc result by proxy: {}.", userDetail);
-        client.shutdown();
+        return client;
     }
 
 
