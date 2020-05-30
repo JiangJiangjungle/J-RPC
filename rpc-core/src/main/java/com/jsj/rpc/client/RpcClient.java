@@ -5,7 +5,6 @@ import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcCallback;
 import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.protocol.*;
-import com.jsj.rpc.registry.ServiceDiscovery;
 import com.jsj.rpc.util.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -31,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 @Getter
 public class RpcClient {
+    private final Endpoint endpoint;
     private final RpcClientOptions clientOptions;
     private NioEventLoopGroup workerGroup;
     private Bootstrap bootstrap;
@@ -40,22 +40,18 @@ public class RpcClient {
      */
     private ThreadPoolExecutor workerThreadPool;
     /**
-     * 本地服务实例缓存
+     * 连接管理器
      */
-    private ServiceInstanceManager serviceInstanceManager;
-    /**
-     * 服务发现
-     */
-    private ServiceDiscovery serviceDiscovery;
+    private ChannelManager channelManager;
 
     private AtomicLong requestIdCounter;
 
-    public RpcClient(ServiceDiscovery serviceDiscovery) {
-        this(new RpcClientOptions(), serviceDiscovery);
+    public RpcClient(Endpoint endpoint) {
+        this(endpoint, new RpcClientOptions());
     }
 
-    public RpcClient(RpcClientOptions clientOptions, ServiceDiscovery serviceDiscovery) {
-        this.serviceDiscovery = serviceDiscovery;
+    public RpcClient(Endpoint endpoint, RpcClientOptions clientOptions) {
+        this.endpoint = endpoint;
         this.clientOptions = clientOptions;
         this.init();
     }
@@ -88,14 +84,21 @@ public class RpcClient {
 
     protected void init() {
         requestIdCounter = new AtomicLong(0L);
-        serviceInstanceManager = new ServiceInstanceManager();
+        channelManager = new ChannelManager(this);
         protocol = ProtocolManager.getInstance().getProtocol(clientOptions.getProtocolType());
-        workerGroup = new NioEventLoopGroup(clientOptions.getIoThreadNumber()
-                , new NamedThreadFactory("rpc-client-io-thread", false));
-        workerThreadPool = new ThreadPoolExecutor(clientOptions.getWorkerThreadNumber()
-                , clientOptions.getWorkerThreadNumber(), 0L, TimeUnit.MILLISECONDS
-                , new LinkedBlockingDeque<>(clientOptions.getWorkerThreadPoolQueueSize())
-                , new NamedThreadFactory("rpc-client-worker-thread", false));
+        if (clientOptions.isGlobalThreadPoolSharing()) {
+            workerGroup = ClientThreadPoolInstance.getOrCreateIoThreadPool(clientOptions.getIoThreadNumber());
+            workerThreadPool = ClientThreadPoolInstance.getOrCreateWorkThreadPool(
+                    clientOptions.getWorkerThreadNumber()
+                    , clientOptions.getWorkerThreadPoolQueueSize());
+        } else {
+            workerGroup = new NioEventLoopGroup(clientOptions.getIoThreadNumber()
+                    , new NamedThreadFactory("rpc-client-io-thread", false));
+            workerThreadPool = new ThreadPoolExecutor(clientOptions.getWorkerThreadNumber()
+                    , clientOptions.getWorkerThreadNumber(), 0L, TimeUnit.MILLISECONDS
+                    , new LinkedBlockingDeque<>(clientOptions.getWorkerThreadPoolQueueSize())
+                    , new NamedThreadFactory("rpc-client-work-thread", false));
+        }
         // init netty bootstrap
         bootstrap = new Bootstrap()
                 //NioEventGroup
@@ -124,18 +127,7 @@ public class RpcClient {
      * @throws Exception
      */
     protected Channel selectChannel(RpcRequest request) throws Exception {
-        String serviceName = request.getServiceName();
-        Channel channel = serviceInstanceManager.selectInstance(serviceName);
-        //若本地缓存没有就从服务中心获取服务实例信息
-        if (channel == null) {
-            Endpoint endpoint = serviceDiscovery.discover(serviceName);
-            if (endpoint == null) {
-                throw new Exception(String.format("No available service: [%s]!", serviceName));
-            }
-            channel = createConnection(endpoint);
-            serviceInstanceManager.addInstance(serviceName, channel);
-        }
-        return channel;
+        return channelManager.selectChannel();
     }
 
     protected <T> RpcFuture<T> sendRequest(RpcRequest request) throws Exception {
@@ -157,13 +149,15 @@ public class RpcClient {
             } else {
                 log.info("Send rpc request succeed, request id: {}.", meta.getRequestId());
             }
+            //已经写入完成，返还channel
+            channelManager.returnChannel(channel);
         });
         return defaultRpcFuture;
     }
 
     public void shutdown() {
         //关闭所有连接
-        serviceInstanceManager.close();
+        channelManager.close();
         //优雅退出，释放 NIO 线程组
         workerGroup.shutdownGracefully().awaitUninterruptibly();
         //释放业务线程池

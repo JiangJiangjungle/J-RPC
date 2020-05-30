@@ -49,4 +49,9 @@ public class RpcClientOptions {
      * blocking queue size of worker thread pool
      */
     private int workerThreadPoolQueueSize = 1024;
+
+    /**
+     * share worker thread poll and event thread pool between multi RpcClients
+     */
+    private boolean globalThreadPoolSharing = true;
 }

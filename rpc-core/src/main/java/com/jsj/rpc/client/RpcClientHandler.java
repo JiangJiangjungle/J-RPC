@@ -4,7 +4,7 @@ import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.RpcPacket;
 import com.jsj.rpc.protocol.RpcResponse;
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author jiangshenjie
  */
-@ChannelHandler.Sharable
 @Slf4j
 public class RpcClientHandler extends SimpleChannelInboundHandler<RpcPacket> {
     private final RpcClient rpcClient;
@@ -24,10 +23,11 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcPacket> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcPacket packet) throws Exception {
         try {
-            ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(ctx.channel());
+            Channel channel = ctx.channel();
+            ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             Protocol protocol = channelInfo.getProtocol();
             RpcResponse response = protocol.decodeResponse(packet, channelInfo);
-            log.info("New rpc response :{}.",response);
+            log.info("New rpc response :{}.", response);
             DefaultRpcFuture<?> rpcFuture = channelInfo.getAndRemoveRpcFuture(response.getRequestId());
             //在业务线程执行回调函数
             rpcClient.getWorkerThreadPool().submit(() -> {
@@ -49,8 +49,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcPacket> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        //注销服务实例
-        rpcClient.getServiceInstanceManager().removeInstance(ctx.channel());
-        log.info("Channel [remote address: {}] closed.", ctx.channel().remoteAddress());
+        //注销channel
+        rpcClient.getChannelManager().removeChannel(ctx.channel());
     }
 }
