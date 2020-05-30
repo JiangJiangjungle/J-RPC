@@ -27,7 +27,6 @@ public class BaseEncoder extends MessageToByteEncoder<RpcPacket> {
         try {
             byteBuf = protocol.encodePacket(packet);
             out.writeBytes(byteBuf);
-            log.debug("Write message: {}", byteBuf.toString());
         } finally {
             if (byteBuf != null) {
                 byteBuf.release();

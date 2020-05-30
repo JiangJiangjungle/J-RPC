@@ -29,6 +29,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcPacket> {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateServerChannelInfo(ctx.channel());
             Protocol protocol = channelInfo.getProtocol();
             RpcRequest request = protocol.decodeRequest(packet);
+            log.info("New rpc request :{}.",request);
             ServerWorkTask task = new ServerWorkTask(request, rpcServer, ctx);
             rpcServer.getWorkerThreadPool().submit(task);
         } finally {
