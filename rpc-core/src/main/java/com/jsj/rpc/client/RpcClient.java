@@ -159,9 +159,9 @@ public class RpcClient {
         RpcPacket packet = new RpcPacket(byteBuf);
         channel.writeAndFlush(packet).addListener(ioFuture -> {
             if (!ioFuture.isSuccess()) {
-                log.warn("Send rpc request failed, request id: {}.", meta.getRequestId());
+                log.warn("Send rpc request failed, request: {}.", meta);
             } else {
-                log.info("Send rpc request succeed, request id: {}.", meta.getRequestId());
+                log.debug("Send rpc request succeed, request: {}.", meta);
             }
             //已经写入完成，返还channel
             channelManager.returnChannel(channel);
