@@ -6,6 +6,7 @@ import com.jsj.rpc.RpcCallback;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.lang.reflect.Method;
 
@@ -14,6 +15,7 @@ import java.lang.reflect.Method;
  */
 @Setter
 @Getter
+@ToString
 @NoArgsConstructor
 public class RpcRequest {
     private Long requestId;
