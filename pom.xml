@@ -175,39 +175,8 @@
         </dependencies>
     </dependencyManagement>
 
-    <!--    <distributionManagement>-->
-    <!--        &lt;!&ndash;远程仓库 &ndash;&gt;-->
-    <!--        <repository>-->
-    <!--            &lt;!&ndash;远程仓库唯一标识符。可以用来匹配在settings.xml文件里配置的远程仓库 &ndash;&gt;-->
-    <!--            <id>jsj-nexus-release</id>-->
-    <!--            <name>jsj-nexus-release</name>-->
-    <!--            <url>http://121.36.46.245:8081/nexus/content/groups/release</url>-->
-    <!--        </repository>-->
-    <!--        <snapshotRepository>-->
-    <!--            <id>jsj-nexus-snapshots</id>-->
-    <!--            <name>jsj-nexus-snapshots</name>-->
-    <!--            <url>http://121.36.46.245:8081/nexus/content/repositories/snapshots</url>-->
-    <!--        </snapshotRepository>-->
-    <!--    </distributionManagement>-->
-
     <build>
         <plugins>
-            <!-- deploy时要将源码放上去，需要加入这个插件 -->
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <configuration>
-                    <attach>true</attach>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!--            &lt;!&ndash;protobuf插件&ndash;&gt;-->
             <!--            <plugin>-->
             <!--                <groupId>org.xolstice.maven.plugins</groupId>-->
