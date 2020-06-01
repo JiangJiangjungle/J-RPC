@@ -55,23 +55,23 @@ public class RpcProtocol implements Protocol {
         return compositeByteBuf;
     }
 
-    public ByteBuf decodeContent(ByteBuf in) throws NotEnoughDataException {
+    @Override
+    public RpcPacket parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
         if (in.readableBytes() < FIXED_HEADER_LEN) {
             throw new NotEnoughDataException();
         }
         in.markReaderIndex();
         byte magicNumber = in.readByte();
         int bodyLength = in.readInt();
-        if (in.readableBytes() < bodyLength - 5) {
+        if (in.readableBytes() < bodyLength) {
             in.resetReaderIndex();
             throw new NotEnoughDataException();
+        } else if (in.readableBytes() > bodyLength) {
+            in.resetReaderIndex();
+            throw new BadSchemaException();
         }
-        return in.readRetainedSlice(bodyLength);
-    }
-
-    @Override
-    public RpcPacket parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
-        return new RpcPacket(decodeContent(in));
+        ByteBuf bodyBuf = in.readRetainedSlice(bodyLength);
+        return new RpcPacket(bodyBuf);
     }
 
     @Override

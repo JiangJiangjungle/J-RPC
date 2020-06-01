@@ -18,7 +18,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-        <lombok.version>1.16.6</lombok.version>
+        <lombok.version>1.18.10</lombok.version>
         <version.junit>4.12</version.junit>
         <version.slf4j>1.7.26</version.slf4j>
         <version.logback>1.2.3</version.logback>
@@ -181,12 +181,12 @@
             <!--远程仓库唯一标识符。可以用来匹配在settings.xml文件里配置的远程仓库 -->
             <id>jsj-nexus-release</id>
             <name>jsj-nexus-release</name>
-            <url>http://119.23.204.78:8081/nexus/content/groups/release</url>
+            <url>http://121.36.46.245:8081/nexus/content/groups/release</url>
         </repository>
         <snapshotRepository>
             <id>jsj-nexus-snapshots</id>
             <name>jsj-nexus-snapshots</name>
-            <url>http://119.23.204.78:8081/nexus/content/repositories/snapshots</url>
+            <url>http://121.36.46.245:8081/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
