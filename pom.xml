@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.jsj.rpc</groupId>
+    <artifactId>my-netty-rpc</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <modules>
+        <module>rpc-sample</module>
+        <module>rpc-core</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <lombok.version>1.18.10</lombok.version>
+        <version.junit>4.12</version.junit>
+        <version.slf4j>1.7.26</version.slf4j>
+        <version.logback>1.2.3</version.logback>
+        <version.netty>4.1.42.Final</version.netty>
+        <version.fastjson>1.2.47</version.fastjson>
+        <version.cglib>3.2.5</version.cglib>
+        <version.mockito>1.9.0</version.mockito>
+        <version.grpc>1.6.1</version.grpc>
+        <version.protobuf>3.3.0</version.protobuf>
+        <os.detected.classifier>osx-x86_64</os.detected.classifier>
+        <version.com.jsj.rpc-core>1.0-SNAPSHOT</version.com.jsj.rpc-core>
+        <version.com.jsj.rpc-sample>1.0-SNAPSHOT</version.com.jsj.rpc-sample>
+    </properties>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/junit/junit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <!-- protobuf-->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.jsj.rpc</groupId>
+                <artifactId>rpc-core</artifactId>
+                <version>${version.com.jsj.rpc-core}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jsj.rpc</groupId>
+                <artifactId>rpc-sample</artifactId>
+                <version>${version.com.jsj.rpc-sample}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <!-- Netty -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${version.netty}</version>
+            </dependency>
+            <!-- fastjson -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${version.fastjson}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/cglib/cglib -->
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>${version.cglib}</version>
+            </dependency>
+            <!-- slf4j-api -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${version.slf4j}</version>
+            </dependency>
+            <!-- 添加logback-classic依赖 -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${version.logback}</version>
+            </dependency>
+            <!-- 添加logback-core依赖 -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${version.logback}</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${version.mockito}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- protobuf-->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${version.grpc}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${version.grpc}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${version.grpc}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${version.protobuf}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <distributionManagement>
+        <!--远程仓库 -->
+        <repository>
+            <!--远程仓库唯一标识符。可以用来匹配在settings.xml文件里配置的远程仓库 -->
+            <id>jsj-nexus-release</id>
+            <name>jsj-nexus-release</name>
+            <url>http://121.36.46.245:8081/nexus/content/groups/release</url>
+        </repository>
+        <snapshotRepository>
+            <id>jsj-nexus-snapshots</id>
+            <name>jsj-nexus-snapshots</name>
+            <url>http://121.36.46.245:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <!-- deploy时要将源码放上去，需要加入这个插件 -->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--            &lt;!&ndash;protobuf插件&ndash;&gt;-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.xolstice.maven.plugins</groupId>-->
+            <!--                <artifactId>protobuf-maven-plugin</artifactId>-->
+            <!--                <version>0.5.1</version>-->
+            <!--                <configuration>-->
+            <!--                    <protocArtifact>-->
+            <!--                        com.google.protobuf:protoc:${version.protobuf}:exe:${os.detected.classifier}-->
+            <!--                    </protocArtifact>-->
+            <!--                    <pluginId>grpc-java</pluginId>-->
+            <!--                    <pluginArtifact>-->
+            <!--                        io.grpc:protoc-gen-grpc-java:${version.grpc}:exe:${os.detected.classifier}-->
+            <!--                    </pluginArtifact>-->
+            <!--                </configuration>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <goals>-->
+            <!--                            <goal>compile</goal>-->
+            <!--                            <goal>compile-custom</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
+        </plugins>
+    </build>
+
+</project>

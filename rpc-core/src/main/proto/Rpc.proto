@@ -1,0 +1,18 @@
+syntax = "proto3"; // 指定使用 proto3 语法
+import "google/protobuf/any.proto";
+
+option java_package = "com.jsj.rpc.protocol"; // 指定包名
+option java_outer_classname = "RpcMeta"; // 指定类名
+
+message RequestMeta {
+    uint64 requestId = 1; //request id
+    string serviceName = 2; //interface name
+    string methodName = 3; //method name
+    repeated google.protobuf.Any params = 4; //method params
+}
+
+message ResponseMeta {
+    uint64 requestId = 1; //request id
+    google.protobuf.Any result = 2; //invoke result
+    string errMsg = 3; //error msg when exception.
+}

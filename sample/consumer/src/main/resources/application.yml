@@ -1,7 +1,0 @@
-rpc:
-  registry:
-    ip: 139.9.77.156
-    port: 2181
-  provider:
-    ip: 127.0.0.1
-    port: 6666
