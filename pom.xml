@@ -10,8 +10,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
-        <module>rpc-sample</module>
         <module>rpc-core</module>
+        <module>rpc-sample</module>
     </modules>
 
     <properties>
@@ -175,20 +175,20 @@
         </dependencies>
     </dependencyManagement>
 
-    <distributionManagement>
-        <!--远程仓库 -->
-        <repository>
-            <!--远程仓库唯一标识符。可以用来匹配在settings.xml文件里配置的远程仓库 -->
-            <id>jsj-nexus-release</id>
-            <name>jsj-nexus-release</name>
-            <url>http://121.36.46.245:8081/nexus/content/groups/release</url>
-        </repository>
-        <snapshotRepository>
-            <id>jsj-nexus-snapshots</id>
-            <name>jsj-nexus-snapshots</name>
-            <url>http://121.36.46.245:8081/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <!--    <distributionManagement>-->
+    <!--        &lt;!&ndash;远程仓库 &ndash;&gt;-->
+    <!--        <repository>-->
+    <!--            &lt;!&ndash;远程仓库唯一标识符。可以用来匹配在settings.xml文件里配置的远程仓库 &ndash;&gt;-->
+    <!--            <id>jsj-nexus-release</id>-->
+    <!--            <name>jsj-nexus-release</name>-->
+    <!--            <url>http://121.36.46.245:8081/nexus/content/groups/release</url>-->
+    <!--        </repository>-->
+    <!--        <snapshotRepository>-->
+    <!--            <id>jsj-nexus-snapshots</id>-->
+    <!--            <name>jsj-nexus-snapshots</name>-->
+    <!--            <url>http://121.36.46.245:8081/nexus/content/repositories/snapshots</url>-->
+    <!--        </snapshotRepository>-->
+    <!--    </distributionManagement>-->
 
     <build>
         <plugins>
