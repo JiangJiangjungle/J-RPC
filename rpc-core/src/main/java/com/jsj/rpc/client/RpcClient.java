@@ -167,7 +167,7 @@ public class RpcClient {
             }
         }
         RpcMeta.RequestMeta requestMeta = metaBuilder.build();
-        //序列化并封装成
+        //序列化并封装成Packet
         byte[] bytes = requestMeta.toByteArray();
         ByteBuf bodyBuf = Unpooled.buffer(bytes.length);
         bodyBuf.writeBytes(bytes);
