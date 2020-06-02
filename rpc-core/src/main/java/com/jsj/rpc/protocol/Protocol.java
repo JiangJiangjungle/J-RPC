@@ -9,6 +9,12 @@ import io.netty.buffer.ByteBuf;
  * @author jiangshenjie
  */
 public interface Protocol {
+    Packet createPacket(ByteBuf data);
+
+    Request createRequest();
+
+    Response createResponse();
+
     /**
      * 将Packet封装成协议报文
      *

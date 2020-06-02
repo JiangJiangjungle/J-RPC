@@ -1,6 +1,7 @@
-package com.jsj.rpc.protocol;
+package com.jsj.rpc.protocol.standard;
 
 import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.protocol.Response;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;

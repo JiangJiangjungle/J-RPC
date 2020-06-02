@@ -7,5 +7,5 @@ package com.jsj.rpc.protocol;
  */
 
 public enum ProtocolType {
-    RPC_PROTOCOL
+    STANDARD
 }

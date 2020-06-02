@@ -1,9 +1,10 @@
-package com.jsj.rpc.protocol;
+package com.jsj.rpc.protocol.standard;
 
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.RpcInvokeException;
 import com.jsj.rpc.RpcMethodDetail;
+import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.protocol.exception.BadSchemaException;
 import com.jsj.rpc.protocol.exception.NotEnoughDataException;
 import com.jsj.rpc.server.ServiceManager;
@@ -37,6 +38,21 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
+    public Packet createPacket(ByteBuf data) {
+        return new RpcPacket(data);
+    }
+
+    @Override
+    public Request createRequest() {
+        return new RpcRequest();
+    }
+
+    @Override
+    public Response createResponse() {
+        return new RpcResponse();
+    }
+
+    @Override
     public Packet parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
         if (in.readableBytes() < FIXED_HEADER_LEN) {
             throw new NotEnoughDataException();
@@ -67,7 +83,7 @@ public class RpcProtocol implements Protocol {
             compositeByteBuf.addComponent(true, headBuf);
         } else {
             //body length
-            ByteBuf bodyBuf = ((RpcPacket) packet).getBody();
+            ByteBuf bodyBuf = packet.getBody();
             headBuf.writeInt(bodyBuf.readableBytes());
             compositeByteBuf.addComponent(true, headBuf);
             compositeByteBuf.addComponent(true, bodyBuf);
@@ -106,7 +122,7 @@ public class RpcProtocol implements Protocol {
     @Override
     public Response decodeAsResponse(Packet packet, ChannelInfo channelInfo) throws Exception {
         RpcMeta.ResponseMeta responseMeta = RpcMeta.ResponseMeta
-                .parseFrom(((RpcPacket) packet).getBody().nioBuffer());
+                .parseFrom(packet.getBody().nioBuffer());
         RpcFuture<?> rpcFuture = channelInfo.getAndRemoveRpcFuture(responseMeta.getRequestId());
         Request request = rpcFuture.getRequest();
         Class returnType = request.getMethod().getReturnType();

@@ -1,9 +1,9 @@
 package com.jsj.rpc.server;
 
 import com.jsj.rpc.ChannelInfo;
+import com.jsj.rpc.protocol.Packet;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.Request;
-import com.jsj.rpc.protocol.RpcPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Getter
-public class RpcServerHandler extends SimpleChannelInboundHandler<RpcPacket> {
+public class RpcServerHandler extends SimpleChannelInboundHandler<Packet> {
     private final RpcServer rpcServer;
 
     public RpcServerHandler(RpcServer rpcServer) {
@@ -22,7 +22,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcPacket> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RpcPacket packet) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Packet packet) throws Exception {
         try {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateServerChannelInfo(ctx.channel());
             Protocol protocol = channelInfo.getProtocol();

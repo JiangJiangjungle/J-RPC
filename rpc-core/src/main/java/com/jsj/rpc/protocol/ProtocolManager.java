@@ -1,5 +1,7 @@
 package com.jsj.rpc.protocol;
 
+import com.jsj.rpc.protocol.standard.RpcProtocol;
+
 /**
  * @author jiangshenjie
  */
@@ -14,7 +16,7 @@ public class ProtocolManager {
     }
 
     public Protocol getProtocol(ProtocolType protocolType) {
-        if (protocolType == ProtocolType.RPC_PROTOCOL) {
+        if (protocolType == ProtocolType.STANDARD) {
             return new RpcProtocol();
         }
         return null;

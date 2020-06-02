@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class RpcClientOptions {
-    private ProtocolType protocolType = ProtocolType.RPC_PROTOCOL;
+    private ProtocolType protocolType = ProtocolType.STANDARD;
 
     private int connectTimeoutMillis = 1500;
 

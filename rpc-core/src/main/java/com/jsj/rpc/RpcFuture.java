@@ -2,7 +2,6 @@ package com.jsj.rpc;
 
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.Response;
-import com.jsj.rpc.protocol.RpcRequest;
 import lombok.Getter;
 
 import java.util.concurrent.ExecutionException;
@@ -20,7 +19,7 @@ public class RpcFuture<T> implements Future<T> {
     private boolean isDone = false;
     private Response response;
 
-    public RpcFuture(RpcRequest request) {
+    public RpcFuture(Request request) {
         this.request = request;
     }
 

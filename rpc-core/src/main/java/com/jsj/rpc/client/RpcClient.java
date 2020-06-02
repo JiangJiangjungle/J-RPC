@@ -1,5 +1,7 @@
 package com.jsj.rpc.client;
 
+import com.google.protobuf.Any;
+import com.google.protobuf.Message;
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcCallback;
 import com.jsj.rpc.RpcFuture;
@@ -64,7 +66,7 @@ public class RpcClient {
 
     public <T> RpcFuture<T> invoke(Class<?> serviceInterface, Method method
             , RpcCallback<T> callback, Object... args) throws Exception {
-        RpcRequest request = new RpcRequest();
+        Request request = protocol.createRequest();
         request.setRequestId(requestIdCounter.getAndIncrement());
         request.setServiceName(serviceInterface.getName());
         request.setMethod(method);
@@ -140,11 +142,11 @@ public class RpcClient {
      * @return
      * @throws Exception
      */
-    protected Channel selectChannel(RpcRequest request) throws Exception {
+    protected Channel selectChannel(Request request) throws Exception {
         return channelManager.selectChannel();
     }
 
-    protected <T> RpcFuture<T> sendRequest(RpcRequest request) throws Exception {
+    protected <T> RpcFuture<T> sendRequest(Request request) throws Exception {
         Channel channel = selectChannel(request);
         RpcFuture<T> rpcFuture = new RpcFuture<>(request);
         //必须在channel对应的eventLoop中获取ChannelInfo
@@ -152,16 +154,29 @@ public class RpcClient {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             channelInfo.addRpcFuture(rpcFuture);
         });
-        RpcMeta.RequestMeta meta = request.requestMeta();
-        byte[] bytes = meta.toByteArray();
-        ByteBuf byteBuf = Unpooled.buffer(bytes.length);
-        byteBuf.writeBytes(bytes);
-        RpcPacket packet = new RpcPacket(byteBuf);
+        //构造RequestMeta对象
+        RpcMeta.RequestMeta.Builder metaBuilder = RpcMeta.RequestMeta.newBuilder();
+        metaBuilder.setRequestId(request.getRequestId());
+        metaBuilder.setServiceName(request.getServiceName());
+        metaBuilder.setMethodName(request.getMethodName());
+        for (Object param : request.getParams()) {
+            if (param instanceof Message) {
+                metaBuilder.addParams(Any.pack((Message) param));
+            } else {
+                throw new RuntimeException("param type must be Message!");
+            }
+        }
+        RpcMeta.RequestMeta requestMeta = metaBuilder.build();
+        //序列化并封装成
+        byte[] bytes = requestMeta.toByteArray();
+        ByteBuf bodyBuf = Unpooled.buffer(bytes.length);
+        bodyBuf.writeBytes(bytes);
+        Packet packet = protocol.createPacket(bodyBuf);
         channel.writeAndFlush(packet).addListener(ioFuture -> {
             if (!ioFuture.isSuccess()) {
-                log.warn("Send rpc request failed, request: {}.", meta);
+                log.warn("Send rpc request failed, request: {}.", requestMeta);
             } else {
-                log.debug("Send rpc request succeed, request: {}.", meta);
+                log.debug("Send rpc request succeed, request: {}.", requestMeta);
             }
             //已经写入完成，返还channel
             channelManager.returnChannel(channel);

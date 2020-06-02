@@ -1,14 +1,13 @@
-package com.jsj.rpc.protocol;
+package com.jsj.rpc.protocol.standard;
 
+import com.jsj.rpc.protocol.Packet;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 /**
  * @author jiangshenjie
  */
 public class RpcPacket implements Packet {
     ByteBuf body;
-    Channel channel;
 
     public RpcPacket() {
     }
@@ -22,6 +21,7 @@ public class RpcPacket implements Packet {
         this.body.release();
     }
 
+    @Override
     public ByteBuf getBody() {
         return body;
     }

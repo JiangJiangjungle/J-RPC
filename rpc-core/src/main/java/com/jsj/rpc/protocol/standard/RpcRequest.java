@@ -1,10 +1,11 @@
-package com.jsj.rpc.protocol;
+package com.jsj.rpc.protocol.standard;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.jsj.rpc.RpcCallback;
+import com.jsj.rpc.protocol.Request;
+import com.jsj.rpc.protocol.RpcMeta;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.lang.reflect.Method;
@@ -12,11 +13,10 @@ import java.lang.reflect.Method;
 /**
  * @author jiangshenjie
  */
-@Setter
 @ToString
 @NoArgsConstructor
 public class RpcRequest implements Request {
-    private Long requestId;
+    private long requestId;
     private String serviceName;
     private String methodName;
     private Object[] params;
@@ -51,13 +51,24 @@ public class RpcRequest implements Request {
         return builder.build();
     }
 
+    @Override
     public void setParams(Object... params) {
         this.params = params;
     }
 
     @Override
-    public Method getMethod() {
-        return this.method;
+    public String getServiceName() {
+        return this.serviceName;
+    }
+
+    @Override
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    @Override
+    public String getMethodName() {
+        return this.methodName;
     }
 
     @Override
@@ -71,12 +82,42 @@ public class RpcRequest implements Request {
     }
 
     @Override
-    public Long getRequestId() {
-        return this.requestId;
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     @Override
     public RpcCallback<?> getCallback() {
         return this.callback;
+    }
+
+    @Override
+    public Method getMethod() {
+        return this.method;
+    }
+
+    @Override
+    public void setMethod(Method method) {
+        this.method = method;
+    }
+
+    @Override
+    public long getRequestId() {
+        return this.requestId;
+    }
+
+    @Override
+    public void setRequestId(long requestId) {
+        this.requestId = requestId;
+    }
+
+    @Override
+    public void setTarget(Object target) {
+        this.target = target;
+    }
+
+    @Override
+    public void setCallback(RpcCallback<?> callback) {
+        this.callback = callback;
     }
 }

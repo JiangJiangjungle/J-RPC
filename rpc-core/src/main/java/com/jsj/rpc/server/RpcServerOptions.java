@@ -15,7 +15,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class RpcServerOptions {
-    private ProtocolType protocolType = ProtocolType.RPC_PROTOCOL;
+    private ProtocolType protocolType = ProtocolType.STANDARD;
     private boolean keepAlive = true;
     private boolean tcpNoDelay = true;
     private int soLinger = 5;

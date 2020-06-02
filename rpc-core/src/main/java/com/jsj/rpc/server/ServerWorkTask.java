@@ -4,7 +4,6 @@ import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.RpcMeta;
-import com.jsj.rpc.protocol.RpcPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -49,9 +48,9 @@ public class ServerWorkTask implements Runnable {
         }
         RpcMeta.ResponseMeta meta = builder.build();
         byte[] bytes = meta.toByteArray();
-        ByteBuf byteBuf = Unpooled.buffer(bytes.length);
-        byteBuf.writeBytes(bytes);
-        ctx.channel().writeAndFlush(new RpcPacket(byteBuf))
+        ByteBuf bodyBuf = Unpooled.buffer(bytes.length);
+        bodyBuf.writeBytes(bytes);
+        ctx.channel().writeAndFlush(rpcServer.getProtocol().createPacket(bodyBuf))
                 .addListener(future -> {
                     if (future.isSuccess()) {
                         log.info("Send rpc response succeed, request id: {}.", meta.getRequestId());
