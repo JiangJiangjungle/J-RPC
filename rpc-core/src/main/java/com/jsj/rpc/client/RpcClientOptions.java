@@ -34,9 +34,13 @@ public class RpcClientOptions {
      */
     private int sendBufferSize = 1024 * 64;
     /**
-     * keep alive time in seconds
+     * keep alive time in ms
      */
-    private int keepAliveTime = 60 * 5;
+    private long keepAliveTime = 5 * 60 * 1000L;
+    /**
+     * max channel number with one endpoint
+     */
+    private int maxChannelNumber = 3;
     /**
      * io threads, default use Netty default value
      */

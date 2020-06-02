@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -28,7 +27,8 @@ public class ChannelManager {
     /**
      * 与每个Endpoint保持的最大连接数
      */
-    private static int CHANNEL_NUMBER = 3;
+    private final int maxChannelNumber;
+    private boolean isClosed = false;
     /**
      * 与对应服务端所保持的可用连接列表
      */
@@ -40,6 +40,7 @@ public class ChannelManager {
 
     public ChannelManager(RpcClient rpcClient) {
         this.rpcClient = rpcClient;
+        this.maxChannelNumber = rpcClient.getClientOptions().getMaxChannelNumber();
     }
 
     /**
@@ -48,10 +49,16 @@ public class ChannelManager {
      * @return
      */
     public Channel selectChannel() throws Exception {
+        if (isClosed()) {
+            throw new Exception("ChannelManager has closed!");
+        }
         lock.lock();
         try {
+            if (isClosed()) {
+                throw new Exception("ChannelManager has closed!");
+            }
             Channel channel;
-            if (availableChannels.size() < CHANNEL_NUMBER) {
+            if (availableChannels.size() < maxChannelNumber) {
                 channel = createConnection();
                 availableChannels.addLast(channel);
             }
@@ -71,12 +78,15 @@ public class ChannelManager {
      * @return
      */
     public boolean returnChannel(Channel channel) {
-        if (channel.isActive()) {
+        if (!isClosed() && channel.isActive()) {
             lock.lock();
             try {
-                occupiedChannels.remove(channel);
-                availableChannels.addLast(channel);
-                return true;
+                if (!isClosed() && channel.isActive()) {
+                    occupiedChannels.remove(channel);
+                    availableChannels.addLast(channel);
+                    return true;
+                }
+                return false;
             } finally {
                 lock.unlock();
             }
@@ -90,8 +100,14 @@ public class ChannelManager {
      * @param channel
      */
     public boolean removeChannel(Channel channel) {
+        if (isClosed()) {
+            return false;
+        }
         lock.lock();
         try {
+            if (isClosed()) {
+                return false;
+            }
             if (!availableChannels.remove(channel) && !occupiedChannels.remove(channel)) {
                 return false;
             }
@@ -101,7 +117,7 @@ public class ChannelManager {
             channel.close().addListener(future -> {
                 if (future.isSuccess()) {
                     log.info("Channel closed, remote addr: {},local addr: {}"
-                            , rpcClient.getEndpoint().toString(), channel.localAddress().toString());
+                            , rpcClient.getEndpoint(), channel.localAddress());
                 }
             });
             return true;
@@ -114,6 +130,9 @@ public class ChannelManager {
      * 只能由非EventLoop线程调用！
      */
     public void close() {
+        if (isClosed()) {
+            return;
+        }
         lock.lock();
         try {
             for (Channel each : availableChannels) {
@@ -122,16 +141,11 @@ public class ChannelManager {
             for (Channel each : occupiedChannels) {
                 each.close().awaitUninterruptibly();
             }
+            isClosed = true;
         } finally {
             lock.unlock();
         }
         log.info("Close all channels.");
-    }
-
-    private Endpoint parseAddress(InetSocketAddress address) {
-        String ip = address.getAddress().getHostAddress();
-        int port = address.getPort();
-        return new Endpoint(ip, port);
     }
 
     /**
@@ -164,4 +178,7 @@ public class ChannelManager {
         return future.channel();
     }
 
+    public boolean isClosed() {
+        return isClosed;
+    }
 }
