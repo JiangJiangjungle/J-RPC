@@ -20,6 +20,9 @@ public class RpcServerOptions {
     private boolean tcpNoDelay = true;
     private int soLinger = 5;
     private int backlog = 1024;
+    /**
+     * buffer size (Byte)
+     */
     private int receiveBufferSize = 1024 * 64;
     private int sendBufferSize = 1024 * 64;
 
@@ -33,6 +36,13 @@ public class RpcServerOptions {
      * blocking queue size of worker thread pool
      */
     private int workerThreadPoolQueueSize = 1024;
+
+    /**
+     * channel idle time (ms)
+     */
+    private long readIdleTime = 60 * 1000L;
+    private long writeIdleTime = 60 * 1000L;
+    private long keepAliveTime = 5 * 1000L;
 
 
 }

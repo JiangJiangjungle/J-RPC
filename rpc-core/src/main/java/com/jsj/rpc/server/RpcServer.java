@@ -14,6 +14,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -114,6 +115,11 @@ public class RpcServer {
                                 .addLast(new BaseEncoder(protocol))
                                 //入方向解码
                                 .addLast(new BaseDecoder(protocol))
+                                .addLast(new IdleStateHandler(serverOptions.getReadIdleTime()
+                                        , serverOptions.getWriteIdleTime()
+                                        , serverOptions.getKeepAliveTime()
+                                        , TimeUnit.MILLISECONDS))
+                                .addLast(new RpcServerChannelIdleHandler())
                                 //业务处理
                                 .addLast(new RpcServerHandler(rpcServer));
                     }

@@ -9,6 +9,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+
 /**
  * @author jiangshenjie
  */
@@ -38,17 +40,22 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ChannelInfo channelInfo = ChannelInfo.getOrCreateServerChannelInfo(ctx.channel());
         channelInfo.setProtocol(rpcServer.getProtocol());
-        log.info("Channel [remote address: {}] active", ctx.channel().remoteAddress());
+        log.debug("Channel [remote address: {}] active", ctx.channel().remoteAddress());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("Channel [remote address: {}] closed", ctx.channel().remoteAddress());
+        log.debug("Channel [remote address: {}] closed.", ctx.channel().remoteAddress());
+        ctx.fireChannelInactive();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
-        log.error("", cause);
+        if (ctx.channel().isActive()
+                && !(cause instanceof IOException)) {
+            log.info("Service exception, ex={}", cause.getMessage());
+        }
+        log.debug("Meet exception, may be connection is closed, msg={}", cause.getMessage());
+        ctx.close();
     }
 }
