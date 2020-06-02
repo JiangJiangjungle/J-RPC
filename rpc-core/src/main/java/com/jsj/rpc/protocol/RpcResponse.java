@@ -1,7 +1,6 @@
 package com.jsj.rpc.protocol;
 
 import com.jsj.rpc.RpcFuture;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,7 +9,6 @@ import lombok.ToString;
  * @author jiangshenjie
  */
 @Setter
-@Getter
 @ToString
 @NoArgsConstructor
 public class RpcResponse implements Response {
@@ -18,4 +16,24 @@ public class RpcResponse implements Response {
     private Object result;
     private Exception exception;
     private RpcFuture rpcFuture;
+
+    @Override
+    public RpcFuture getRpcFuture() {
+        return this.rpcFuture;
+    }
+
+    @Override
+    public Long getRequestId() {
+        return this.requestId;
+    }
+
+    @Override
+    public Exception getException() {
+        return this.exception;
+    }
+
+    @Override
+    public Object getResult() {
+        return this.result;
+    }
 }
