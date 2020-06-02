@@ -11,10 +11,8 @@ public interface ServiceRegistry {
     /**
      * 服务注册
      *
-     * @param serviceName
-     * @param ip
-     * @param port
+     * @param registerInfo
      * @throws Exception
      */
-    void register(String serviceName, String ip, int port) throws Exception;
+    void register(RegisterInfo registerInfo) throws Exception;
 }

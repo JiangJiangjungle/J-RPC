@@ -1,7 +1,5 @@
 package com.jsj.rpc.registry;
 
-import com.jsj.rpc.client.Endpoint;
-
 /**
  * 服务发现中心
  *
@@ -13,9 +11,8 @@ public interface ServiceDiscovery {
     /**
      * 服务发现
      *
-     * @param serviceName
+     * @param subscribeInfo
      * @return
-     * @throws RpcServiceNotFoundException
      */
-    Endpoint discover(String serviceName) throws RpcServiceNotFoundException;
+    ServiceInstance discover(SubscribeInfo subscribeInfo);
 }

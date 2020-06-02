@@ -4,6 +4,7 @@ import com.jsj.rpc.codec.BaseDecoder;
 import com.jsj.rpc.codec.BaseEncoder;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.ProtocolManager;
+import com.jsj.rpc.registry.RegisterInfo;
 import com.jsj.rpc.registry.ServiceRegistry;
 import com.jsj.rpc.util.NamedThreadFactory;
 import io.netty.bootstrap.ServerBootstrap;
@@ -77,7 +78,8 @@ public class RpcServer {
         serviceManager.registerService(service, targetInterface);
         //注册到服务中心
         if (serviceRegistry != null) {
-            serviceRegistry.register(targetInterface.getName(), ip, port);
+            RegisterInfo registerInfo = new RegisterInfo(targetInterface.getName(), ip, port);
+            serviceRegistry.register(registerInfo);
         }
     }
 

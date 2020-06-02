@@ -23,6 +23,8 @@ public class RpcRequest implements Request {
     private Method method;
     private Object target;
     private RpcCallback callback;
+    private int writeTimeoutMillis;
+    private int readTimeoutMillis;
 
     public RpcRequest values(RpcMeta.RequestMeta meta) {
         setRequestId(meta.getRequestId());
@@ -119,5 +121,25 @@ public class RpcRequest implements Request {
     @Override
     public void setCallback(RpcCallback<?> callback) {
         this.callback = callback;
+    }
+
+    @Override
+    public int getWriteTimeoutMillis() {
+        return this.writeTimeoutMillis;
+    }
+
+    @Override
+    public void setWriteTimeoutMillis(int writeTimeoutMillis) {
+        this.writeTimeoutMillis = writeTimeoutMillis;
+    }
+
+    @Override
+    public int getReadTimeoutMillis() {
+        return this.readTimeoutMillis;
+    }
+
+    @Override
+    public void setReadTimeoutMillis(int readTimeoutMillis) {
+        this.readTimeoutMillis = readTimeoutMillis;
     }
 }

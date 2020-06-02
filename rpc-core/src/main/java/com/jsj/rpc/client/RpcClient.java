@@ -4,6 +4,7 @@ import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcCallback;
+import com.jsj.rpc.RpcException;
 import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.codec.BaseDecoder;
 import com.jsj.rpc.codec.BaseEncoder;
@@ -14,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -73,6 +75,8 @@ public class RpcClient {
         request.setMethodName(method.getName());
         request.setParams(args);
         request.setCallback(callback);
+        request.setWriteTimeoutMillis(clientOptions.getWriteTimeoutMillis());
+        request.setReadTimeoutMillis(clientOptions.getReadTimeoutMillis());
         return sendRequest(request);
     }
 
@@ -112,7 +116,6 @@ public class RpcClient {
                 .channel(NioSocketChannel.class)
                 //options
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientOptions.getConnectTimeoutMillis())
-                .option(ChannelOption.SO_BACKLOG, clientOptions.getBacklog())
                 .option(ChannelOption.SO_KEEPALIVE, clientOptions.isKeepAlive())
                 .option(ChannelOption.TCP_NODELAY, clientOptions.isTcpNoDelay())
                 .option(ChannelOption.SO_REUSEADDR, clientOptions.isReuseAddr())
@@ -149,8 +152,8 @@ public class RpcClient {
     protected <T> RpcFuture<T> sendRequest(Request request) throws Exception {
         Channel channel = selectChannel(request);
         RpcFuture<T> rpcFuture = new RpcFuture<>(request);
-        //必须在channel对应的eventLoop中获取ChannelInfo
         channel.eventLoop().submit(() -> {
+            //在ChannelInfo中添加RpcFuture
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             channelInfo.addRpcFuture(rpcFuture);
         });
@@ -172,15 +175,15 @@ public class RpcClient {
         ByteBuf bodyBuf = Unpooled.buffer(bytes.length);
         bodyBuf.writeBytes(bytes);
         Packet packet = protocol.createPacket(bodyBuf);
-        channel.writeAndFlush(packet).addListener(ioFuture -> {
-            if (!ioFuture.isSuccess()) {
-                log.warn("Send rpc request failed, request: {}.", requestMeta);
-            } else {
-                log.debug("Send rpc request succeed, request: {}.", requestMeta);
-            }
-            //已经写入完成，返还channel
-            channelManager.returnChannel(channel);
-        });
+        ChannelFuture channelFuture = channel.writeAndFlush(packet);
+        boolean writeSucceed = channelFuture.awaitUninterruptibly(request.getReadTimeoutMillis());
+        //已经写入完成，返还channel
+        channelManager.returnChannel(channel);
+        if (writeSucceed) {
+            log.debug("Send rpc request succeed, request: {}.", requestMeta);
+        } else {
+            throw new RpcException(String.format("Send rpc request failed, request: %s.", requestMeta));
+        }
         return rpcFuture;
     }
 

@@ -22,9 +22,17 @@ public interface Request {
 
     RpcCallback<?> getCallback();
 
-    void setServiceName(String serviceName);
-
     String getMethodName();
+
+    int getWriteTimeoutMillis();
+
+    void setWriteTimeoutMillis(int writeTimeoutMillis);
+
+    int getReadTimeoutMillis();
+
+    void setReadTimeoutMillis(int readTimeoutMillis);
+
+    void setServiceName(String serviceName);
 
     void setMethodName(String methodName);
 

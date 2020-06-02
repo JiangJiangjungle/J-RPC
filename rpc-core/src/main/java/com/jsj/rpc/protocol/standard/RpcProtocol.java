@@ -1,8 +1,8 @@
 package com.jsj.rpc.protocol.standard;
 
 import com.jsj.rpc.ChannelInfo;
+import com.jsj.rpc.RpcException;
 import com.jsj.rpc.RpcFuture;
-import com.jsj.rpc.RpcInvokeException;
 import com.jsj.rpc.RpcMethodDetail;
 import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.protocol.exception.BadSchemaException;
@@ -133,7 +133,7 @@ public class RpcProtocol implements Protocol {
             response.setResult(responseMeta.getResult().unpack(returnType));
         }
         if (responseMeta.getErrMsg() != null && !"".equals(responseMeta.getErrMsg())) {
-            response.setException(new RpcInvokeException(responseMeta.getErrMsg()));
+            response.setException(new RpcException(responseMeta.getErrMsg()));
         }
         return response;
     }

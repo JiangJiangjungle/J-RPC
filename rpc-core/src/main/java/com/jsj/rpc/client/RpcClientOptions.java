@@ -23,7 +23,12 @@ public class RpcClientOptions {
     private boolean reuseAddr = true;
     private boolean tcpNoDelay = true;
     private int soLinger = 5;
-    private int backlog = 100;
+
+    /**
+     * read/write timeout
+     */
+    private int readTimeoutMillis = 1000;
+    private int writeTimeoutMillis = 1000;
 
     /**
      * receive buffer size
