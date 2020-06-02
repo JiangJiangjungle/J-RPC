@@ -146,11 +146,11 @@ public class RpcClient {
 
     protected <T> RpcFuture<T> sendRequest(RpcRequest request) throws Exception {
         Channel channel = selectChannel(request);
-        DefaultRpcFuture<T> defaultRpcFuture = new DefaultRpcFuture<>(request);
+        RpcFuture<T> rpcFuture = new RpcFuture<>(request);
         //必须在channel对应的eventLoop中获取ChannelInfo
         channel.eventLoop().submit(() -> {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
-            channelInfo.addRpcFuture(defaultRpcFuture);
+            channelInfo.addRpcFuture(rpcFuture);
         });
         RpcMeta.RequestMeta meta = request.requestMeta();
         byte[] bytes = meta.toByteArray();
@@ -166,7 +166,7 @@ public class RpcClient {
             //已经写入完成，返还channel
             channelManager.returnChannel(channel);
         });
-        return defaultRpcFuture;
+        return rpcFuture;
     }
 
     public void shutdown() {

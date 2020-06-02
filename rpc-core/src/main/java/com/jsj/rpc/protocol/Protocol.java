@@ -10,42 +10,44 @@ import io.netty.buffer.ByteBuf;
  */
 public interface Protocol {
     /**
-     * 将RpcPacket封装成协议报文
+     * 将Packet封装成协议报文
      *
      * @param packet 待发送的消息
      * @return ByteBuf
      * @throws Exception
      */
-    ByteBuf encodePacket(RpcPacket packet) throws Exception;
+    ByteBuf encodePacket(Packet packet) throws Exception;
 
     /**
-     * 解析报文的header，将body封装成RpcPacket对象
+     * 解析报文的header，将消息实体封装成Packet对象
      *
      * @param in
      * @return
      * @throws BadSchemaException
      * @throws NotEnoughDataException
      */
-    RpcPacket parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException;
+    Packet parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException;
+
+    /**************** 仅Rpc Server需要实现的函数 *******************/
 
     /**
-     * Rpc Server: 从packet中反序列化出RpcRequest对象
+     * 从packet中获取RpcRequest对象
      *
      * @param packet
      * @return
      * @throws Exception
      */
-    RpcRequest decodeRequest(RpcPacket packet) throws Exception;
+    Request decodeAsRequest(Packet packet) throws Exception;
 
     /**************** 仅Rpc Client需要实现的函数 *******************/
 
-
     /**
-     * Rpc Client: 从RpcPacket反序列化出RpcResponse对象
+     * 从Packet反序列化出RpcResponse对象
      *
      * @param packet
+     * @param channelInfo
      * @return
      * @throws Exception
      */
-    RpcResponse decodeResponse(RpcPacket packet, ChannelInfo channelInfo) throws Exception;
+    Response decodeAsResponse(Packet packet, ChannelInfo channelInfo) throws Exception;
 }

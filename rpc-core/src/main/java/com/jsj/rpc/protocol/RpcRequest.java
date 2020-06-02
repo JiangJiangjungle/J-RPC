@@ -3,7 +3,6 @@ package com.jsj.rpc.protocol;
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.jsj.rpc.RpcCallback;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,10 +13,9 @@ import java.lang.reflect.Method;
  * @author jiangshenjie
  */
 @Setter
-@Getter
 @ToString
 @NoArgsConstructor
-public class RpcRequest {
+public class RpcRequest implements Request {
     private Long requestId;
     private String serviceName;
     private String methodName;
@@ -55,5 +53,30 @@ public class RpcRequest {
 
     public void setParams(Object... params) {
         this.params = params;
+    }
+
+    @Override
+    public Method getMethod() {
+        return this.method;
+    }
+
+    @Override
+    public Object getTarget() {
+        return this.target;
+    }
+
+    @Override
+    public Object[] getParams() {
+        return this.params;
+    }
+
+    @Override
+    public Long getRequestId() {
+        return this.requestId;
+    }
+
+    @Override
+    public RpcCallback<?> getCallback() {
+        return this.callback;
     }
 }

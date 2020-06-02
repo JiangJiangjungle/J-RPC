@@ -1,6 +1,5 @@
 package com.jsj.rpc;
 
-import com.jsj.rpc.client.DefaultRpcFuture;
 import com.jsj.rpc.protocol.Protocol;
 import io.netty.channel.Channel;
 import io.netty.util.Attribute;
@@ -13,18 +12,18 @@ import java.util.Map;
 
 
 /**
- * Channel相关信息：为保证线程安全的无锁操作，只能在channel所注册的eventloop中被调用
+ * Channel相关信息
  *
  * @author jiangshenjie
  */
 @Getter
 @Setter
 public class ChannelInfo {
-    private static final AttributeKey<ChannelInfo> RPC_SERVER_CHANNEL_INFO = AttributeKey.valueOf("com.jsj.rpc-server-channel-info");
-    private static final AttributeKey<ChannelInfo> RPC_CLIENT_CHANNEL_INFO = AttributeKey.valueOf("com.jsj.rpc-client-channel-info");
+    private static final AttributeKey<ChannelInfo> RPC_SERVER_CHANNEL_INFO = AttributeKey.valueOf("rpc-server-channel-info");
+    private static final AttributeKey<ChannelInfo> RPC_CLIENT_CHANNEL_INFO = AttributeKey.valueOf("rpc-client-channel-info");
     private Channel channel;
     private Protocol protocol;
-    private Map<Long, DefaultRpcFuture<?>> rpcFutures = new HashMap<>(8);
+    private Map<Long, RpcFuture<?>> rpcFutures = new HashMap<>(8);
 
     public static ChannelInfo getOrCreateClientChannelInfo(Channel channel) {
         Attribute<ChannelInfo> attribute = channel.attr(ChannelInfo.RPC_CLIENT_CHANNEL_INFO);
@@ -48,15 +47,15 @@ public class ChannelInfo {
         return channelInfo;
     }
 
-    public DefaultRpcFuture<?> getAndRemoveRpcFuture(Long requestId) {
+    public RpcFuture<?> getAndRemoveRpcFuture(Long requestId) {
         return rpcFutures.remove(requestId);
     }
 
-    public DefaultRpcFuture<?> getRpcFuture(Long requestId) {
+    public RpcFuture<?> getRpcFuture(Long requestId) {
         return rpcFutures.get(requestId);
     }
 
-    public void addRpcFuture(DefaultRpcFuture<?> rpcFuture) {
+    public void addRpcFuture(RpcFuture<?> rpcFuture) {
         rpcFutures.put(rpcFuture.getRequest().getRequestId(), rpcFuture);
     }
 }

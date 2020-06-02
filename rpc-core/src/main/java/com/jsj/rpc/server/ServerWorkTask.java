@@ -2,9 +2,9 @@ package com.jsj.rpc.server;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
+import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.RpcMeta;
 import com.jsj.rpc.protocol.RpcPacket;
-import com.jsj.rpc.protocol.RpcRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,11 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Setter
 public class ServerWorkTask implements Runnable {
-    private RpcRequest request;
+    private Request request;
     private RpcServer rpcServer;
     private ChannelHandlerContext ctx;
 
-    public ServerWorkTask(RpcRequest request, RpcServer rpcServer, ChannelHandlerContext ctx) {
+    public ServerWorkTask(Request request, RpcServer rpcServer, ChannelHandlerContext ctx) {
         this.request = request;
         this.rpcServer = rpcServer;
         this.ctx = ctx;

@@ -1,6 +1,7 @@
 package com.jsj.rpc.protocol;
 
 import com.jsj.rpc.ChannelInfo;
+import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.RpcInvokeException;
 import com.jsj.rpc.RpcMethodDetail;
 import com.jsj.rpc.protocol.exception.BadSchemaException;
@@ -36,27 +37,7 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
-    public ByteBuf encodePacket(RpcPacket packet) throws Exception {
-        CompositeByteBuf compositeByteBuf = Unpooled.compositeBuffer(2);
-        ByteBuf headBuf = Unpooled.buffer(FIXED_HEADER_LEN);
-        //protocol version
-        headBuf.writeByte(MAGIC_NUM);
-        if (packet == null) {
-            //body length
-            headBuf.writeInt(0);
-            compositeByteBuf.addComponent(true, headBuf);
-        } else {
-            //body length
-            ByteBuf bodyBuf = packet.getBody();
-            headBuf.writeInt(bodyBuf.readableBytes());
-            compositeByteBuf.addComponent(true, headBuf);
-            compositeByteBuf.addComponent(true, bodyBuf);
-        }
-        return compositeByteBuf;
-    }
-
-    @Override
-    public RpcPacket parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
+    public Packet parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
         if (in.readableBytes() < FIXED_HEADER_LEN) {
             throw new NotEnoughDataException();
         }
@@ -75,9 +56,31 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
-    public RpcRequest decodeRequest(RpcPacket packet) throws Exception {
-        RpcMeta.RequestMeta requestMeta = RpcMeta.RequestMeta.parseFrom(packet.getBody().nioBuffer());
-        RpcMethodDetail methodDetail = serviceManager.getService(requestMeta.getServiceName(), requestMeta.getMethodName());
+    public ByteBuf encodePacket(Packet packet) throws Exception {
+        CompositeByteBuf compositeByteBuf = Unpooled.compositeBuffer(2);
+        ByteBuf headBuf = Unpooled.buffer(FIXED_HEADER_LEN);
+        //protocol version
+        headBuf.writeByte(MAGIC_NUM);
+        if (packet == null) {
+            //body length
+            headBuf.writeInt(0);
+            compositeByteBuf.addComponent(true, headBuf);
+        } else {
+            //body length
+            ByteBuf bodyBuf = ((RpcPacket) packet).getBody();
+            headBuf.writeInt(bodyBuf.readableBytes());
+            compositeByteBuf.addComponent(true, headBuf);
+            compositeByteBuf.addComponent(true, bodyBuf);
+        }
+        return compositeByteBuf;
+    }
+
+    @Override
+    public Request decodeAsRequest(Packet packet) throws Exception {
+        RpcMeta.RequestMeta requestMeta = RpcMeta.RequestMeta
+                .parseFrom(((RpcPacket) packet).getBody().nioBuffer());
+        RpcMethodDetail methodDetail =
+                serviceManager.getService(requestMeta.getServiceName(), requestMeta.getMethodName());
         if (methodDetail == null) {
             String errMsg = String.format("rpc interface name: %s, method name: %s"
                     , requestMeta.getServiceName(), requestMeta.getMethodName());
@@ -101,13 +104,18 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
-    public RpcResponse decodeResponse(RpcPacket packet, ChannelInfo channelInfo) throws Exception {
-        RpcMeta.ResponseMeta responseMeta = RpcMeta.ResponseMeta.parseFrom(packet.getBody().nioBuffer());
-        RpcRequest request = channelInfo.getRpcFuture(responseMeta.getRequestId()).getRequest();
+    public Response decodeAsResponse(Packet packet, ChannelInfo channelInfo) throws Exception {
+        RpcMeta.ResponseMeta responseMeta = RpcMeta.ResponseMeta
+                .parseFrom(((RpcPacket) packet).getBody().nioBuffer());
+        RpcFuture<?> rpcFuture = channelInfo.getAndRemoveRpcFuture(responseMeta.getRequestId());
+        Request request = rpcFuture.getRequest();
         Class returnType = request.getMethod().getReturnType();
         RpcResponse response = new RpcResponse();
         response.setRequestId(responseMeta.getRequestId());
-        response.setResult(responseMeta.getResult().unpack(returnType));
+        response.setRpcFuture(rpcFuture);
+        if (responseMeta.getResult() != null) {
+            response.setResult(responseMeta.getResult().unpack(returnType));
+        }
         if (responseMeta.getErrMsg() != null && !"".equals(responseMeta.getErrMsg())) {
             response.setException(new RpcInvokeException(responseMeta.getErrMsg()));
         }

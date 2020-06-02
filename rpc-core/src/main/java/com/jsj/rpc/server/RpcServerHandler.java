@@ -2,8 +2,8 @@ package com.jsj.rpc.server;
 
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.protocol.Protocol;
+import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.RpcPacket;
-import com.jsj.rpc.protocol.RpcRequest;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
@@ -26,10 +26,9 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcPacket> {
         try {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateServerChannelInfo(ctx.channel());
             Protocol protocol = channelInfo.getProtocol();
-            RpcRequest request = protocol.decodeRequest(packet);
+            Request request = protocol.decodeAsRequest(packet);
             log.debug("New rpc request: {}.", request);
-            ServerWorkTask task = new ServerWorkTask(request, rpcServer, ctx);
-            rpcServer.getWorkerThreadPool().submit(task);
+            rpcServer.getWorkerThreadPool().submit(new ServerWorkTask(request, rpcServer, ctx));
         } finally {
             packet.release();
         }
