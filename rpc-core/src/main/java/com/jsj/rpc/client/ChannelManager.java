@@ -26,6 +26,10 @@ public class ChannelManager {
     private final RpcClient rpcClient;
     private final Lock lock = new ReentrantLock();
     /**
+     * 与每个Endpoint保持的最大连接数
+     */
+    private static int CHANNEL_NUMBER = 3;
+    /**
      * 与对应服务端所保持的可用连接列表
      */
     private LinkedList<Channel> availableChannels = new LinkedList<>();
@@ -47,7 +51,7 @@ public class ChannelManager {
         lock.lock();
         try {
             Channel channel;
-            if (availableChannels.size() == 0) {
+            if (availableChannels.size() < CHANNEL_NUMBER) {
                 channel = createConnection();
                 availableChannels.addLast(channel);
             }
