@@ -29,8 +29,6 @@
         <version.grpc>1.6.1</version.grpc>
         <version.protobuf>3.3.0</version.protobuf>
         <os.detected.classifier>osx-x86_64</os.detected.classifier>
-        <version.com.jsj.rpc-core>1.0-SNAPSHOT</version.com.jsj.rpc-core>
-        <version.com.jsj.rpc-sample>1.0-SNAPSHOT</version.com.jsj.rpc-sample>
     </properties>
 
     <dependencies>
@@ -88,12 +86,12 @@
             <dependency>
                 <groupId>com.jsj.rpc</groupId>
                 <artifactId>rpc-core</artifactId>
-                <version>${version.com.jsj.rpc-core}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jsj.rpc</groupId>
                 <artifactId>rpc-sample</artifactId>
-                <version>${version.com.jsj.rpc-sample}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>

@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>rpc-sample</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${project.parent.version}</version>
 
     <dependencies>
         <dependency>
