@@ -46,7 +46,8 @@ public class RpcFuture<T> implements Future<T> {
     }
 
     @Override
-    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public T get(long timeout, TimeUnit unit) throws InterruptedException
+            , ExecutionException, TimeoutException {
         long millis = unit.toMillis(timeout);
         synchronized (this) {
             if (this.cancelled) {

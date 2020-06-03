@@ -1,6 +1,7 @@
 package com.jsj.rpc.protocol;
 
 import com.jsj.rpc.ChannelInfo;
+import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.protocol.exception.BadSchemaException;
 import com.jsj.rpc.protocol.exception.NotEnoughDataException;
 import io.netty.buffer.ByteBuf;
@@ -9,16 +10,21 @@ import io.netty.buffer.ByteBuf;
  * @author jiangshenjie
  */
 public interface Protocol {
+
+    <T> RpcFuture<T> createRpcFuture(Request request);
+
     Packet createPacket(ByteBuf data);
+
+    Packet createPacket(byte[] data);
 
     Request createRequest();
 
     Response createResponse();
 
     /**
-     * 将Packet封装成协议报文
+     * 将Packet编码成协议报文
      *
-     * @param packet 待发送的消息
+     * @param packet 消息包
      * @return ByteBuf
      * @throws Exception
      */
@@ -32,7 +38,7 @@ public interface Protocol {
      * @throws BadSchemaException
      * @throws NotEnoughDataException
      */
-    Packet parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException;
+    Packet parseHeaderAndPackageContent(ByteBuf in) throws BadSchemaException, NotEnoughDataException;
 
     /**************** 仅Rpc Server需要实现的函数 *******************/
 

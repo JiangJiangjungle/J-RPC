@@ -26,31 +26,20 @@ public class RpcRequest implements Request {
     private int writeTimeoutMillis;
     private int readTimeoutMillis;
 
-    public RpcRequest values(RpcMeta.RequestMeta meta) {
-        setRequestId(meta.getRequestId());
-        setServiceName(meta.getServiceName());
-        setMethodName(meta.getMethodName());
-        Object[] params = new Object[meta.getParamsCount()];
-        for (int i = 0; i < params.length; i++) {
-            params[i] = meta.getParams(i);
-        }
-        setParams(params);
-        return this;
-    }
-
-    public RpcMeta.RequestMeta requestMeta() {
-        RpcMeta.RequestMeta.Builder builder = RpcMeta.RequestMeta.newBuilder();
-        builder.setRequestId(requestId);
-        builder.setServiceName(serviceName);
-        builder.setMethodName(methodName);
-        for (Object param : params) {
+    @Override
+    public RpcMeta.RequestMeta createRequestMeta() throws Exception {
+        RpcMeta.RequestMeta.Builder metaBuilder = RpcMeta.RequestMeta.newBuilder();
+        metaBuilder.setRequestId(getRequestId());
+        metaBuilder.setServiceName(getServiceName());
+        metaBuilder.setMethodName(getMethodName());
+        for (Object param : getParams()) {
             if (param instanceof Message) {
-                builder.addParams(Any.pack((Message) param));
+                metaBuilder.addParams(Any.pack((Message) param));
             } else {
-                throw new RuntimeException("param Type must be Message!");
+                throw new Exception("param type must be Message type!");
             }
         }
-        return builder.build();
+        return metaBuilder.build();
     }
 
     @Override

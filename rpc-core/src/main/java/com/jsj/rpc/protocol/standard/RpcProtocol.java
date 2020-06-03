@@ -43,6 +43,13 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
+    public Packet createPacket(byte[] data) {
+        ByteBuf byteBuf = Unpooled.buffer(data.length);
+        byteBuf.writeBytes(data);
+        return createPacket(byteBuf);
+    }
+
+    @Override
     public Request createRequest() {
         return new RpcRequest();
     }
@@ -53,7 +60,12 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
-    public Packet parseHeader(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
+    public <T> RpcFuture<T> createRpcFuture(Request request) {
+        return new RpcFuture<>(request);
+    }
+
+    @Override
+    public Packet parseHeaderAndPackageContent(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
         if (in.readableBytes() < FIXED_HEADER_LEN) {
             throw new NotEnoughDataException();
         }
@@ -67,34 +79,38 @@ public class RpcProtocol implements Protocol {
             in.resetReaderIndex();
             throw new BadSchemaException();
         }
+
         ByteBuf bodyBuf = in.readRetainedSlice(bodyLength);
         return new RpcPacket(bodyBuf);
     }
 
     @Override
     public ByteBuf encodePacket(Packet packet) throws Exception {
+        ByteBuf bodyBuf = packet == null ? null : packet.getBody();
+        int bodyLength = bodyBuf == null ? 0 : bodyBuf.readableBytes();
+
         CompositeByteBuf compositeByteBuf = Unpooled.compositeBuffer(2);
-        ByteBuf headBuf = Unpooled.buffer(FIXED_HEADER_LEN);
-        //protocol version
-        headBuf.writeByte(MAGIC_NUM);
-        if (packet == null) {
-            //body length
-            headBuf.writeInt(0);
-            compositeByteBuf.addComponent(true, headBuf);
-        } else {
-            //body length
-            ByteBuf bodyBuf = packet.getBody();
-            headBuf.writeInt(bodyBuf.readableBytes());
-            compositeByteBuf.addComponent(true, headBuf);
+        compositeByteBuf.addComponent(true, createHeaderBuf(bodyLength));
+        if (bodyBuf != null) {
             compositeByteBuf.addComponent(true, bodyBuf);
         }
         return compositeByteBuf;
     }
 
+    private ByteBuf createHeaderBuf(int bodyLength) {
+        ByteBuf headBuf = Unpooled.buffer(FIXED_HEADER_LEN);
+        //protocol version
+        headBuf.writeByte(MAGIC_NUM);
+        //body length
+        headBuf.writeInt(bodyLength);
+        return headBuf;
+    }
+
     @Override
     public Request decodeAsRequest(Packet packet) throws Exception {
         RpcMeta.RequestMeta requestMeta = RpcMeta.RequestMeta
-                .parseFrom(((RpcPacket) packet).getBody().nioBuffer());
+                .parseFrom(packet.getBody().nioBuffer());
+
         RpcMethodDetail methodDetail =
                 serviceManager.getService(requestMeta.getServiceName(), requestMeta.getMethodName());
         if (methodDetail == null) {
@@ -102,14 +118,15 @@ public class RpcProtocol implements Protocol {
                     , requestMeta.getServiceName(), requestMeta.getMethodName());
             throw new NoSuchMethodException(errMsg);
         }
+
         //参数类型转换
-        Class[] paramTypes = methodDetail.getMethod().getParameterTypes();
+        Class[] paramTypes = methodDetail.getParamTypes();
         Object[] params = new Object[paramTypes.length];
         for (int i = 0; i < paramTypes.length; i++) {
             Object param = requestMeta.getParams(i).unpack(paramTypes[i]);
             params[i] = param;
         }
-        RpcRequest request = new RpcRequest();
+        Request request = createRequest();
         request.setRequestId(requestMeta.getRequestId());
         request.setServiceName(requestMeta.getServiceName());
         request.setMethodName(requestMeta.getMethodName());
@@ -126,7 +143,8 @@ public class RpcProtocol implements Protocol {
         RpcFuture<?> rpcFuture = channelInfo.getAndRemoveRpcFuture(responseMeta.getRequestId());
         Request request = rpcFuture.getRequest();
         Class returnType = request.getMethod().getReturnType();
-        RpcResponse response = new RpcResponse();
+
+        Response response = createResponse();
         response.setRequestId(responseMeta.getRequestId());
         response.setRpcFuture(rpcFuture);
         if (responseMeta.getResult() != null) {

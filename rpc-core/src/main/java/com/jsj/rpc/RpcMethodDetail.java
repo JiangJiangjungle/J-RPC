@@ -17,4 +17,9 @@ public class RpcMethodDetail {
     protected String methodName;
     private Object target;
     private String serviceName;
+
+
+    public Class<?>[] getParamTypes() {
+        return method.getParameterTypes();
+    }
 }

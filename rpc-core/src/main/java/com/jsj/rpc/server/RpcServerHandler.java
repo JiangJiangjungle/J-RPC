@@ -30,7 +30,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Packet> {
             Protocol protocol = channelInfo.getProtocol();
             Request request = protocol.decodeAsRequest(packet);
             log.debug("New rpc request: {}.", request);
-            rpcServer.getWorkerThreadPool().submit(new ServerWorkTask(request, rpcServer, ctx));
+            rpcServer.getWorkerThreadPool().submit(new ServerWorkTask(request, protocol, ctx));
         } finally {
             packet.release();
         }

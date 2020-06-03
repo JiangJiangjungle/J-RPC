@@ -1,7 +1,5 @@
 package com.jsj.rpc.client;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.Message;
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcCallback;
 import com.jsj.rpc.RpcException;
@@ -11,9 +9,7 @@ import com.jsj.rpc.codec.BaseEncoder;
 import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.util.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -151,30 +147,17 @@ public class RpcClient {
 
     protected <T> RpcFuture<T> sendRequest(Request request) throws Exception {
         Channel channel = selectChannel(request);
-        RpcFuture<T> rpcFuture = new RpcFuture<>(request);
+        RpcFuture<T> rpcFuture = protocol.createRpcFuture(request);
         channel.eventLoop().submit(() -> {
             //在ChannelInfo中添加RpcFuture
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             channelInfo.addRpcFuture(rpcFuture);
         });
         //构造RequestMeta对象
-        RpcMeta.RequestMeta.Builder metaBuilder = RpcMeta.RequestMeta.newBuilder();
-        metaBuilder.setRequestId(request.getRequestId());
-        metaBuilder.setServiceName(request.getServiceName());
-        metaBuilder.setMethodName(request.getMethodName());
-        for (Object param : request.getParams()) {
-            if (param instanceof Message) {
-                metaBuilder.addParams(Any.pack((Message) param));
-            } else {
-                throw new RuntimeException("param type must be Message!");
-            }
-        }
-        RpcMeta.RequestMeta requestMeta = metaBuilder.build();
+        RpcMeta.RequestMeta requestMeta = request.createRequestMeta();
         //序列化并封装成Packet
-        byte[] bytes = requestMeta.toByteArray();
-        ByteBuf bodyBuf = Unpooled.buffer(bytes.length);
-        bodyBuf.writeBytes(bytes);
-        Packet packet = protocol.createPacket(bodyBuf);
+        Packet packet = protocol.createPacket(requestMeta.toByteArray());
+        //写入channel
         ChannelFuture channelFuture = channel.writeAndFlush(packet);
         boolean writeSucceed = channelFuture.awaitUninterruptibly(request.getReadTimeoutMillis());
         //已经写入完成，返还channel

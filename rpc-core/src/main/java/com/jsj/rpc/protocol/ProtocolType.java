@@ -7,5 +7,12 @@ package com.jsj.rpc.protocol;
  */
 
 public enum ProtocolType {
-    STANDARD
+    /**
+     * 自定义的二进制协议
+     */
+    STANDARD,
+    /**
+     * Http协议
+     */
+    HTTP;
 }

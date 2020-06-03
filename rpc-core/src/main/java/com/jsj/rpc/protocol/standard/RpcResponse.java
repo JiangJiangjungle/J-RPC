@@ -16,15 +16,15 @@ public class RpcResponse implements Response {
     private long requestId;
     private Object result;
     private Exception exception;
-    private RpcFuture rpcFuture;
+    private RpcFuture<?> rpcFuture;
 
     @Override
-    public RpcFuture getRpcFuture() {
+    public RpcFuture<?> getRpcFuture() {
         return this.rpcFuture;
     }
 
     @Override
-    public Long getRequestId() {
+    public long getRequestId() {
         return this.requestId;
     }
 
