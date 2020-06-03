@@ -84,12 +84,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.jsj.rpc</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>rpc-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.jsj.rpc</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>rpc-sample</artifactId>
                 <version>${project.version}</version>
             </dependency>

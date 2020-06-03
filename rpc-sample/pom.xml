@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.jsj.rpc</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>rpc-core</artifactId>
         </dependency>
     </dependencies>
