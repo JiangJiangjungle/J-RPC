@@ -189,7 +189,7 @@ public class RpcClient {
 
     public void shutdown() {
         //关闭所有连接
-        channelManager.close();
+        channelManager.closeAll();
         if (!clientOptions.isGlobalThreadPoolSharing()) {
             //优雅退出，释放 NIO 线程组
             workerGroup.shutdownGracefully().awaitUninterruptibly();

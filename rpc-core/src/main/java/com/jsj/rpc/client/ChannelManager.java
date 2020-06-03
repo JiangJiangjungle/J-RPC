@@ -28,7 +28,7 @@ public class ChannelManager {
      * 与每个Endpoint保持的最大连接数
      */
     private final int maxChannelNumber;
-    private boolean isClosed = false;
+    private boolean isChannelManagerClosed = false;
     /**
      * 与对应服务端所保持的可用连接列表
      */
@@ -44,108 +44,79 @@ public class ChannelManager {
     }
 
     /**
-     * 获取服务节点对应的Channel
-     *
-     * @return
-     */
-    public Channel selectChannel() throws Exception {
-        if (isClosed()) {
-            throw new Exception("ChannelManager has closed!");
-        }
-        lock.lock();
-        try {
-            if (isClosed()) {
-                throw new Exception("ChannelManager has closed!");
-            }
-            Channel channel;
-            if (availableChannels.size() < maxChannelNumber) {
-                channel = createConnection();
-                availableChannels.addLast(channel);
-            }
-            channel = availableChannels.removeLast();
-            occupiedChannels.addLast(channel);
-            return channel;
-        } finally {
-            lock.unlock();
-        }
-
-    }
-
-    /**
      * 返还channel
      *
      * @param channel
      * @return
      */
-    public boolean returnChannel(Channel channel) {
-        if (!isClosed() && channel.isActive()) {
+    public void returnChannel(Channel channel) {
+        if (!isChannelManagerClosed() && channel.isActive()) {
             lock.lock();
             try {
-                if (!isClosed() && channel.isActive()) {
+                if (availableChannels.size() > maxChannelNumber) {
+                    closeChannel(channel);
+                    return;
+                }
+                if (!isChannelManagerClosed() && channel.isActive()) {
                     occupiedChannels.remove(channel);
                     availableChannels.addLast(channel);
-                    return true;
+                    return;
                 }
-                return false;
             } finally {
                 lock.unlock();
             }
         }
-        return false;
     }
 
     /**
-     * 移除Channel
+     * 移除并关闭Channel
      *
      * @param channel
      */
-    public boolean removeChannel(Channel channel) {
-        if (isClosed()) {
-            return false;
+    public void removeAndCloseChannel(Channel channel) {
+        if (isChannelManagerClosed()) {
+            return;
         }
         lock.lock();
         try {
-            if (isClosed()) {
-                return false;
+            if (isChannelManagerClosed()) {
+                return;
             }
             if (!availableChannels.remove(channel) && !occupiedChannels.remove(channel)) {
-                return false;
+                return;
             }
             if (!channel.isActive()) {
-                return true;
+                return;
             }
-            channel.close().addListener(future -> {
-                if (future.isSuccess()) {
-                    log.info("Channel closed, remote addr: {},local addr: {}"
-                            , rpcClient.getEndpoint(), channel.localAddress());
-                }
-            });
-            return true;
+            closeChannel(channel);
         } finally {
             lock.unlock();
         }
     }
 
-    /**
-     * 只能由非EventLoop线程调用！
-     */
-    public void close() {
-        if (isClosed()) {
+    private void closeChannel(Channel channel) {
+        channel.close();
+    }
+
+    /*******************以下方法只能由非EventLoop线程调用****************/
+
+    public void closeAll() {
+        if (isChannelManagerClosed()) {
             return;
         }
         lock.lock();
         try {
             for (Channel each : availableChannels) {
-                each.close().awaitUninterruptibly();
+                closeChannel(each);
             }
             for (Channel each : occupiedChannels) {
-                each.close().awaitUninterruptibly();
+                closeChannel(each);
             }
-            isClosed = true;
+            setChannelManagerClosed(true);
         } finally {
             lock.unlock();
         }
-        log.info("Close all channels.");
+        log.info("try to close all channels of rpc client: {}.", this.rpcClient.getEndpoint());
     }
 
     /**
@@ -178,7 +149,31 @@ public class ChannelManager {
         return future.channel();
     }
 
-    public boolean isClosed() {
-        return isClosed;
+    /**
+     * 获取服务节点对应的Channel
+     *
+     * @return
+     */
+    public Channel selectChannel() throws Exception {
+        if (isChannelManagerClosed()) {
+            throw new Exception("ChannelManager has closed!");
+        }
+        lock.lock();
+        try {
+            if (isChannelManagerClosed()) {
+                throw new Exception("ChannelManager has closed!");
+            }
+            Channel channel;
+            if (availableChannels.size() < 1) {
+                channel = createConnection();
+                availableChannels.addLast(channel);
+            }
+            channel = availableChannels.removeLast();
+            occupiedChannels.addLast(channel);
+            return channel;
+        } finally {
+            lock.unlock();
+        }
+
     }
 }

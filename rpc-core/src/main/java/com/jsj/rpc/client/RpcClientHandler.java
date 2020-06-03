@@ -55,6 +55,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Packet> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //注销channel
-        rpcClient.getChannelManager().removeChannel(ctx.channel());
+        rpcClient.getChannelManager().removeAndCloseChannel(ctx.channel());
+        log.info("Channel [remote address: {}] closed.", ctx.channel().remoteAddress());
     }
 }
