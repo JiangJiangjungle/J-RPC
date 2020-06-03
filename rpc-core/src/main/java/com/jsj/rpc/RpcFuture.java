@@ -2,7 +2,6 @@ package com.jsj.rpc;
 
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.Response;
-import lombok.Getter;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -12,7 +11,6 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author jiangshenjie
  */
-@Getter
 public class RpcFuture<T> implements Future<T> {
     private final Request request;
     private volatile boolean cancelled = false;
@@ -27,6 +25,7 @@ public class RpcFuture<T> implements Future<T> {
     public boolean cancel(boolean mayInterruptIfRunning) {
         synchronized (this) {
             this.cancelled = true;
+            this.isDone = true;
             this.notifyAll();
         }
         return true;
@@ -35,12 +34,12 @@ public class RpcFuture<T> implements Future<T> {
     @Override
     public T get() throws InterruptedException, ExecutionException {
         synchronized (this) {
-            if (this.cancelled) {
-                return null;
-            }
-            while (!this.isDone) {
+            while (!isDone()) {
                 this.wait();
             }
+        }
+        if (isCancelled()) {
+            throw new InterruptedException("rpc task cancelled.");
         }
         return (T) this.response.getResult();
     }
@@ -50,15 +49,14 @@ public class RpcFuture<T> implements Future<T> {
             , ExecutionException, TimeoutException {
         long millis = unit.toMillis(timeout);
         synchronized (this) {
-            if (this.cancelled) {
-                return null;
-            }
-            while (!this.isDone && millis > 0L) {
+            while (!isDone() && millis > 0L) {
                 this.wait(millis);
             }
         }
-        if (!this.isDone) {
+        if (!isDone()) {
             throw new TimeoutException();
+        } else if (isCancelled()) {
+            throw new InterruptedException("rpc task cancelled.");
         }
         return (T) this.response.getResult();
     }
@@ -74,11 +72,11 @@ public class RpcFuture<T> implements Future<T> {
     }
 
     public RpcFuture<T> handleResponse(Response response) {
-        if (this.cancelled) {
+        if (isDone()) {
             return this;
         }
         synchronized (this) {
-            if (this.cancelled) {
+            if (isDone()) {
                 return this;
             }
             RpcCallback<T> callback = (RpcCallback<T>) request.getCallback();
