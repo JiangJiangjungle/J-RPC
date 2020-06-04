@@ -93,4 +93,8 @@ public class RpcFuture<T> implements Future<T> {
         }
         return this;
     }
+
+    public Request getRequest() {
+        return request;
+    }
 }

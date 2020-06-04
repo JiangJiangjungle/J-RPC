@@ -50,6 +50,16 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
+    public Packet createPacket(Request request) {
+        return createPacket(request.createRequestMeta().toByteArray());
+    }
+
+    @Override
+    public Packet createPacket(Response response) {
+        return createPacket(response.createResponseMeta().toByteArray());
+    }
+
+    @Override
     public Request createRequest() {
         return new RpcRequest();
     }

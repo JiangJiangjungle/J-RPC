@@ -12,6 +12,9 @@ import java.util.Map;
  */
 @Slf4j
 public class ServiceManager {
+    /**
+     * 单例
+     */
     private static volatile ServiceManager serviceManager = new ServiceManager();
     private Map<String, RpcMethodDetail> serviceMap = new HashMap<>(16);
 

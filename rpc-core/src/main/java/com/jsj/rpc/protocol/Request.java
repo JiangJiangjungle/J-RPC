@@ -44,5 +44,5 @@ public interface Request {
 
     void setCallback(RpcCallback<?> callback);
 
-    RpcMeta.RequestMeta createRequestMeta() throws Exception;
+    RpcMeta.RequestMeta createRequestMeta();
 }

@@ -27,17 +27,13 @@ public class RpcRequest implements Request {
     private int readTimeoutMillis;
 
     @Override
-    public RpcMeta.RequestMeta createRequestMeta() throws Exception {
+    public RpcMeta.RequestMeta createRequestMeta() {
         RpcMeta.RequestMeta.Builder metaBuilder = RpcMeta.RequestMeta.newBuilder();
         metaBuilder.setRequestId(getRequestId());
         metaBuilder.setServiceName(getServiceName());
         metaBuilder.setMethodName(getMethodName());
         for (Object param : getParams()) {
-            if (param instanceof Message) {
-                metaBuilder.addParams(Any.pack((Message) param));
-            } else {
-                throw new Exception("param type must be Message type!");
-            }
+            metaBuilder.addParams(Any.pack((Message) param));
         }
         return metaBuilder.build();
     }

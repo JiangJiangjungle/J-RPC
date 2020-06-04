@@ -21,4 +21,6 @@ public interface Response {
     void setException(Exception exception);
 
     void setResult(Object object);
+
+    RpcMeta.ResponseMeta createResponseMeta();
 }

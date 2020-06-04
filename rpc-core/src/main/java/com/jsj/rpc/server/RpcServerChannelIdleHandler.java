@@ -17,13 +17,15 @@ public class RpcServerChannelIdleHandler extends ChannelDuplexHandler {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            if (((IdleStateEvent) evt).state() == IdleState.ALL_IDLE) {
-                Channel channel = ctx.channel();
-                log.debug("Channel: {}, remote addr: {} is idle for period time, close now."
-                        , channel, channel.remoteAddress());
-                ctx.close();
-            }
+        if (!(evt instanceof IdleStateEvent)) {
+            ctx.fireUserEventTriggered(evt);
+            return;
+        }
+        if (((IdleStateEvent) evt).state() == IdleState.ALL_IDLE) {
+            Channel channel = ctx.channel();
+            log.debug("Channel: [remote addr: {}] is idle for period time, close now."
+                    , channel.remoteAddress());
+            ctx.close();
         }
     }
 }

@@ -6,7 +6,10 @@ import com.jsj.rpc.RpcException;
 import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.codec.BaseDecoder;
 import com.jsj.rpc.codec.BaseEncoder;
-import com.jsj.rpc.protocol.*;
+import com.jsj.rpc.protocol.Packet;
+import com.jsj.rpc.protocol.Protocol;
+import com.jsj.rpc.protocol.ProtocolManager;
+import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.util.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -153,19 +156,17 @@ public class RpcClient {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             channelInfo.addRpcFuture(rpcFuture);
         });
-        //构造RequestMeta对象
-        RpcMeta.RequestMeta requestMeta = request.createRequestMeta();
         //序列化并封装成Packet
-        Packet packet = protocol.createPacket(requestMeta.toByteArray());
+        Packet packet = protocol.createPacket(request);
         //写入channel
         ChannelFuture channelFuture = channel.writeAndFlush(packet);
         boolean writeSucceed = channelFuture.awaitUninterruptibly(request.getReadTimeoutMillis());
         //已经写入完成，返还channel
         channelManager.returnChannel(channel);
         if (writeSucceed) {
-            log.debug("Send rpc request succeed, request: {}.", requestMeta);
+            log.debug("Send rpc request succeed, request: {}.", request);
         } else {
-            throw new RpcException(String.format("Send rpc request failed, request: %s.", requestMeta));
+            throw new RpcException(String.format("Send rpc request failed, request: %s.", request));
         }
         return rpcFuture;
     }

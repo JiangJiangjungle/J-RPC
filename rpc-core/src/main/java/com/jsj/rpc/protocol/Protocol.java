@@ -17,6 +17,10 @@ public interface Protocol {
 
     Packet createPacket(byte[] data);
 
+    Packet createPacket(Request request);
+
+    Packet createPacket(Response response);
+
     Request createRequest();
 
     Response createResponse();

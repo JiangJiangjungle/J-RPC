@@ -1,12 +1,11 @@
 package com.jsj.rpc.server;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.Message;
+import com.jsj.rpc.RpcException;
 import com.jsj.rpc.protocol.Packet;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.Request;
-import com.jsj.rpc.protocol.RpcMeta;
-import io.netty.channel.ChannelHandlerContext;
+import com.jsj.rpc.protocol.Response;
+import io.netty.channel.Channel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,50 +21,44 @@ import java.lang.reflect.Method;
 public class ServerWorkTask implements Runnable {
     private Request request;
     private Protocol protocol;
-    private ChannelHandlerContext ctx;
+    private Channel channel;
 
-    public ServerWorkTask(Request request, Protocol protocol, ChannelHandlerContext ctx) {
+    public ServerWorkTask(Request request, Protocol protocol, Channel channel) {
         this.request = request;
         this.protocol = protocol;
-        this.ctx = ctx;
+        this.channel = channel;
     }
 
     @Override
     public void run() {
-        RpcMeta.ResponseMeta responseMeta = executeRequest(request);
-        Packet packet = protocol.createPacket(responseMeta.toByteArray());
-
-        ctx.channel().writeAndFlush(packet).addListener(
+        Response response = executeRequest(request);
+        Packet packet = protocol.createPacket(response);
+        channel.writeAndFlush(packet).addListener(
                 future -> {
                     if (future.isSuccess()) {
-                        log.info("Send rpc response succeed, request id: {}.", responseMeta.getRequestId());
+                        log.debug("Send rpc response: {} succeed.", response);
                     } else {
-                        log.warn("Send rpc response failed! request id: {}.", responseMeta.getRequestId());
+                        log.warn("Send rpc response: {} failed!", response);
                     }
                 }
         );
     }
 
-    private RpcMeta.ResponseMeta executeRequest(Request request) {
-        Message result = null;
+    private Response executeRequest(Request request) {
+        Object result = null;
         String errMsg = null;
         try {
             Method method = request.getMethod();
-            //执行结果必须是com.google.protobuf.Message的子类
-            result = (Message) method.invoke(request.getTarget(), request.getParams());
+            result = method.invoke(request.getTarget(), request.getParams());
         } catch (Exception e) {
             log.warn("Execute ServerWorkTask error, request id: {}, err msg: {}."
                     , request.getRequestId(), e.getMessage(), e);
             errMsg = String.format("%s: %s", e.getClass().getName(), e.getMessage());
         }
-        RpcMeta.ResponseMeta.Builder responseMetaBuilder = RpcMeta.ResponseMeta.newBuilder();
-        responseMetaBuilder.setRequestId(request.getRequestId());
-        if (result != null) {
-            responseMetaBuilder.setResult(Any.pack(result));
-        }
-        if (errMsg != null) {
-            responseMetaBuilder.setErrMsg(errMsg);
-        }
-        return responseMetaBuilder.build();
+        Response response = protocol.createResponse();
+        response.setRequestId(request.getRequestId());
+        response.setResult(result);
+        response.setException(new RpcException(errMsg));
+        return response;
     }
 }
