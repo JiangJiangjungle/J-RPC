@@ -1,4 +1,6 @@
-package com.jsj.rpc;
+package com.jsj.rpc.service;
+
+import com.jsj.rpc.User;
 
 /**
  * @author jiangshenjie
