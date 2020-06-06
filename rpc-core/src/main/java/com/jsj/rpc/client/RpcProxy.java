@@ -1,5 +1,6 @@
 package com.jsj.rpc.client;
 
+import com.jsj.rpc.protocol.Request;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -27,6 +28,7 @@ public class RpcProxy<T> implements MethodInterceptor {
 
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        return rpcClient.invoke(clazz, method, null, objects).get();
+        Request request = rpcClient.buildRequest(clazz, method, null, objects);
+        return rpcClient.sendRequest(request).get();
     }
 }

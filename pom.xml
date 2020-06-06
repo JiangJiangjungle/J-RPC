@@ -19,15 +19,16 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <lombok.version>1.18.10</lombok.version>
-        <version.junit>4.12</version.junit>
-        <version.slf4j>1.7.26</version.slf4j>
-        <version.logback>1.2.3</version.logback>
-        <version.netty>4.1.42.Final</version.netty>
-        <version.fastjson>1.2.47</version.fastjson>
-        <version.cglib>3.2.5</version.cglib>
-        <version.mockito>1.9.0</version.mockito>
-        <version.grpc>1.6.1</version.grpc>
-        <version.protobuf>3.3.0</version.protobuf>
+        <commons-pool2.version>2.4.2</commons-pool2.version>
+        <junit.version>4.12</junit.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <logback.version>1.2.3</logback.version>
+        <netty.version>4.1.42.Final</netty.version>
+        <fastjson.version>1.2.47</fastjson.version>
+        <cglib.version>3.2.5</cglib.version>
+        <mockito.version>1.9.0</mockito.version>
+        <grpc.version>1.6.1</grpc.version>
+        <protobuf.version>3.3.0</protobuf.version>
         <os.detected.classifier>osx-x86_64</os.detected.classifier>
     </properties>
 
@@ -93,6 +94,12 @@
                 <artifactId>rpc-sample</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- commons-pool2 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>${commons-pool2.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -102,73 +109,73 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>${version.netty}</version>
+                <version>${netty.version}</version>
             </dependency>
             <!-- fastjson -->
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
-                <version>${version.fastjson}</version>
+                <version>${fastjson.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/cglib/cglib -->
+            <!-- cglib -->
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
-                <version>${version.cglib}</version>
+                <version>${cglib.version}</version>
             </dependency>
             <!-- slf4j-api -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${version.slf4j}</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <!-- 添加logback-classic依赖 -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>${version.logback}</version>
+                <version>${logback.version}</version>
             </dependency>
             <!-- 添加logback-core依赖 -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>${version.logback}</version>
+                <version>${logback.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>${version.junit}</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
-                <version>${version.mockito}</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- protobuf-->
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-netty</artifactId>
-                <version>${version.grpc}</version>
+                <version>${grpc.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-protobuf</artifactId>
-                <version>${version.grpc}</version>
+                <version>${grpc.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-stub</artifactId>
-                <version>${version.grpc}</version>
+                <version>${grpc.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>${version.protobuf}</version>
+                <version>${protobuf.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

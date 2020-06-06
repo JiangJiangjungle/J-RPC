@@ -1,6 +1,6 @@
 package com.jsj.rpc.server;
 
-import com.jsj.rpc.RpcException;
+import com.jsj.rpc.exception.RpcException;
 import com.jsj.rpc.protocol.Packet;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.Request;
@@ -32,7 +32,7 @@ public class ServerWorkTask implements Runnable {
     @Override
     public void run() {
         Response response = executeRequest(request);
-        Packet packet = protocol.createPacket(response);
+        Packet packet = response.transToPacket();
         channel.writeAndFlush(packet).addListener(
                 future -> {
                     if (future.isSuccess()) {
@@ -57,8 +57,12 @@ public class ServerWorkTask implements Runnable {
         }
         Response response = protocol.createResponse();
         response.setRequestId(request.getRequestId());
-        response.setResult(result);
-        response.setException(new RpcException(errMsg));
+        if (result != null) {
+            response.setResult(result);
+        }
+        if (errMsg != null) {
+            response.setException(new RpcException(errMsg));
+        }
         return response;
     }
 }

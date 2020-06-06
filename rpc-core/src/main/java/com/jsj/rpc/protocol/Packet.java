@@ -5,16 +5,25 @@ import io.netty.buffer.ByteBuf;
 /**
  * @author jiangshenjie
  */
-public interface Packet {
-    /**
-     * 释放所有ByteBuf
-     */
-    void release();
+public class Packet {
+    ByteBuf body;
 
-    /**
-     * 获取消息实体对应的ByteBuf
-     *
-     * @return
-     */
-    ByteBuf getBody();
+    public Packet() {
+    }
+
+    public Packet(ByteBuf body) {
+        this.body = body;
+    }
+
+    public void release() {
+        this.body.release();
+    }
+
+    public ByteBuf getBody() {
+        return body;
+    }
+
+    public void setBody(ByteBuf body) {
+        this.body = body;
+    }
 }

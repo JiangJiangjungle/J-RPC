@@ -1,6 +1,7 @@
 package com.jsj.rpc.client;
 
 import com.jsj.rpc.ChannelInfo;
+import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.protocol.Packet;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.Response;
@@ -29,13 +30,15 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Packet> {
             Protocol protocol = channelInfo.getProtocol();
             response = protocol.decodeAsResponse(packet, channelInfo);
             log.debug("New rpc response: {}.", response);
-            //在业务线程执行回调函数
+            //在业务线程处理返回结果
             final Response rpcResponse = response;
             rpcClient.getWorkerThreadPool().submit(() -> {
                 try {
-                    rpcResponse.getRpcFuture().handleResponse(rpcResponse);
+                    rpcClient.handleResponse(rpcResponse);
                 } catch (Exception e) {
-                    log.error("error when handling rpc response:{}.", rpcResponse, e);
+                    log.warn("error when handling rpc response:{}.", rpcResponse, e);
+                    RpcFuture<?> rpcFuture = rpcResponse.getRpcFuture();
+                    rpcClient.handleErrorResponse(rpcFuture, e);
                 }
             });
         } catch (Exception e) {
@@ -49,13 +52,13 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(ctx.channel());
         channelInfo.setProtocol(rpcClient.getProtocol());
-        log.info("Channel [remote address: {}] active.", ctx.channel().remoteAddress());
+        log.info("Channel {} active.", ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        log.info("Channel {} inactive.", ctx.channel());
         //注销channel
-        rpcClient.getChannelManager().removeAndCloseChannel(ctx.channel());
-        log.info("Channel [remote address: {}] closed.", ctx.channel().remoteAddress());
+        rpcClient.getChannelManager().closeChannel(ctx.channel());
     }
 }

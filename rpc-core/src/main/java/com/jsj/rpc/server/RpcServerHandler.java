@@ -47,7 +47,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.debug("Channel [remote addr: {}] closed.", ctx.channel().remoteAddress());
+        log.info("Channel [remote addr: {}] inactive.", ctx.channel().remoteAddress());
         ctx.fireChannelInactive();
     }
 

@@ -12,13 +12,20 @@ import java.util.concurrent.TimeoutException;
  * @author jiangshenjie
  */
 public class RpcFuture<T> implements Future<T> {
-    private final Request request;
+    protected final Request request;
+
     private volatile boolean cancelled = false;
     private boolean isDone = false;
+    private final long startTime = System.currentTimeMillis();
+
     private Response response;
 
     public RpcFuture(Request request) {
         this.request = request;
+    }
+
+    public static <T> RpcFuture<T> createRpcFuture(Request request) {
+        return new RpcFuture<>(request);
     }
 
     @Override
@@ -96,5 +103,9 @@ public class RpcFuture<T> implements Future<T> {
 
     public Request getRequest() {
         return request;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 }

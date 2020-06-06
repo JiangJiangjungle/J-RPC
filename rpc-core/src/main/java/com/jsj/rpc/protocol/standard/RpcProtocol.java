@@ -1,9 +1,9 @@
 package com.jsj.rpc.protocol.standard;
 
 import com.jsj.rpc.ChannelInfo;
-import com.jsj.rpc.RpcException;
 import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.RpcMethodDetail;
+import com.jsj.rpc.exception.RpcException;
 import com.jsj.rpc.protocol.*;
 import com.jsj.rpc.protocol.exception.BadSchemaException;
 import com.jsj.rpc.protocol.exception.NotEnoughDataException;
@@ -15,7 +15,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * header：magic_num(1 byte) | body_length(4 byte)
+ * header：magic_num(1 byte)  | body_length(4 byte)
  * body: msg content
  *
  * @author jiangshenjie
@@ -28,10 +28,7 @@ public class RpcProtocol implements Protocol {
      * 默认协议版本号(1 byte)
      */
     private static byte MAGIC_NUM = (byte) 0x00;
-    private ServiceManager serviceManager = ServiceManager.getInstance();
-
-    public RpcProtocol() {
-    }
+    private final ServiceManager serviceManager;
 
     public RpcProtocol(ServiceManager serviceManager) {
         this.serviceManager = serviceManager;
@@ -39,7 +36,7 @@ public class RpcProtocol implements Protocol {
 
     @Override
     public Packet createPacket(ByteBuf data) {
-        return new RpcPacket(data);
+        return new Packet(data);
     }
 
     @Override
@@ -50,28 +47,13 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
-    public Packet createPacket(Request request) {
-        return createPacket(request.createRequestMeta().toByteArray());
-    }
-
-    @Override
-    public Packet createPacket(Response response) {
-        return createPacket(response.createResponseMeta().toByteArray());
-    }
-
-    @Override
     public Request createRequest() {
-        return new RpcRequest();
+        return new RpcRequest(this);
     }
 
     @Override
     public Response createResponse() {
-        return new RpcResponse();
-    }
-
-    @Override
-    public <T> RpcFuture<T> createRpcFuture(Request request) {
-        return new RpcFuture<>(request);
+        return new RpcResponse(this);
     }
 
     @Override
@@ -91,16 +73,16 @@ public class RpcProtocol implements Protocol {
         }
 
         ByteBuf bodyBuf = in.readRetainedSlice(bodyLength);
-        return new RpcPacket(bodyBuf);
+        return new Packet(bodyBuf);
     }
 
     @Override
-    public ByteBuf encodePacket(Packet packet) throws Exception {
-        ByteBuf bodyBuf = packet == null ? null : packet.getBody();
+    public ByteBuf encodePacket(Packet packet) {
+        ByteBuf bodyBuf = packet.getBody();
         int bodyLength = bodyBuf == null ? 0 : bodyBuf.readableBytes();
-
         CompositeByteBuf compositeByteBuf = Unpooled.compositeBuffer(2);
-        compositeByteBuf.addComponent(true, createHeaderBuf(bodyLength));
+        compositeByteBuf.addComponent(true
+                , createHeaderBuf(bodyLength));
         if (bodyBuf != null) {
             compositeByteBuf.addComponent(true, bodyBuf);
         }

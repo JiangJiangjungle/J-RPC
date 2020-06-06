@@ -22,5 +22,7 @@ public interface Response {
 
     void setResult(Object object);
 
-    RpcMeta.ResponseMeta createResponseMeta();
+    RpcMeta.ResponseMeta transToResponseMeta();
+
+    Packet transToPacket();
 }

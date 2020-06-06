@@ -1,7 +1,6 @@
 package com.jsj.rpc.protocol;
 
 import com.jsj.rpc.ChannelInfo;
-import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.protocol.exception.BadSchemaException;
 import com.jsj.rpc.protocol.exception.NotEnoughDataException;
 import io.netty.buffer.ByteBuf;
@@ -11,15 +10,9 @@ import io.netty.buffer.ByteBuf;
  */
 public interface Protocol {
 
-    <T> RpcFuture<T> createRpcFuture(Request request);
-
     Packet createPacket(ByteBuf data);
 
     Packet createPacket(byte[] data);
-
-    Packet createPacket(Request request);
-
-    Packet createPacket(Response response);
 
     Request createRequest();
 
@@ -32,7 +25,7 @@ public interface Protocol {
      * @return ByteBuf
      * @throws Exception
      */
-    ByteBuf encodePacket(Packet packet) throws Exception;
+    ByteBuf encodePacket(Packet packet);
 
     /**
      * 解析报文的header，将消息实体封装成Packet对象

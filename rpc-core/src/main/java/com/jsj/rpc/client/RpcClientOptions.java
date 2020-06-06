@@ -25,10 +25,13 @@ public class RpcClientOptions {
     private int soLinger = 5;
 
     /**
-     * read/write timeout
+     * channel write timeout
      */
-    private int readTimeoutMillis = 1000;
     private int writeTimeoutMillis = 1000;
+    /**
+     * rpc task execution timeout
+     */
+    private int rpcTaskTimeoutMillis = 10000;
 
     /**
      * receive buffer size

@@ -1,20 +1,15 @@
 package com.jsj.rpc.client;
 
-import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcCallback;
-import com.jsj.rpc.RpcException;
 import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.codec.BaseDecoder;
 import com.jsj.rpc.codec.BaseEncoder;
-import com.jsj.rpc.protocol.Packet;
-import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.ProtocolManager;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.util.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -25,8 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -34,21 +31,23 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Slf4j
 @Getter
-public class RpcClient {
+public class RpcClient extends AbstractRpcClient {
     protected final Endpoint endpoint;
     protected final RpcClientOptions clientOptions;
-    protected NioEventLoopGroup workerGroup;
     protected Bootstrap bootstrap;
-    protected Protocol protocol;
-    /**
-     * 业务线程池
-     */
-    private ThreadPoolExecutor workerThreadPool;
+
+    protected NioEventLoopGroup workerGroup;
+    protected ThreadPoolExecutor workerThreadPool;
+
     /**
      * 连接管理器
      */
     private ChannelManager channelManager;
 
+    /**
+     * 状态
+     */
+    private AtomicBoolean stop;
     private AtomicLong requestIdCounter;
 
     public RpcClient(Endpoint endpoint) {
@@ -65,36 +64,64 @@ public class RpcClient {
         return RpcProxy.getProxy(rpcClient, clazz);
     }
 
-    public <T> RpcFuture<T> invoke(Class<?> serviceInterface, Method method
+    public <T> Request buildRequest(Class<?> serviceInterface, String methodName
             , RpcCallback<T> callback, Object... args) throws Exception {
-        Request request = protocol.createRequest();
-        request.setRequestId(requestIdCounter.getAndIncrement());
-        request.setServiceName(serviceInterface.getName());
-        request.setMethod(method);
-        request.setMethodName(method.getName());
-        request.setParams(args);
-        request.setCallback(callback);
-        request.setWriteTimeoutMillis(clientOptions.getWriteTimeoutMillis());
-        request.setReadTimeoutMillis(clientOptions.getReadTimeoutMillis());
-        return sendRequest(request);
+        Method method = getMethod(serviceInterface, methodName, args);
+        return buildRequest(serviceInterface, method, callback, args);
+    }
+
+    public <T> Request buildRequest(Class<?> serviceInterface, Method method
+            , RpcCallback<T> callback, Object... args) throws Exception {
+        return protocol.createRequest()
+                .setRequestId(requestIdCounter.getAndIncrement())
+                .setServiceName(serviceInterface.getName())
+                .setCallback(callback)
+                .setMethod(method)
+                .setMethodName(method.getName())
+                .setWriteTimeoutMillis(clientOptions.getWriteTimeoutMillis())
+                .setTaskTimeoutMills(clientOptions.getRpcTaskTimeoutMillis())
+                .setParams(args);
     }
 
     public <T> RpcFuture<T> invoke(Class<?> serviceInterface, String methodName
             , RpcCallback<T> callback, Object... args) throws Exception {
+        Request request = buildRequest(serviceInterface, methodName, callback, args);
+        return sendRequest(request);
+    }
+
+    private Method getMethod(Class<?> serviceInterface, String methodName
+            , Object... args) throws Exception {
         Class<?>[] argClasses = new Class[args.length];
         for (int i = 0; i < args.length; i++) {
             argClasses[i] = args[i].getClass();
         }
-        Method method = serviceInterface.getDeclaredMethod(methodName, argClasses);
-        return invoke(serviceInterface, method, callback, args);
+        return serviceInterface.getDeclaredMethod(methodName, argClasses);
+    }
+
+    /**
+     * 根据RpcRequest选取可用的Channel
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @Override
+    protected Channel selectChannel(Request request) throws Exception {
+        return channelManager.borrowChannel();
+    }
+
+    @Override
+    protected void processChannelAfterSendRequest(Channel channel) {
+        channelManager.returnChannel(channel);
     }
 
     protected void init() {
+        stop = new AtomicBoolean(false);
         requestIdCounter = new AtomicLong(0L);
-        channelManager = new ChannelManager(this);
         protocol = ProtocolManager.getInstance().getProtocol(clientOptions.getProtocolType());
         if (clientOptions.isGlobalThreadPoolSharing()) {
             workerGroup = ClientThreadPoolInstance.getOrCreateIoThreadPool(clientOptions.getIoThreadNumber());
+            scheduledThreadPool = ClientThreadPoolInstance.getOrCreateScheduledThreadPool(clientOptions.getWorkerThreadNumber());
             workerThreadPool = ClientThreadPoolInstance.getOrCreateWorkThreadPool(
                     clientOptions.getWorkerThreadNumber()
                     , clientOptions.getWorkerThreadPoolQueueSize());
@@ -105,6 +132,8 @@ public class RpcClient {
                     , clientOptions.getWorkerThreadNumber(), 0L, TimeUnit.MILLISECONDS
                     , new LinkedBlockingDeque<>(clientOptions.getWorkerThreadPoolQueueSize())
                     , new NamedThreadFactory("rpc-client-work-thread", false));
+            scheduledThreadPool = new ScheduledThreadPoolExecutor(clientOptions.getWorkerThreadNumber()
+                    , new NamedThreadFactory("rpc-client-scheduled-thread", false));
         }
         final RpcClient rpcClient = this;
         // init netty bootstrap
@@ -135,43 +164,15 @@ public class RpcClient {
                                 .addLast(new RpcClientHandler(rpcClient));
                     }
                 });
-    }
-
-    /**
-     * 根据RpcRequest选取可用的Channel
-     *
-     * @param request
-     * @return
-     * @throws Exception
-     */
-    protected Channel selectChannel(Request request) throws Exception {
-        return channelManager.selectChannel();
-    }
-
-    protected <T> RpcFuture<T> sendRequest(Request request) throws Exception {
-        Channel channel = selectChannel(request);
-        RpcFuture<T> rpcFuture = protocol.createRpcFuture(request);
-        channel.eventLoop().submit(() -> {
-            //在ChannelInfo中添加RpcFuture
-            ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
-            channelInfo.addRpcFuture(rpcFuture);
-        });
-        //序列化并封装成Packet
-        Packet packet = protocol.createPacket(request);
-        //写入channel
-        ChannelFuture channelFuture = channel.writeAndFlush(packet);
-        boolean writeSucceed = channelFuture.awaitUninterruptibly(request.getReadTimeoutMillis());
-        //已经写入完成，返还channel
-        channelManager.returnChannel(channel);
-        if (writeSucceed) {
-            log.debug("Send rpc request succeed, request: {}.", request);
-        } else {
-            throw new RpcException(String.format("Send rpc request failed, request: %s.", request));
-        }
-        return rpcFuture;
+        //初始化ChannelManager
+        channelManager = new ChannelManager(this);
     }
 
     public void shutdown() {
+        if (stop.get()) {
+            return;
+        }
+        stop.set(true);
         //关闭所有连接
         channelManager.closeAll();
         if (!clientOptions.isGlobalThreadPoolSharing()) {

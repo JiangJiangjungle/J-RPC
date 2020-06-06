@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 public interface Request {
     long getRequestId();
 
-    void setRequestId(long id);
+    Request setRequestId(long id);
 
     String getServiceName();
 
@@ -26,23 +26,25 @@ public interface Request {
 
     int getWriteTimeoutMillis();
 
-    void setWriteTimeoutMillis(int writeTimeoutMillis);
+    Request setWriteTimeoutMillis(int writeTimeoutMillis);
 
-    int getReadTimeoutMillis();
+    int getTaskTimeoutMills();
 
-    void setReadTimeoutMillis(int readTimeoutMillis);
+    Request setTaskTimeoutMills(int taskTimeoutMills);
 
-    void setServiceName(String serviceName);
+    Request setServiceName(String serviceName);
 
-    void setMethodName(String methodName);
+    Request setMethodName(String methodName);
 
-    void setMethod(Method method);
+    Request setMethod(Method method);
 
-    void setTarget(Object target);
+    Request setTarget(Object target);
 
-    void setParams(Object... params);
+    Request setParams(Object... params);
 
-    void setCallback(RpcCallback<?> callback);
+    Request setCallback(RpcCallback<?> callback);
 
-    RpcMeta.RequestMeta createRequestMeta();
+    RpcMeta.RequestMeta transToRequestMeta();
+
+    Packet transToPacket();
 }

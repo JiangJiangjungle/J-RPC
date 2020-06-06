@@ -3,9 +3,10 @@ package com.jsj.rpc.protocol.standard;
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.jsj.rpc.RpcCallback;
+import com.jsj.rpc.protocol.Packet;
+import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.RpcMeta;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.lang.reflect.Method;
@@ -14,8 +15,8 @@ import java.lang.reflect.Method;
  * @author jiangshenjie
  */
 @ToString
-@NoArgsConstructor
 public class RpcRequest implements Request {
+    private Protocol protocol;
     private long requestId;
     private String serviceName;
     private String methodName;
@@ -24,10 +25,14 @@ public class RpcRequest implements Request {
     private Object target;
     private RpcCallback callback;
     private int writeTimeoutMillis;
-    private int readTimeoutMillis;
+    private int taskTimeoutMillis;
+
+    public RpcRequest(Protocol protocol) {
+        this.protocol = protocol;
+    }
 
     @Override
-    public RpcMeta.RequestMeta createRequestMeta() {
+    public RpcMeta.RequestMeta transToRequestMeta() {
         RpcMeta.RequestMeta.Builder metaBuilder = RpcMeta.RequestMeta.newBuilder();
         metaBuilder.setRequestId(getRequestId());
         metaBuilder.setServiceName(getServiceName());
@@ -39,8 +44,9 @@ public class RpcRequest implements Request {
     }
 
     @Override
-    public void setParams(Object... params) {
+    public Request setParams(Object... params) {
         this.params = params;
+        return this;
     }
 
     @Override
@@ -49,8 +55,9 @@ public class RpcRequest implements Request {
     }
 
     @Override
-    public void setServiceName(String serviceName) {
+    public Request setServiceName(String serviceName) {
         this.serviceName = serviceName;
+        return this;
     }
 
     @Override
@@ -69,8 +76,9 @@ public class RpcRequest implements Request {
     }
 
     @Override
-    public void setMethodName(String methodName) {
+    public Request setMethodName(String methodName) {
         this.methodName = methodName;
+        return this;
     }
 
     @Override
@@ -84,8 +92,9 @@ public class RpcRequest implements Request {
     }
 
     @Override
-    public void setMethod(Method method) {
+    public Request setMethod(Method method) {
         this.method = method;
+        return this;
     }
 
     @Override
@@ -94,18 +103,21 @@ public class RpcRequest implements Request {
     }
 
     @Override
-    public void setRequestId(long requestId) {
+    public Request setRequestId(long requestId) {
         this.requestId = requestId;
+        return this;
     }
 
     @Override
-    public void setTarget(Object target) {
+    public Request setTarget(Object target) {
         this.target = target;
+        return this;
     }
 
     @Override
-    public void setCallback(RpcCallback<?> callback) {
+    public Request setCallback(RpcCallback<?> callback) {
         this.callback = callback;
+        return this;
     }
 
     @Override
@@ -114,17 +126,24 @@ public class RpcRequest implements Request {
     }
 
     @Override
-    public void setWriteTimeoutMillis(int writeTimeoutMillis) {
+    public Request setWriteTimeoutMillis(int writeTimeoutMillis) {
         this.writeTimeoutMillis = writeTimeoutMillis;
+        return this;
     }
 
     @Override
-    public int getReadTimeoutMillis() {
-        return this.readTimeoutMillis;
+    public int getTaskTimeoutMills() {
+        return taskTimeoutMillis;
     }
 
     @Override
-    public void setReadTimeoutMillis(int readTimeoutMillis) {
-        this.readTimeoutMillis = readTimeoutMillis;
+    public Request setTaskTimeoutMills(int taskTimeoutMills) {
+        this.taskTimeoutMillis = taskTimeoutMills;
+        return this;
+    }
+
+    @Override
+    public Packet transToPacket() {
+        return protocol.createPacket(transToRequestMeta().toByteArray());
     }
 }

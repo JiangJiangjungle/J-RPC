@@ -1,4 +1,4 @@
-package com.jsj.rpc;
+package com.jsj.rpc.exception;
 
 /**
  * @author jiangshenjie
