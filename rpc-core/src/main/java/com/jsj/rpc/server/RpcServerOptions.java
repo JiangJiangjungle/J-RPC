@@ -18,6 +18,9 @@ public class RpcServerOptions {
     private ProtocolType protocolType = ProtocolType.STANDARD;
     private boolean keepAlive = true;
     private boolean tcpNoDelay = true;
+    /**
+     * (s)
+     */
     private int soLinger = 5;
     private int backlog = 1024;
     /**

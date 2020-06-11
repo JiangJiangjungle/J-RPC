@@ -22,6 +22,9 @@ public class RpcClientOptions {
     private boolean keepAlive = true;
     private boolean reuseAddr = true;
     private boolean tcpNoDelay = true;
+    /**
+     * (s)
+     */
     private int soLinger = 5;
 
     /**
