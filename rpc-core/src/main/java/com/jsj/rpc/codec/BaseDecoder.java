@@ -27,7 +27,7 @@ public class BaseDecoder extends ByteToMessageDecoder {
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         try {
-            out.add(protocol.parseHeaderAndPackageContent(in));
+            out.add(protocol.parseHeaderAndPackage(in));
         } catch (NotEnoughDataException e) {
         }
     }

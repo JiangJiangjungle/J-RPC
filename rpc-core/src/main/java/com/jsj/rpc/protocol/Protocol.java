@@ -35,7 +35,7 @@ public interface Protocol {
      * @throws BadSchemaException
      * @throws NotEnoughDataException
      */
-    Packet parseHeaderAndPackageContent(ByteBuf in) throws BadSchemaException, NotEnoughDataException;
+    Packet parseHeaderAndPackage(ByteBuf in) throws BadSchemaException, NotEnoughDataException;
 
     /**************** 仅Rpc Server需要实现的函数 *******************/
 

@@ -57,7 +57,7 @@ public class RpcProtocol implements Protocol {
     }
 
     @Override
-    public Packet parseHeaderAndPackageContent(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
+    public Packet parseHeaderAndPackage(ByteBuf in) throws BadSchemaException, NotEnoughDataException {
         if (in.readableBytes() < FIXED_HEADER_LEN) {
             throw new NotEnoughDataException();
         }
@@ -67,11 +67,7 @@ public class RpcProtocol implements Protocol {
         if (in.readableBytes() < bodyLength) {
             in.resetReaderIndex();
             throw new NotEnoughDataException();
-        } else if (in.readableBytes() > bodyLength) {
-            in.resetReaderIndex();
-            throw new BadSchemaException();
         }
-
         ByteBuf bodyBuf = in.readRetainedSlice(bodyLength);
         return new Packet(bodyBuf);
     }
