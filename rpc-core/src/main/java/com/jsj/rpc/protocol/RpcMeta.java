@@ -4,2378 +4,2527 @@
 package com.jsj.rpc.protocol;
 
 public final class RpcMeta {
-    private static final com.google.protobuf.Descriptors.Descriptor
-            internal_static_RequestMeta_descriptor;
-    private static final
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-            internal_static_RequestMeta_fieldAccessorTable;
-    private static final com.google.protobuf.Descriptors.Descriptor
-            internal_static_ResponseMeta_descriptor;
-    private static final
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-            internal_static_ResponseMeta_fieldAccessorTable;
-    private static com.google.protobuf.Descriptors.FileDescriptor
-            descriptor;
+  private static final com.google.protobuf.Descriptors.Descriptor
+          internal_static_RequestMeta_descriptor;
+  private static final
+  com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internal_static_RequestMeta_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+          internal_static_ResponseMeta_descriptor;
+  private static final
+  com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internal_static_ResponseMeta_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.FileDescriptor
+          descriptor;
+
+  static {
+    String[] descriptorData = {
+            "\n\tRpc.proto\032\031google/protobuf/any.proto\"o" +
+                    "\n\013RequestMeta\022\021\n\trequestId\030\001 \001(\004\022\023\n\013serv" +
+                    "iceName\030\002 \001(\t\022\022\n\nmethodName\030\003 \001(\t\022$\n\006par" +
+                    "ams\030\004 \003(\0132\024.google.protobuf.Any\"W\n\014Respo" +
+                    "nseMeta\022\021\n\trequestId\030\001 \001(\004\022$\n\006result\030\002 \001" +
+                    "(\0132\024.google.protobuf.Any\022\016\n\006errMsg\030\003 \001(\t" +
+                    "B\037\n\024com.jsj.rpc.protocolB\007RpcMetab\006proto" +
+                    "3"
+    };
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
+            .internalBuildGeneratedFileFrom(descriptorData,
+                    new com.google.protobuf.Descriptors.FileDescriptor[]{
+                            com.google.protobuf.AnyProto.getDescriptor(),
+                    });
+    internal_static_RequestMeta_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+    internal_static_RequestMeta_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_RequestMeta_descriptor,
+            new String[]{"RequestId", "ServiceName", "MethodName", "Params",});
+    internal_static_ResponseMeta_descriptor =
+            getDescriptor().getMessageTypes().get(1);
+    internal_static_ResponseMeta_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_ResponseMeta_descriptor,
+            new String[]{"RequestId", "Result", "ErrMsg",});
+    com.google.protobuf.AnyProto.getDescriptor();
+  }
+
+  private RpcMeta() {
+  }
+
+  public static void registerAllExtensions(
+          com.google.protobuf.ExtensionRegistryLite registry) {
+  }
+
+  public static void registerAllExtensions(
+          com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions(
+            (com.google.protobuf.ExtensionRegistryLite) registry);
+  }
+
+  public static com.google.protobuf.Descriptors.FileDescriptor
+  getDescriptor() {
+    return descriptor;
+  }
+
+  public interface RequestMetaOrBuilder extends
+          // @@protoc_insertion_point(interface_extends:RequestMeta)
+          com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * request id
+     * </pre>
+     *
+     * <code>uint64 requestId = 1;</code>
+     *
+     * @return The requestId.
+     */
+    long getRequestId();
+
+    /**
+     * <pre>
+     * interface name
+     * </pre>
+     *
+     * <code>string serviceName = 2;</code>
+     *
+     * @return The serviceName.
+     */
+    String getServiceName();
+
+    /**
+     * <pre>
+     * interface name
+     * </pre>
+     *
+     * <code>string serviceName = 2;</code>
+     *
+     * @return The bytes for serviceName.
+     */
+    com.google.protobuf.ByteString
+    getServiceNameBytes();
+
+    /**
+     * <pre>
+     * method name
+     * </pre>
+     *
+     * <code>string methodName = 3;</code>
+     *
+     * @return The methodName.
+     */
+    String getMethodName();
+
+    /**
+     * <pre>
+     * method name
+     * </pre>
+     *
+     * <code>string methodName = 3;</code>
+     *
+     * @return The bytes for methodName.
+     */
+    com.google.protobuf.ByteString
+    getMethodNameBytes();
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    java.util.List<com.google.protobuf.Any>
+    getParamsList();
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    com.google.protobuf.Any getParams(int index);
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    int getParamsCount();
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    java.util.List<? extends com.google.protobuf.AnyOrBuilder>
+    getParamsOrBuilderList();
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    com.google.protobuf.AnyOrBuilder getParamsOrBuilder(
+            int index);
+  }
+
+  public interface ResponseMetaOrBuilder extends
+          // @@protoc_insertion_point(interface_extends:ResponseMeta)
+          com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * request id
+     * </pre>
+     *
+     * <code>uint64 requestId = 1;</code>
+     *
+     * @return The requestId.
+     */
+    long getRequestId();
+
+    /**
+     * <pre>
+     * invoke result
+     * </pre>
+     *
+     * <code>.google.protobuf.Any result = 2;</code>
+     *
+     * @return Whether the result field is set.
+     */
+    boolean hasResult();
+
+    /**
+     * <pre>
+     * invoke result
+     * </pre>
+     *
+     * <code>.google.protobuf.Any result = 2;</code>
+     *
+     * @return The result.
+     */
+    com.google.protobuf.Any getResult();
+
+    /**
+     * <pre>
+     * invoke result
+     * </pre>
+     *
+     * <code>.google.protobuf.Any result = 2;</code>
+     */
+    com.google.protobuf.AnyOrBuilder getResultOrBuilder();
+
+    /**
+     * <pre>
+     * error msg when exception.
+     * </pre>
+     *
+     * <code>string errMsg = 3;</code>
+     *
+     * @return The errMsg.
+     */
+    String getErrMsg();
+
+    /**
+     * <pre>
+     * error msg when exception.
+     * </pre>
+     *
+     * <code>string errMsg = 3;</code>
+     *
+     * @return The bytes for errMsg.
+     */
+    com.google.protobuf.ByteString
+    getErrMsgBytes();
+  }
+
+  /**
+   * Protobuf type {@code RequestMeta}
+   */
+  public static final class RequestMeta extends
+          com.google.protobuf.GeneratedMessageV3 implements
+          // @@protoc_insertion_point(message_implements:RequestMeta)
+          RequestMetaOrBuilder {
+    public static final int REQUESTID_FIELD_NUMBER = 1;
+    public static final int SERVICENAME_FIELD_NUMBER = 2;
+    public static final int METHODNAME_FIELD_NUMBER = 3;
+    public static final int PARAMS_FIELD_NUMBER = 4;
+    private static final long serialVersionUID = 0L;
+    // @@protoc_insertion_point(class_scope:RequestMeta)
+    private static final RequestMeta DEFAULT_INSTANCE;
+    private static final com.google.protobuf.Parser<RequestMeta>
+            PARSER = new com.google.protobuf.AbstractParser<RequestMeta>() {
+      @Override
+      public RequestMeta parsePartialFrom(
+              com.google.protobuf.CodedInputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws com.google.protobuf.InvalidProtocolBufferException {
+        return new RequestMeta(input, extensionRegistry);
+      }
+    };
 
     static {
-        String[] descriptorData = {
-                "\n\tRpc.proto\032\031google/protobuf/any.proto\"o" +
-                        "\n\013RequestMeta\022\021\n\trequestId\030\001 \001(\004\022\023\n\013serv" +
-                        "iceName\030\002 \001(\t\022\022\n\nmethodName\030\003 \001(\t\022$\n\006par" +
-                        "ams\030\004 \003(\0132\024.google.protobuf.Any\"W\n\014Respo" +
-                        "nseMeta\022\021\n\trequestId\030\001 \001(\004\022$\n\006result\030\002 \001" +
-                        "(\0132\024.google.protobuf.Any\022\016\n\006errMsg\030\003 \001(\t" +
-                        "B\037\n\024com.jsj.rpc.protocolB\007RpcMetab\006proto" +
-                        "3"
-        };
-        com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-                new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-                    public com.google.protobuf.ExtensionRegistry assignDescriptors(
-                            com.google.protobuf.Descriptors.FileDescriptor root) {
-                        descriptor = root;
-                        return null;
-                    }
-                };
-        com.google.protobuf.Descriptors.FileDescriptor
-                .internalBuildGeneratedFileFrom(descriptorData,
-                        new com.google.protobuf.Descriptors.FileDescriptor[]{
-                                com.google.protobuf.AnyProto.getDescriptor(),
-                        }, assigner);
-        internal_static_RequestMeta_descriptor =
-                getDescriptor().getMessageTypes().get(0);
-        internal_static_RequestMeta_fieldAccessorTable = new
-                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-                internal_static_RequestMeta_descriptor,
-                new String[]{"RequestId", "ServiceName", "MethodName", "Params",});
-        internal_static_ResponseMeta_descriptor =
-                getDescriptor().getMessageTypes().get(1);
-        internal_static_ResponseMeta_fieldAccessorTable = new
-                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-                internal_static_ResponseMeta_descriptor,
-                new String[]{"RequestId", "Result", "ErrMsg",});
-        com.google.protobuf.AnyProto.getDescriptor();
+      DEFAULT_INSTANCE = new RequestMeta();
     }
 
-    private RpcMeta() {
+    private long requestId_;
+    private volatile Object serviceName_;
+    private volatile Object methodName_;
+    private java.util.List<com.google.protobuf.Any> params_;
+    private byte memoizedIsInitialized = -1;
+
+    // Use RequestMeta.newBuilder() to construct.
+    private RequestMeta(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
     }
 
-    public static void registerAllExtensions(
-            com.google.protobuf.ExtensionRegistryLite registry) {
+    private RequestMeta() {
+      serviceName_ = "";
+      methodName_ = "";
+      params_ = java.util.Collections.emptyList();
     }
 
-    public static void registerAllExtensions(
-            com.google.protobuf.ExtensionRegistry registry) {
-        registerAllExtensions(
-                (com.google.protobuf.ExtensionRegistryLite) registry);
+    private RequestMeta(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+              com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8: {
+
+              requestId_ = input.readUInt64();
+              break;
+            }
+            case 18: {
+              String s = input.readStringRequireUtf8();
+
+              serviceName_ = s;
+              break;
+            }
+            case 26: {
+              String s = input.readStringRequireUtf8();
+
+              methodName_ = s;
+              break;
+            }
+            case 34: {
+              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+                params_ = new java.util.ArrayList<com.google.protobuf.Any>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              params_.add(
+                      input.readMessage(com.google.protobuf.Any.parser(), extensionRegistry));
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                      input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+                e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) != 0)) {
+          params_ = java.util.Collections.unmodifiableList(params_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
     }
 
-    public static com.google.protobuf.Descriptors.FileDescriptor
+    public static final com.google.protobuf.Descriptors.Descriptor
     getDescriptor() {
-        return descriptor;
+      return RpcMeta.internal_static_RequestMeta_descriptor;
     }
 
-    public interface RequestMetaOrBuilder extends
-            // @@protoc_insertion_point(interface_extends:RequestMeta)
-            com.google.protobuf.MessageOrBuilder {
-
-        /**
-         * <pre>
-         * request id
-         * </pre>
-         *
-         * <code>uint64 requestId = 1;</code>
-         */
-        long getRequestId();
-
-        /**
-         * <pre>
-         * interface name
-         * </pre>
-         *
-         * <code>string serviceName = 2;</code>
-         */
-        String getServiceName();
-
-        /**
-         * <pre>
-         * interface name
-         * </pre>
-         *
-         * <code>string serviceName = 2;</code>
-         */
-        com.google.protobuf.ByteString
-        getServiceNameBytes();
-
-        /**
-         * <pre>
-         * method name
-         * </pre>
-         *
-         * <code>string methodName = 3;</code>
-         */
-        String getMethodName();
-
-        /**
-         * <pre>
-         * method name
-         * </pre>
-         *
-         * <code>string methodName = 3;</code>
-         */
-        com.google.protobuf.ByteString
-        getMethodNameBytes();
-
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        java.util.List<com.google.protobuf.Any>
-        getParamsList();
-
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        com.google.protobuf.Any getParams(int index);
-
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        int getParamsCount();
-
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        java.util.List<? extends com.google.protobuf.AnyOrBuilder>
-        getParamsOrBuilderList();
-
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        com.google.protobuf.AnyOrBuilder getParamsOrBuilder(
-                int index);
+    public static RequestMeta parseFrom(
+            java.nio.ByteBuffer data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
     }
 
-    public interface ResponseMetaOrBuilder extends
-            // @@protoc_insertion_point(interface_extends:ResponseMeta)
-            com.google.protobuf.MessageOrBuilder {
+    public static RequestMeta parseFrom(
+            java.nio.ByteBuffer data,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
 
-        /**
-         * <pre>
-         * request id
-         * </pre>
-         *
-         * <code>uint64 requestId = 1;</code>
-         */
-        long getRequestId();
+    public static RequestMeta parseFrom(
+            com.google.protobuf.ByteString data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
 
-        /**
-         * <pre>
-         * invoke result
-         * </pre>
-         *
-         * <code>.google.protobuf.Any result = 2;</code>
-         */
-        boolean hasResult();
+    public static RequestMeta parseFrom(
+            com.google.protobuf.ByteString data,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
 
-        /**
-         * <pre>
-         * invoke result
-         * </pre>
-         *
-         * <code>.google.protobuf.Any result = 2;</code>
-         */
-        com.google.protobuf.Any getResult();
+    public static RequestMeta parseFrom(byte[] data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
 
-        /**
-         * <pre>
-         * invoke result
-         * </pre>
-         *
-         * <code>.google.protobuf.Any result = 2;</code>
-         */
-        com.google.protobuf.AnyOrBuilder getResultOrBuilder();
+    public static RequestMeta parseFrom(
+            byte[] data,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
 
-        /**
-         * <pre>
-         * error msg when exception.
-         * </pre>
-         *
-         * <code>string errMsg = 3;</code>
-         */
-        String getErrMsg();
+    public static RequestMeta parseFrom(java.io.InputStream input)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseWithIOException(PARSER, input);
+    }
 
-        /**
-         * <pre>
-         * error msg when exception.
-         * </pre>
-         *
-         * <code>string errMsg = 3;</code>
-         */
-        com.google.protobuf.ByteString
-        getErrMsgBytes();
+    public static RequestMeta parseFrom(
+            java.io.InputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static RequestMeta parseDelimitedFrom(java.io.InputStream input)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static RequestMeta parseDelimitedFrom(
+            java.io.InputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static RequestMeta parseFrom(
+            com.google.protobuf.CodedInputStream input)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseWithIOException(PARSER, input);
+    }
+
+    public static RequestMeta parseFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+
+    public static Builder newBuilder(RequestMeta prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    public static RequestMeta getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static com.google.protobuf.Parser<RequestMeta> parser() {
+      return PARSER;
+    }
+
+    @Override
+    @SuppressWarnings({"unused"})
+    protected Object newInstance(
+            UnusedPrivateParameter unused) {
+      return new RequestMeta();
+    }
+
+    @Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+
+    @Override
+    protected FieldAccessorTable
+    internalGetFieldAccessorTable() {
+      return RpcMeta.internal_static_RequestMeta_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                      RequestMeta.class, Builder.class);
+    }
+
+    /**
+     * <pre>
+     * request id
+     * </pre>
+     *
+     * <code>uint64 requestId = 1;</code>
+     *
+     * @return The requestId.
+     */
+    public long getRequestId() {
+      return requestId_;
+    }
+
+    /**
+     * <pre>
+     * interface name
+     * </pre>
+     *
+     * <code>string serviceName = 2;</code>
+     *
+     * @return The serviceName.
+     */
+    public String getServiceName() {
+      Object ref = serviceName_;
+      if (ref instanceof String) {
+        return (String) ref;
+      } else {
+        com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+        String s = bs.toStringUtf8();
+        serviceName_ = s;
+        return s;
+      }
+    }
+
+    /**
+     * <pre>
+     * interface name
+     * </pre>
+     *
+     * <code>string serviceName = 2;</code>
+     *
+     * @return The bytes for serviceName.
+     */
+    public com.google.protobuf.ByteString
+    getServiceNameBytes() {
+      Object ref = serviceName_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b =
+                com.google.protobuf.ByteString.copyFromUtf8(
+                        (String) ref);
+        serviceName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    /**
+     * <pre>
+     * method name
+     * </pre>
+     *
+     * <code>string methodName = 3;</code>
+     *
+     * @return The methodName.
+     */
+    public String getMethodName() {
+      Object ref = methodName_;
+      if (ref instanceof String) {
+        return (String) ref;
+      } else {
+        com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+        String s = bs.toStringUtf8();
+        methodName_ = s;
+        return s;
+      }
+    }
+
+    /**
+     * <pre>
+     * method name
+     * </pre>
+     *
+     * <code>string methodName = 3;</code>
+     *
+     * @return The bytes for methodName.
+     */
+    public com.google.protobuf.ByteString
+    getMethodNameBytes() {
+      Object ref = methodName_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b =
+                com.google.protobuf.ByteString.copyFromUtf8(
+                        (String) ref);
+        methodName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    public java.util.List<com.google.protobuf.Any> getParamsList() {
+      return params_;
+    }
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    public java.util.List<? extends com.google.protobuf.AnyOrBuilder>
+    getParamsOrBuilderList() {
+      return params_;
+    }
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    public int getParamsCount() {
+      return params_.size();
+    }
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    public com.google.protobuf.Any getParams(int index) {
+      return params_.get(index);
+    }
+
+    /**
+     * <pre>
+     * method params
+     * </pre>
+     *
+     * <code>repeated .google.protobuf.Any params = 4;</code>
+     */
+    public com.google.protobuf.AnyOrBuilder getParamsOrBuilder(
+            int index) {
+      return params_.get(index);
+    }
+
+    @Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+            throws java.io.IOException {
+      if (requestId_ != 0L) {
+        output.writeUInt64(1, requestId_);
+      }
+      if (!getServiceNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceName_);
+      }
+      if (!getMethodNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, methodName_);
+      }
+      for (int i = 0; i < params_.size(); i++) {
+        output.writeMessage(4, params_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (requestId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+                .computeUInt64Size(1, requestId_);
+      }
+      if (!getServiceNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceName_);
+      }
+      if (!getMethodNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, methodName_);
+      }
+      for (int i = 0; i < params_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+                .computeMessageSize(4, params_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (!(obj instanceof RequestMeta)) {
+        return super.equals(obj);
+      }
+      RequestMeta other = (RequestMeta) obj;
+
+      if (getRequestId()
+              != other.getRequestId()) return false;
+      if (!getServiceName()
+              .equals(other.getServiceName())) return false;
+      if (!getMethodName()
+              .equals(other.getMethodName())) return false;
+      if (!getParamsList()
+              .equals(other.getParamsList())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              getRequestId());
+      hash = (37 * hash) + SERVICENAME_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceName().hashCode();
+      hash = (37 * hash) + METHODNAME_FIELD_NUMBER;
+      hash = (53 * hash) + getMethodName().hashCode();
+      if (getParamsCount() > 0) {
+        hash = (37 * hash) + PARAMS_FIELD_NUMBER;
+        hash = (53 * hash) + getParamsList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    @Override
+    public Builder newBuilderForType() {
+      return newBuilder();
+    }
+
+    @Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+              ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @Override
+    protected Builder newBuilderForType(
+            BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+
+    @Override
+    public com.google.protobuf.Parser<RequestMeta> getParserForType() {
+      return PARSER;
+    }
+
+    @Override
+    public RequestMeta getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
     }
 
     /**
      * Protobuf type {@code RequestMeta}
      */
-    public static final class RequestMeta extends
-            com.google.protobuf.GeneratedMessageV3 implements
-            // @@protoc_insertion_point(message_implements:RequestMeta)
+    public static final class Builder extends
+            com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+            // @@protoc_insertion_point(builder_implements:RequestMeta)
             RequestMetaOrBuilder {
-        public static final int REQUESTID_FIELD_NUMBER = 1;
-        public static final int SERVICENAME_FIELD_NUMBER = 2;
-        public static final int METHODNAME_FIELD_NUMBER = 3;
-        public static final int PARAMS_FIELD_NUMBER = 4;
-        private static final long serialVersionUID = 0L;
-        // @@protoc_insertion_point(class_scope:RequestMeta)
-        private static final RequestMeta DEFAULT_INSTANCE;
-        private static final com.google.protobuf.Parser<RequestMeta>
-                PARSER = new com.google.protobuf.AbstractParser<RequestMeta>() {
-            public RequestMeta parsePartialFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws com.google.protobuf.InvalidProtocolBufferException {
-                return new RequestMeta(input, extensionRegistry);
-            }
-        };
+      private int bitField0_;
+      private long requestId_;
+      private Object serviceName_ = "";
+      private Object methodName_ = "";
+      private java.util.List<com.google.protobuf.Any> params_ =
+              java.util.Collections.emptyList();
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+              com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder> paramsBuilder_;
 
-        static {
-            DEFAULT_INSTANCE = new RequestMeta();
+      // Construct using com.jsj.rpc.protocol.RpcMeta.RequestMeta.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+              BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+
+      public static final com.google.protobuf.Descriptors.Descriptor
+      getDescriptor() {
+        return RpcMeta.internal_static_RequestMeta_descriptor;
+      }
+
+      @Override
+      protected FieldAccessorTable
+      internalGetFieldAccessorTable() {
+        return RpcMeta.internal_static_RequestMeta_fieldAccessorTable
+                .ensureFieldAccessorsInitialized(
+                        RequestMeta.class, Builder.class);
+      }
+
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getParamsFieldBuilder();
         }
+      }
 
-        private int bitField0_;
-        private long requestId_;
-        private volatile Object serviceName_;
-        private volatile Object methodName_;
-        private java.util.List<com.google.protobuf.Any> params_;
-        private byte memoizedIsInitialized = -1;
+      @Override
+      public Builder clear() {
+        super.clear();
+        requestId_ = 0L;
 
-        // Use RequestMeta.newBuilder() to construct.
-        private RequestMeta(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-            super(builder);
+        serviceName_ = "";
+
+        methodName_ = "";
+
+        if (paramsBuilder_ == null) {
+          params_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          paramsBuilder_.clear();
         }
+        return this;
+      }
 
-        private RequestMeta() {
-            requestId_ = 0L;
-            serviceName_ = "";
-            methodName_ = "";
-            params_ = java.util.Collections.emptyList();
+      @Override
+      public com.google.protobuf.Descriptors.Descriptor
+      getDescriptorForType() {
+        return RpcMeta.internal_static_RequestMeta_descriptor;
+      }
+
+      @Override
+      public RequestMeta getDefaultInstanceForType() {
+        return RequestMeta.getDefaultInstance();
+      }
+
+      @Override
+      public RequestMeta build() {
+        RequestMeta result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
         }
+        return result;
+      }
 
-        private RequestMeta(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            this();
-            int mutable_bitField0_ = 0;
-            try {
-                boolean done = false;
-                while (!done) {
-                    int tag = input.readTag();
-                    switch (tag) {
-                        case 0:
-                            done = true;
-                            break;
-                        default: {
-                            if (!input.skipField(tag)) {
-                                done = true;
-                            }
-                            break;
-                        }
-                        case 8: {
-
-                            requestId_ = input.readUInt64();
-                            break;
-                        }
-                        case 18: {
-                            String s = input.readStringRequireUtf8();
-
-                            serviceName_ = s;
-                            break;
-                        }
-                        case 26: {
-                            String s = input.readStringRequireUtf8();
-
-                            methodName_ = s;
-                            break;
-                        }
-                        case 34: {
-                            if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                                params_ = new java.util.ArrayList<com.google.protobuf.Any>();
-                                mutable_bitField0_ |= 0x00000008;
-                            }
-                            params_.add(
-                                    input.readMessage(com.google.protobuf.Any.parser(), extensionRegistry));
-                            break;
-                        }
-                    }
-                }
-            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                throw e.setUnfinishedMessage(this);
-            } catch (java.io.IOException e) {
-                throw new com.google.protobuf.InvalidProtocolBufferException(
-                        e).setUnfinishedMessage(this);
-            } finally {
-                if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                    params_ = java.util.Collections.unmodifiableList(params_);
-                }
-                makeExtensionsImmutable();
-            }
+      @Override
+      public RequestMeta buildPartial() {
+        RequestMeta result = new RequestMeta(this);
+        int from_bitField0_ = bitField0_;
+        result.requestId_ = requestId_;
+        result.serviceName_ = serviceName_;
+        result.methodName_ = methodName_;
+        if (paramsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) != 0)) {
+            params_ = java.util.Collections.unmodifiableList(params_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.params_ = params_;
+        } else {
+          result.params_ = paramsBuilder_.build();
         }
+        onBuilt();
+        return result;
+      }
 
-        public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-            return RpcMeta.internal_static_RequestMeta_descriptor;
+      @Override
+      public Builder clone() {
+        return super.clone();
+      }
+
+      @Override
+      public Builder setField(
+              com.google.protobuf.Descriptors.FieldDescriptor field,
+              Object value) {
+        return super.setField(field, value);
+      }
+
+      @Override
+      public Builder clearField(
+              com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+
+      @Override
+      public Builder clearOneof(
+              com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+
+      @Override
+      public Builder setRepeatedField(
+              com.google.protobuf.Descriptors.FieldDescriptor field,
+              int index, Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+
+      @Override
+      public Builder addRepeatedField(
+              com.google.protobuf.Descriptors.FieldDescriptor field,
+              Object value) {
+        return super.addRepeatedField(field, value);
+      }
+
+      @Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof RequestMeta) {
+          return mergeFrom((RequestMeta) other);
+        } else {
+          super.mergeFrom(other);
+          return this;
         }
+      }
 
-        public static RequestMeta parseFrom(
-                java.nio.ByteBuffer data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
+      public Builder mergeFrom(RequestMeta other) {
+        if (other == RequestMeta.getDefaultInstance()) return this;
+        if (other.getRequestId() != 0L) {
+          setRequestId(other.getRequestId());
         }
-
-        public static RequestMeta parseFrom(
-                java.nio.ByteBuffer data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
+        if (!other.getServiceName().isEmpty()) {
+          serviceName_ = other.serviceName_;
+          onChanged();
         }
-
-        public static RequestMeta parseFrom(
-                com.google.protobuf.ByteString data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
+        if (!other.getMethodName().isEmpty()) {
+          methodName_ = other.methodName_;
+          onChanged();
         }
-
-        public static RequestMeta parseFrom(
-                com.google.protobuf.ByteString data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static RequestMeta parseFrom(byte[] data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static RequestMeta parseFrom(
-                byte[] data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static RequestMeta parseFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-
-        public static RequestMeta parseFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static RequestMeta parseDelimitedFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input);
-        }
-
-        public static RequestMeta parseDelimitedFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static RequestMeta parseFrom(
-                com.google.protobuf.CodedInputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-
-        public static RequestMeta parseFrom(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static Builder newBuilder() {
-            return DEFAULT_INSTANCE.toBuilder();
-        }
-
-        public static Builder newBuilder(RequestMeta prototype) {
-            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-        }
-
-        public static RequestMeta getDefaultInstance() {
-            return DEFAULT_INSTANCE;
-        }
-
-        public static com.google.protobuf.Parser<RequestMeta> parser() {
-            return PARSER;
-        }
-
-        @Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        protected FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return RpcMeta.internal_static_RequestMeta_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            RequestMeta.class, Builder.class);
-        }
-
-        /**
-         * <pre>
-         * request id
-         * </pre>
-         *
-         * <code>uint64 requestId = 1;</code>
-         */
-        public long getRequestId() {
-            return requestId_;
-        }
-
-        /**
-         * <pre>
-         * interface name
-         * </pre>
-         *
-         * <code>string serviceName = 2;</code>
-         */
-        public String getServiceName() {
-            Object ref = serviceName_;
-            if (ref instanceof String) {
-                return (String) ref;
+        if (paramsBuilder_ == null) {
+          if (!other.params_.isEmpty()) {
+            if (params_.isEmpty()) {
+              params_ = other.params_;
+              bitField0_ = (bitField0_ & ~0x00000001);
             } else {
-                com.google.protobuf.ByteString bs =
-                        (com.google.protobuf.ByteString) ref;
-                String s = bs.toStringUtf8();
-                serviceName_ = s;
-                return s;
+              ensureParamsIsMutable();
+              params_.addAll(other.params_);
             }
-        }
-
-        /**
-         * <pre>
-         * interface name
-         * </pre>
-         *
-         * <code>string serviceName = 2;</code>
-         */
-        public com.google.protobuf.ByteString
-        getServiceNameBytes() {
-            Object ref = serviceName_;
-            if (ref instanceof String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (String) ref);
-                serviceName_ = b;
-                return b;
+            onChanged();
+          }
+        } else {
+          if (!other.params_.isEmpty()) {
+            if (paramsBuilder_.isEmpty()) {
+              paramsBuilder_.dispose();
+              paramsBuilder_ = null;
+              params_ = other.params_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              paramsBuilder_ =
+                      com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                              getParamsFieldBuilder() : null;
             } else {
-                return (com.google.protobuf.ByteString) ref;
+              paramsBuilder_.addAllMessages(other.params_);
             }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @Override
+      public Builder mergeFrom(
+              com.google.protobuf.CodedInputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws java.io.IOException {
+        RequestMeta parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (RequestMeta) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      /**
+       * <pre>
+       * request id
+       * </pre>
+       *
+       * <code>uint64 requestId = 1;</code>
+       *
+       * @return The requestId.
+       */
+      public long getRequestId() {
+        return requestId_;
+      }
+
+      /**
+       * <pre>
+       * request id
+       * </pre>
+       *
+       * <code>uint64 requestId = 1;</code>
+       *
+       * @param value The requestId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRequestId(long value) {
+
+        requestId_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * request id
+       * </pre>
+       *
+       * <code>uint64 requestId = 1;</code>
+       *
+       * @return This builder for chaining.
+       */
+      public Builder clearRequestId() {
+
+        requestId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * interface name
+       * </pre>
+       *
+       * <code>string serviceName = 2;</code>
+       *
+       * @return The serviceName.
+       */
+      public String getServiceName() {
+        Object ref = serviceName_;
+        if (!(ref instanceof String)) {
+          com.google.protobuf.ByteString bs =
+                  (com.google.protobuf.ByteString) ref;
+          String s = bs.toStringUtf8();
+          serviceName_ = s;
+          return s;
+        } else {
+          return (String) ref;
+        }
+      }
+
+      /**
+       * <pre>
+       * interface name
+       * </pre>
+       *
+       * <code>string serviceName = 2;</code>
+       *
+       * @param value The serviceName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceName(
+              String value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
 
-        /**
-         * <pre>
-         * method name
-         * </pre>
-         *
-         * <code>string methodName = 3;</code>
-         */
-        public String getMethodName() {
-            Object ref = methodName_;
-            if (ref instanceof String) {
-                return (String) ref;
-            } else {
-                com.google.protobuf.ByteString bs =
-                        (com.google.protobuf.ByteString) ref;
-                String s = bs.toStringUtf8();
-                methodName_ = s;
-                return s;
-            }
+        serviceName_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * interface name
+       * </pre>
+       *
+       * <code>string serviceName = 2;</code>
+       *
+       * @return The bytes for serviceName.
+       */
+      public com.google.protobuf.ByteString
+      getServiceNameBytes() {
+        Object ref = serviceName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b =
+                  com.google.protobuf.ByteString.copyFromUtf8(
+                          (String) ref);
+          serviceName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      /**
+       * <pre>
+       * interface name
+       * </pre>
+       *
+       * <code>string serviceName = 2;</code>
+       *
+       * @param value The bytes for serviceName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceNameBytes(
+              com.google.protobuf.ByteString value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        checkByteStringIsUtf8(value);
+
+        serviceName_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * interface name
+       * </pre>
+       *
+       * <code>string serviceName = 2;</code>
+       *
+       * @return This builder for chaining.
+       */
+      public Builder clearServiceName() {
+
+        serviceName_ = getDefaultInstance().getServiceName();
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * method name
+       * </pre>
+       *
+       * <code>string methodName = 3;</code>
+       *
+       * @return The methodName.
+       */
+      public String getMethodName() {
+        Object ref = methodName_;
+        if (!(ref instanceof String)) {
+          com.google.protobuf.ByteString bs =
+                  (com.google.protobuf.ByteString) ref;
+          String s = bs.toStringUtf8();
+          methodName_ = s;
+          return s;
+        } else {
+          return (String) ref;
+        }
+      }
+
+      /**
+       * <pre>
+       * method name
+       * </pre>
+       *
+       * <code>string methodName = 3;</code>
+       *
+       * @param value The methodName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMethodName(
+              String value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
 
-        /**
-         * <pre>
-         * method name
-         * </pre>
-         *
-         * <code>string methodName = 3;</code>
-         */
-        public com.google.protobuf.ByteString
-        getMethodNameBytes() {
-            Object ref = methodName_;
-            if (ref instanceof String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (String) ref);
-                methodName_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
+        methodName_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * method name
+       * </pre>
+       *
+       * <code>string methodName = 3;</code>
+       *
+       * @return The bytes for methodName.
+       */
+      public com.google.protobuf.ByteString
+      getMethodNameBytes() {
+        Object ref = methodName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b =
+                  com.google.protobuf.ByteString.copyFromUtf8(
+                          (String) ref);
+          methodName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
         }
+      }
 
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        public java.util.List<com.google.protobuf.Any> getParamsList() {
-            return params_;
+      /**
+       * <pre>
+       * method name
+       * </pre>
+       *
+       * <code>string methodName = 3;</code>
+       *
+       * @param value The bytes for methodName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMethodNameBytes(
+              com.google.protobuf.ByteString value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
+        checkByteStringIsUtf8(value);
 
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        public java.util.List<? extends com.google.protobuf.AnyOrBuilder>
-        getParamsOrBuilderList() {
-            return params_;
+        methodName_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * method name
+       * </pre>
+       *
+       * <code>string methodName = 3;</code>
+       *
+       * @return This builder for chaining.
+       */
+      public Builder clearMethodName() {
+
+        methodName_ = getDefaultInstance().getMethodName();
+        onChanged();
+        return this;
+      }
+
+      private void ensureParamsIsMutable() {
+        if (!((bitField0_ & 0x00000001) != 0)) {
+          params_ = new java.util.ArrayList<com.google.protobuf.Any>(params_);
+          bitField0_ |= 0x00000001;
         }
+      }
 
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        public int getParamsCount() {
-            return params_.size();
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public java.util.List<com.google.protobuf.Any> getParamsList() {
+        if (paramsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(params_);
+        } else {
+          return paramsBuilder_.getMessageList();
         }
+      }
 
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        public com.google.protobuf.Any getParams(int index) {
-            return params_.get(index);
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public int getParamsCount() {
+        if (paramsBuilder_ == null) {
+          return params_.size();
+        } else {
+          return paramsBuilder_.getCount();
         }
+      }
 
-        /**
-         * <pre>
-         * method params
-         * </pre>
-         *
-         * <code>repeated .google.protobuf.Any params = 4;</code>
-         */
-        public com.google.protobuf.AnyOrBuilder getParamsOrBuilder(
-                int index) {
-            return params_.get(index);
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public com.google.protobuf.Any getParams(int index) {
+        if (paramsBuilder_ == null) {
+          return params_.get(index);
+        } else {
+          return paramsBuilder_.getMessage(index);
         }
+      }
 
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized == 1) return true;
-            if (isInitialized == 0) return false;
-
-            memoizedIsInitialized = 1;
-            return true;
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder setParams(
+              int index, com.google.protobuf.Any value) {
+        if (paramsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureParamsIsMutable();
+          params_.set(index, value);
+          onChanged();
+        } else {
+          paramsBuilder_.setMessage(index, value);
         }
+        return this;
+      }
 
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            if (requestId_ != 0L) {
-                output.writeUInt64(1, requestId_);
-            }
-            if (!getServiceNameBytes().isEmpty()) {
-                com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceName_);
-            }
-            if (!getMethodNameBytes().isEmpty()) {
-                com.google.protobuf.GeneratedMessageV3.writeString(output, 3, methodName_);
-            }
-            for (int i = 0; i < params_.size(); i++) {
-                output.writeMessage(4, params_.get(i));
-            }
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder setParams(
+              int index, com.google.protobuf.Any.Builder builderForValue) {
+        if (paramsBuilder_ == null) {
+          ensureParamsIsMutable();
+          params_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          paramsBuilder_.setMessage(index, builderForValue.build());
         }
+        return this;
+      }
 
-        public int getSerializedSize() {
-            int size = memoizedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (requestId_ != 0L) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(1, requestId_);
-            }
-            if (!getServiceNameBytes().isEmpty()) {
-                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceName_);
-            }
-            if (!getMethodNameBytes().isEmpty()) {
-                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, methodName_);
-            }
-            for (int i = 0; i < params_.size(); i++) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeMessageSize(4, params_.get(i));
-            }
-            memoizedSize = size;
-            return size;
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder addParams(com.google.protobuf.Any value) {
+        if (paramsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureParamsIsMutable();
+          params_.add(value);
+          onChanged();
+        } else {
+          paramsBuilder_.addMessage(value);
         }
+        return this;
+      }
 
-        @Override
-        public boolean equals(final Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof RequestMeta)) {
-                return super.equals(obj);
-            }
-            RequestMeta other = (RequestMeta) obj;
-
-            boolean result = true;
-            result = result && (getRequestId()
-                    == other.getRequestId());
-            result = result && getServiceName()
-                    .equals(other.getServiceName());
-            result = result && getMethodName()
-                    .equals(other.getMethodName());
-            result = result && getParamsList()
-                    .equals(other.getParamsList());
-            return result;
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder addParams(
+              int index, com.google.protobuf.Any value) {
+        if (paramsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureParamsIsMutable();
+          params_.add(index, value);
+          onChanged();
+        } else {
+          paramsBuilder_.addMessage(index, value);
         }
+        return this;
+      }
 
-        @Override
-        public int hashCode() {
-            if (memoizedHashCode != 0) {
-                return memoizedHashCode;
-            }
-            int hash = 41;
-            hash = (19 * hash) + getDescriptor().hashCode();
-            hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
-            hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-                    getRequestId());
-            hash = (37 * hash) + SERVICENAME_FIELD_NUMBER;
-            hash = (53 * hash) + getServiceName().hashCode();
-            hash = (37 * hash) + METHODNAME_FIELD_NUMBER;
-            hash = (53 * hash) + getMethodName().hashCode();
-            if (getParamsCount() > 0) {
-                hash = (37 * hash) + PARAMS_FIELD_NUMBER;
-                hash = (53 * hash) + getParamsList().hashCode();
-            }
-            hash = (29 * hash) + unknownFields.hashCode();
-            memoizedHashCode = hash;
-            return hash;
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder addParams(
+              com.google.protobuf.Any.Builder builderForValue) {
+        if (paramsBuilder_ == null) {
+          ensureParamsIsMutable();
+          params_.add(builderForValue.build());
+          onChanged();
+        } else {
+          paramsBuilder_.addMessage(builderForValue.build());
         }
+        return this;
+      }
 
-        public Builder newBuilderForType() {
-            return newBuilder();
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder addParams(
+              int index, com.google.protobuf.Any.Builder builderForValue) {
+        if (paramsBuilder_ == null) {
+          ensureParamsIsMutable();
+          params_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          paramsBuilder_.addMessage(index, builderForValue.build());
         }
+        return this;
+      }
 
-        public Builder toBuilder() {
-            return this == DEFAULT_INSTANCE
-                    ? new Builder() : new Builder().mergeFrom(this);
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder addAllParams(
+              Iterable<? extends com.google.protobuf.Any> values) {
+        if (paramsBuilder_ == null) {
+          ensureParamsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+                  values, params_);
+          onChanged();
+        } else {
+          paramsBuilder_.addAllMessages(values);
         }
+        return this;
+      }
 
-        @Override
-        protected Builder newBuilderForType(
-                BuilderParent parent) {
-            Builder builder = new Builder(parent);
-            return builder;
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder clearParams() {
+        if (paramsBuilder_ == null) {
+          params_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          paramsBuilder_.clear();
         }
+        return this;
+      }
 
-        @Override
-        public com.google.protobuf.Parser<RequestMeta> getParserForType() {
-            return PARSER;
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public Builder removeParams(int index) {
+        if (paramsBuilder_ == null) {
+          ensureParamsIsMutable();
+          params_.remove(index);
+          onChanged();
+        } else {
+          paramsBuilder_.remove(index);
         }
+        return this;
+      }
 
-        public RequestMeta getDefaultInstanceForType() {
-            return DEFAULT_INSTANCE;
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public com.google.protobuf.Any.Builder getParamsBuilder(
+              int index) {
+        return getParamsFieldBuilder().getBuilder(index);
+      }
+
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public com.google.protobuf.AnyOrBuilder getParamsOrBuilder(
+              int index) {
+        if (paramsBuilder_ == null) {
+          return params_.get(index);
+        } else {
+          return paramsBuilder_.getMessageOrBuilder(index);
         }
-
-        /**
-         * Protobuf type {@code RequestMeta}
-         */
-        public static final class Builder extends
-                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-                // @@protoc_insertion_point(builder_implements:RequestMeta)
-                RequestMetaOrBuilder {
-            private int bitField0_;
-            private long requestId_;
-            private Object serviceName_ = "";
-            private Object methodName_ = "";
-            private java.util.List<com.google.protobuf.Any> params_ =
-                    java.util.Collections.emptyList();
-            private com.google.protobuf.RepeatedFieldBuilderV3<
-                    com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder> paramsBuilder_;
-
-            // Construct using com.jsj.rpc.protocol.RpcMeta.RequestMeta.newBuilder()
-            private Builder() {
-                maybeForceBuilderInitialization();
-            }
-
-            private Builder(
-                    BuilderParent parent) {
-                super(parent);
-                maybeForceBuilderInitialization();
-            }
-
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return RpcMeta.internal_static_RequestMeta_descriptor;
-            }
-
-            protected FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return RpcMeta.internal_static_RequestMeta_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                RequestMeta.class, Builder.class);
-            }
-
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessageV3
-                        .alwaysUseFieldBuilders) {
-                    getParamsFieldBuilder();
-                }
-            }
-
-            public Builder clear() {
-                super.clear();
-                requestId_ = 0L;
-
-                serviceName_ = "";
-
-                methodName_ = "";
-
-                if (paramsBuilder_ == null) {
-                    params_ = java.util.Collections.emptyList();
-                    bitField0_ = (bitField0_ & ~0x00000008);
-                } else {
-                    paramsBuilder_.clear();
-                }
-                return this;
-            }
-
-            public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-                return RpcMeta.internal_static_RequestMeta_descriptor;
-            }
-
-            public RequestMeta getDefaultInstanceForType() {
-                return RequestMeta.getDefaultInstance();
-            }
-
-            public RequestMeta build() {
-                RequestMeta result = buildPartial();
-                if (!result.isInitialized()) {
-                    throw newUninitializedMessageException(result);
-                }
-                return result;
-            }
-
-            public RequestMeta buildPartial() {
-                RequestMeta result = new RequestMeta(this);
-                int from_bitField0_ = bitField0_;
-                int to_bitField0_ = 0;
-                result.requestId_ = requestId_;
-                result.serviceName_ = serviceName_;
-                result.methodName_ = methodName_;
-                if (paramsBuilder_ == null) {
-                    if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                        params_ = java.util.Collections.unmodifiableList(params_);
-                        bitField0_ = (bitField0_ & ~0x00000008);
-                    }
-                    result.params_ = params_;
-                } else {
-                    result.params_ = paramsBuilder_.build();
-                }
-                result.bitField0_ = to_bitField0_;
-                onBuilt();
-                return result;
-            }
-
-            public Builder clone() {
-                return (Builder) super.clone();
-            }
-
-            public Builder setField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return (Builder) super.setField(field, value);
-            }
-
-            public Builder clearField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field) {
-                return (Builder) super.clearField(field);
-            }
-
-            public Builder clearOneof(
-                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-                return (Builder) super.clearOneof(oneof);
-            }
-
-            public Builder setRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    int index, Object value) {
-                return (Builder) super.setRepeatedField(field, index, value);
-            }
-
-            public Builder addRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return (Builder) super.addRepeatedField(field, value);
-            }
-
-            public Builder mergeFrom(com.google.protobuf.Message other) {
-                if (other instanceof RequestMeta) {
-                    return mergeFrom((RequestMeta) other);
-                } else {
-                    super.mergeFrom(other);
-                    return this;
-                }
-            }
-
-            public Builder mergeFrom(RequestMeta other) {
-                if (other == RequestMeta.getDefaultInstance()) return this;
-                if (other.getRequestId() != 0L) {
-                    setRequestId(other.getRequestId());
-                }
-                if (!other.getServiceName().isEmpty()) {
-                    serviceName_ = other.serviceName_;
-                    onChanged();
-                }
-                if (!other.getMethodName().isEmpty()) {
-                    methodName_ = other.methodName_;
-                    onChanged();
-                }
-                if (paramsBuilder_ == null) {
-                    if (!other.params_.isEmpty()) {
-                        if (params_.isEmpty()) {
-                            params_ = other.params_;
-                            bitField0_ = (bitField0_ & ~0x00000008);
-                        } else {
-                            ensureParamsIsMutable();
-                            params_.addAll(other.params_);
-                        }
-                        onChanged();
-                    }
-                } else {
-                    if (!other.params_.isEmpty()) {
-                        if (paramsBuilder_.isEmpty()) {
-                            paramsBuilder_.dispose();
-                            paramsBuilder_ = null;
-                            params_ = other.params_;
-                            bitField0_ = (bitField0_ & ~0x00000008);
-                            paramsBuilder_ =
-                                    com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                                            getParamsFieldBuilder() : null;
-                        } else {
-                            paramsBuilder_.addAllMessages(other.params_);
-                        }
-                    }
-                }
-                onChanged();
-                return this;
-            }
-
-            public final boolean isInitialized() {
-                return true;
-            }
-
-            public Builder mergeFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws java.io.IOException {
-                RequestMeta parsedMessage = null;
-                try {
-                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                    parsedMessage = (RequestMeta) e.getUnfinishedMessage();
-                    throw e.unwrapIOException();
-                } finally {
-                    if (parsedMessage != null) {
-                        mergeFrom(parsedMessage);
-                    }
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * request id
-             * </pre>
-             *
-             * <code>uint64 requestId = 1;</code>
-             */
-            public long getRequestId() {
-                return requestId_;
-            }
-
-            /**
-             * <pre>
-             * request id
-             * </pre>
-             *
-             * <code>uint64 requestId = 1;</code>
-             */
-            public Builder setRequestId(long value) {
-
-                requestId_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * request id
-             * </pre>
-             *
-             * <code>uint64 requestId = 1;</code>
-             */
-            public Builder clearRequestId() {
-
-                requestId_ = 0L;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * interface name
-             * </pre>
-             *
-             * <code>string serviceName = 2;</code>
-             */
-            public String getServiceName() {
-                Object ref = serviceName_;
-                if (!(ref instanceof String)) {
-                    com.google.protobuf.ByteString bs =
-                            (com.google.protobuf.ByteString) ref;
-                    String s = bs.toStringUtf8();
-                    serviceName_ = s;
-                    return s;
-                } else {
-                    return (String) ref;
-                }
-            }
-
-            /**
-             * <pre>
-             * interface name
-             * </pre>
-             *
-             * <code>string serviceName = 2;</code>
-             */
-            public Builder setServiceName(
-                    String value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-
-                serviceName_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * interface name
-             * </pre>
-             *
-             * <code>string serviceName = 2;</code>
-             */
-            public com.google.protobuf.ByteString
-            getServiceNameBytes() {
-                Object ref = serviceName_;
-                if (ref instanceof String) {
-                    com.google.protobuf.ByteString b =
-                            com.google.protobuf.ByteString.copyFromUtf8(
-                                    (String) ref);
-                    serviceName_ = b;
-                    return b;
-                } else {
-                    return (com.google.protobuf.ByteString) ref;
-                }
-            }
-
-            /**
-             * <pre>
-             * interface name
-             * </pre>
-             *
-             * <code>string serviceName = 2;</code>
-             */
-            public Builder setServiceNameBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                checkByteStringIsUtf8(value);
-
-                serviceName_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * interface name
-             * </pre>
-             *
-             * <code>string serviceName = 2;</code>
-             */
-            public Builder clearServiceName() {
-
-                serviceName_ = getDefaultInstance().getServiceName();
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method name
-             * </pre>
-             *
-             * <code>string methodName = 3;</code>
-             */
-            public String getMethodName() {
-                Object ref = methodName_;
-                if (!(ref instanceof String)) {
-                    com.google.protobuf.ByteString bs =
-                            (com.google.protobuf.ByteString) ref;
-                    String s = bs.toStringUtf8();
-                    methodName_ = s;
-                    return s;
-                } else {
-                    return (String) ref;
-                }
-            }
-
-            /**
-             * <pre>
-             * method name
-             * </pre>
-             *
-             * <code>string methodName = 3;</code>
-             */
-            public Builder setMethodName(
-                    String value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-
-                methodName_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method name
-             * </pre>
-             *
-             * <code>string methodName = 3;</code>
-             */
-            public com.google.protobuf.ByteString
-            getMethodNameBytes() {
-                Object ref = methodName_;
-                if (ref instanceof String) {
-                    com.google.protobuf.ByteString b =
-                            com.google.protobuf.ByteString.copyFromUtf8(
-                                    (String) ref);
-                    methodName_ = b;
-                    return b;
-                } else {
-                    return (com.google.protobuf.ByteString) ref;
-                }
-            }
-
-            /**
-             * <pre>
-             * method name
-             * </pre>
-             *
-             * <code>string methodName = 3;</code>
-             */
-            public Builder setMethodNameBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                checkByteStringIsUtf8(value);
-
-                methodName_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method name
-             * </pre>
-             *
-             * <code>string methodName = 3;</code>
-             */
-            public Builder clearMethodName() {
-
-                methodName_ = getDefaultInstance().getMethodName();
-                onChanged();
-                return this;
-            }
-
-            private void ensureParamsIsMutable() {
-                if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-                    params_ = new java.util.ArrayList<com.google.protobuf.Any>(params_);
-                    bitField0_ |= 0x00000008;
-                }
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public java.util.List<com.google.protobuf.Any> getParamsList() {
-                if (paramsBuilder_ == null) {
-                    return java.util.Collections.unmodifiableList(params_);
-                } else {
-                    return paramsBuilder_.getMessageList();
-                }
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public int getParamsCount() {
-                if (paramsBuilder_ == null) {
-                    return params_.size();
-                } else {
-                    return paramsBuilder_.getCount();
-                }
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public com.google.protobuf.Any getParams(int index) {
-                if (paramsBuilder_ == null) {
-                    return params_.get(index);
-                } else {
-                    return paramsBuilder_.getMessage(index);
-                }
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder setParams(
-                    int index, com.google.protobuf.Any value) {
-                if (paramsBuilder_ == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    ensureParamsIsMutable();
-                    params_.set(index, value);
-                    onChanged();
-                } else {
-                    paramsBuilder_.setMessage(index, value);
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder setParams(
-                    int index, com.google.protobuf.Any.Builder builderForValue) {
-                if (paramsBuilder_ == null) {
-                    ensureParamsIsMutable();
-                    params_.set(index, builderForValue.build());
-                    onChanged();
-                } else {
-                    paramsBuilder_.setMessage(index, builderForValue.build());
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder addParams(com.google.protobuf.Any value) {
-                if (paramsBuilder_ == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    ensureParamsIsMutable();
-                    params_.add(value);
-                    onChanged();
-                } else {
-                    paramsBuilder_.addMessage(value);
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder addParams(
-                    int index, com.google.protobuf.Any value) {
-                if (paramsBuilder_ == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    ensureParamsIsMutable();
-                    params_.add(index, value);
-                    onChanged();
-                } else {
-                    paramsBuilder_.addMessage(index, value);
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder addParams(
-                    com.google.protobuf.Any.Builder builderForValue) {
-                if (paramsBuilder_ == null) {
-                    ensureParamsIsMutable();
-                    params_.add(builderForValue.build());
-                    onChanged();
-                } else {
-                    paramsBuilder_.addMessage(builderForValue.build());
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder addParams(
-                    int index, com.google.protobuf.Any.Builder builderForValue) {
-                if (paramsBuilder_ == null) {
-                    ensureParamsIsMutable();
-                    params_.add(index, builderForValue.build());
-                    onChanged();
-                } else {
-                    paramsBuilder_.addMessage(index, builderForValue.build());
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder addAllParams(
-                    Iterable<? extends com.google.protobuf.Any> values) {
-                if (paramsBuilder_ == null) {
-                    ensureParamsIsMutable();
-                    com.google.protobuf.AbstractMessageLite.Builder.addAll(
-                            values, params_);
-                    onChanged();
-                } else {
-                    paramsBuilder_.addAllMessages(values);
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder clearParams() {
-                if (paramsBuilder_ == null) {
-                    params_ = java.util.Collections.emptyList();
-                    bitField0_ = (bitField0_ & ~0x00000008);
-                    onChanged();
-                } else {
-                    paramsBuilder_.clear();
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public Builder removeParams(int index) {
-                if (paramsBuilder_ == null) {
-                    ensureParamsIsMutable();
-                    params_.remove(index);
-                    onChanged();
-                } else {
-                    paramsBuilder_.remove(index);
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public com.google.protobuf.Any.Builder getParamsBuilder(
-                    int index) {
-                return getParamsFieldBuilder().getBuilder(index);
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public com.google.protobuf.AnyOrBuilder getParamsOrBuilder(
-                    int index) {
-                if (paramsBuilder_ == null) {
-                    return params_.get(index);
-                } else {
-                    return paramsBuilder_.getMessageOrBuilder(index);
-                }
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public java.util.List<? extends com.google.protobuf.AnyOrBuilder>
-            getParamsOrBuilderList() {
-                if (paramsBuilder_ != null) {
-                    return paramsBuilder_.getMessageOrBuilderList();
-                } else {
-                    return java.util.Collections.unmodifiableList(params_);
-                }
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public com.google.protobuf.Any.Builder addParamsBuilder() {
-                return getParamsFieldBuilder().addBuilder(
-                        com.google.protobuf.Any.getDefaultInstance());
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public com.google.protobuf.Any.Builder addParamsBuilder(
-                    int index) {
-                return getParamsFieldBuilder().addBuilder(
-                        index, com.google.protobuf.Any.getDefaultInstance());
-            }
-
-            /**
-             * <pre>
-             * method params
-             * </pre>
-             *
-             * <code>repeated .google.protobuf.Any params = 4;</code>
-             */
-            public java.util.List<com.google.protobuf.Any.Builder>
-            getParamsBuilderList() {
-                return getParamsFieldBuilder().getBuilderList();
-            }
-
-            private com.google.protobuf.RepeatedFieldBuilderV3<
-                    com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>
-            getParamsFieldBuilder() {
-                if (paramsBuilder_ == null) {
-                    paramsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-                            com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>(
-                            params_,
-                            ((bitField0_ & 0x00000008) == 0x00000008),
-                            getParentForChildren(),
-                            isClean());
-                    params_ = null;
-                }
-                return paramsBuilder_;
-            }
-
-            public final Builder setUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return this;
-            }
-
-            public final Builder mergeUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return this;
-            }
-
-
-            // @@protoc_insertion_point(builder_scope:RequestMeta)
+      }
+
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public java.util.List<? extends com.google.protobuf.AnyOrBuilder>
+      getParamsOrBuilderList() {
+        if (paramsBuilder_ != null) {
+          return paramsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(params_);
         }
+      }
 
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public com.google.protobuf.Any.Builder addParamsBuilder() {
+        return getParamsFieldBuilder().addBuilder(
+                com.google.protobuf.Any.getDefaultInstance());
+      }
+
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public com.google.protobuf.Any.Builder addParamsBuilder(
+              int index) {
+        return getParamsFieldBuilder().addBuilder(
+                index, com.google.protobuf.Any.getDefaultInstance());
+      }
+
+      /**
+       * <pre>
+       * method params
+       * </pre>
+       *
+       * <code>repeated .google.protobuf.Any params = 4;</code>
+       */
+      public java.util.List<com.google.protobuf.Any.Builder>
+      getParamsBuilderList() {
+        return getParamsFieldBuilder().getBuilderList();
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+              com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>
+      getParamsFieldBuilder() {
+        if (paramsBuilder_ == null) {
+          paramsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+                  com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>(
+                  params_,
+                  ((bitField0_ & 0x00000001) != 0),
+                  getParentForChildren(),
+                  isClean());
+          params_ = null;
+        }
+        return paramsBuilder_;
+      }
+
+      @Override
+      public final Builder setUnknownFields(
+              final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @Override
+      public final Builder mergeUnknownFields(
+              final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:RequestMeta)
+    }
+
+  }
+
+  /**
+   * Protobuf type {@code ResponseMeta}
+   */
+  public static final class ResponseMeta extends
+          com.google.protobuf.GeneratedMessageV3 implements
+          // @@protoc_insertion_point(message_implements:ResponseMeta)
+          ResponseMetaOrBuilder {
+    public static final int REQUESTID_FIELD_NUMBER = 1;
+    public static final int RESULT_FIELD_NUMBER = 2;
+    public static final int ERRMSG_FIELD_NUMBER = 3;
+    private static final long serialVersionUID = 0L;
+    // @@protoc_insertion_point(class_scope:ResponseMeta)
+    private static final ResponseMeta DEFAULT_INSTANCE;
+    private static final com.google.protobuf.Parser<ResponseMeta>
+            PARSER = new com.google.protobuf.AbstractParser<ResponseMeta>() {
+      @Override
+      public ResponseMeta parsePartialFrom(
+              com.google.protobuf.CodedInputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws com.google.protobuf.InvalidProtocolBufferException {
+        return new ResponseMeta(input, extensionRegistry);
+      }
+    };
+
+    static {
+      DEFAULT_INSTANCE = new ResponseMeta();
+    }
+
+    private long requestId_;
+    private com.google.protobuf.Any result_;
+    private volatile Object errMsg_;
+    private byte memoizedIsInitialized = -1;
+
+    // Use ResponseMeta.newBuilder() to construct.
+    private ResponseMeta(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+
+    private ResponseMeta() {
+      errMsg_ = "";
+    }
+
+    private ResponseMeta(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+              com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8: {
+
+              requestId_ = input.readUInt64();
+              break;
+            }
+            case 18: {
+              com.google.protobuf.Any.Builder subBuilder = null;
+              if (result_ != null) {
+                subBuilder = result_.toBuilder();
+              }
+              result_ = input.readMessage(com.google.protobuf.Any.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(result_);
+                result_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 26: {
+              String s = input.readStringRequireUtf8();
+
+              errMsg_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                      input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+                e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+    getDescriptor() {
+      return RpcMeta.internal_static_ResponseMeta_descriptor;
+    }
+
+    public static ResponseMeta parseFrom(
+            java.nio.ByteBuffer data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+
+    public static ResponseMeta parseFrom(
+            java.nio.ByteBuffer data,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+
+    public static ResponseMeta parseFrom(
+            com.google.protobuf.ByteString data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+
+    public static ResponseMeta parseFrom(
+            com.google.protobuf.ByteString data,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+
+    public static ResponseMeta parseFrom(byte[] data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+
+    public static ResponseMeta parseFrom(
+            byte[] data,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+
+    public static ResponseMeta parseFrom(java.io.InputStream input)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseWithIOException(PARSER, input);
+    }
+
+    public static ResponseMeta parseFrom(
+            java.io.InputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static ResponseMeta parseDelimitedFrom(java.io.InputStream input)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static ResponseMeta parseDelimitedFrom(
+            java.io.InputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static ResponseMeta parseFrom(
+            com.google.protobuf.CodedInputStream input)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseWithIOException(PARSER, input);
+    }
+
+    public static ResponseMeta parseFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+              .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+
+    public static Builder newBuilder(ResponseMeta prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    public static ResponseMeta getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static com.google.protobuf.Parser<ResponseMeta> parser() {
+      return PARSER;
+    }
+
+    @Override
+    @SuppressWarnings({"unused"})
+    protected Object newInstance(
+            UnusedPrivateParameter unused) {
+      return new ResponseMeta();
+    }
+
+    @Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+
+    @Override
+    protected FieldAccessorTable
+    internalGetFieldAccessorTable() {
+      return RpcMeta.internal_static_ResponseMeta_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                      ResponseMeta.class, Builder.class);
+    }
+
+    /**
+     * <pre>
+     *request id
+     * </pre>
+     *
+     * <code>uint64 requestId = 1;</code>
+     * @return The requestId.
+     */
+    public long getRequestId() {
+      return requestId_;
+    }
+
+    /**
+     * <pre>
+     *invoke result
+     * </pre>
+     *
+     * <code>.google.protobuf.Any result = 2;</code>
+     * @return Whether the result field is set.
+     */
+    public boolean hasResult() {
+      return result_ != null;
+    }
+
+    /**
+     * <pre>
+     *invoke result
+     * </pre>
+     *
+     * <code>.google.protobuf.Any result = 2;</code>
+     * @return The result.
+     */
+    public com.google.protobuf.Any getResult() {
+      return result_ == null ? com.google.protobuf.Any.getDefaultInstance() : result_;
+    }
+
+    /**
+     * <pre>
+     *invoke result
+     * </pre>
+     *
+     * <code>.google.protobuf.Any result = 2;</code>
+     */
+    public com.google.protobuf.AnyOrBuilder getResultOrBuilder() {
+      return getResult();
+    }
+
+    /**
+     * <pre>
+     *error msg when exception.
+     * </pre>
+     *
+     * <code>string errMsg = 3;</code>
+     * @return The errMsg.
+     */
+    public String getErrMsg() {
+      Object ref = errMsg_;
+      if (ref instanceof String) {
+        return (String) ref;
+      } else {
+        com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+        String s = bs.toStringUtf8();
+        errMsg_ = s;
+        return s;
+      }
+    }
+
+    /**
+     * <pre>
+     *error msg when exception.
+     * </pre>
+     *
+     * <code>string errMsg = 3;</code>
+     * @return The bytes for errMsg.
+     */
+    public com.google.protobuf.ByteString
+    getErrMsgBytes() {
+      Object ref = errMsg_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b =
+                com.google.protobuf.ByteString.copyFromUtf8(
+                        (String) ref);
+        errMsg_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    @Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+            throws java.io.IOException {
+      if (requestId_ != 0L) {
+        output.writeUInt64(1, requestId_);
+      }
+      if (result_ != null) {
+        output.writeMessage(2, getResult());
+      }
+      if (!getErrMsgBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, errMsg_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (requestId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+                .computeUInt64Size(1, requestId_);
+      }
+      if (result_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+                .computeMessageSize(2, getResult());
+      }
+      if (!getErrMsgBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, errMsg_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (!(obj instanceof ResponseMeta)) {
+        return super.equals(obj);
+      }
+      ResponseMeta other = (ResponseMeta) obj;
+
+      if (getRequestId()
+              != other.getRequestId()) return false;
+      if (hasResult() != other.hasResult()) return false;
+      if (hasResult()) {
+        if (!getResult()
+                .equals(other.getResult())) return false;
+      }
+      if (!getErrMsg()
+              .equals(other.getErrMsg())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              getRequestId());
+      if (hasResult()) {
+        hash = (37 * hash) + RESULT_FIELD_NUMBER;
+        hash = (53 * hash) + getResult().hashCode();
+      }
+      hash = (37 * hash) + ERRMSG_FIELD_NUMBER;
+      hash = (53 * hash) + getErrMsg().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    @Override
+    public Builder newBuilderForType() {
+      return newBuilder();
+    }
+
+    @Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+              ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @Override
+    protected Builder newBuilderForType(
+            BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+
+    @Override
+    public com.google.protobuf.Parser<ResponseMeta> getParserForType() {
+      return PARSER;
+    }
+
+    @Override
+    public ResponseMeta getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
     }
 
     /**
      * Protobuf type {@code ResponseMeta}
      */
-    public static final class ResponseMeta extends
-            com.google.protobuf.GeneratedMessageV3 implements
-            // @@protoc_insertion_point(message_implements:ResponseMeta)
+    public static final class Builder extends
+            com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+            // @@protoc_insertion_point(builder_implements:ResponseMeta)
             ResponseMetaOrBuilder {
-        public static final int REQUESTID_FIELD_NUMBER = 1;
-        public static final int RESULT_FIELD_NUMBER = 2;
-        public static final int ERRMSG_FIELD_NUMBER = 3;
-        private static final long serialVersionUID = 0L;
-        // @@protoc_insertion_point(class_scope:ResponseMeta)
-        private static final ResponseMeta DEFAULT_INSTANCE;
-        private static final com.google.protobuf.Parser<ResponseMeta>
-                PARSER = new com.google.protobuf.AbstractParser<ResponseMeta>() {
-            public ResponseMeta parsePartialFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws com.google.protobuf.InvalidProtocolBufferException {
-                return new ResponseMeta(input, extensionRegistry);
-            }
-        };
+      private long requestId_;
+      private com.google.protobuf.Any result_;
+      private com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder> resultBuilder_;
+      private Object errMsg_ = "";
 
-        static {
-            DEFAULT_INSTANCE = new ResponseMeta();
+      // Construct using com.jsj.rpc.protocol.RpcMeta.ResponseMeta.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+              BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+
+      public static final com.google.protobuf.Descriptors.Descriptor
+      getDescriptor() {
+        return RpcMeta.internal_static_ResponseMeta_descriptor;
+      }
+
+      @Override
+      protected FieldAccessorTable
+      internalGetFieldAccessorTable() {
+        return RpcMeta.internal_static_ResponseMeta_fieldAccessorTable
+                .ensureFieldAccessorsInitialized(
+                        ResponseMeta.class, Builder.class);
+      }
+
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+
+      @Override
+      public Builder clear() {
+        super.clear();
+        requestId_ = 0L;
+
+        if (resultBuilder_ == null) {
+          result_ = null;
+        } else {
+          result_ = null;
+          resultBuilder_ = null;
+        }
+        errMsg_ = "";
+
+        return this;
+      }
+
+      @Override
+      public com.google.protobuf.Descriptors.Descriptor
+      getDescriptorForType() {
+        return RpcMeta.internal_static_ResponseMeta_descriptor;
+      }
+
+      @Override
+      public ResponseMeta getDefaultInstanceForType() {
+        return ResponseMeta.getDefaultInstance();
+      }
+
+      @Override
+      public ResponseMeta build() {
+        ResponseMeta result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @Override
+      public ResponseMeta buildPartial() {
+        ResponseMeta result = new ResponseMeta(this);
+        result.requestId_ = requestId_;
+        if (resultBuilder_ == null) {
+          result.result_ = result_;
+        } else {
+          result.result_ = resultBuilder_.build();
+        }
+        result.errMsg_ = errMsg_;
+        onBuilt();
+        return result;
+      }
+
+      @Override
+      public Builder clone() {
+        return super.clone();
+      }
+
+      @Override
+      public Builder setField(
+              com.google.protobuf.Descriptors.FieldDescriptor field,
+              Object value) {
+        return super.setField(field, value);
+      }
+
+      @Override
+      public Builder clearField(
+              com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+
+      @Override
+      public Builder clearOneof(
+              com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+
+      @Override
+      public Builder setRepeatedField(
+              com.google.protobuf.Descriptors.FieldDescriptor field,
+              int index, Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+
+      @Override
+      public Builder addRepeatedField(
+              com.google.protobuf.Descriptors.FieldDescriptor field,
+              Object value) {
+        return super.addRepeatedField(field, value);
+      }
+
+      @Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof ResponseMeta) {
+          return mergeFrom((ResponseMeta) other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(ResponseMeta other) {
+        if (other == ResponseMeta.getDefaultInstance()) return this;
+        if (other.getRequestId() != 0L) {
+          setRequestId(other.getRequestId());
+        }
+        if (other.hasResult()) {
+          mergeResult(other.getResult());
+        }
+        if (!other.getErrMsg().isEmpty()) {
+          errMsg_ = other.errMsg_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @Override
+      public Builder mergeFrom(
+              com.google.protobuf.CodedInputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws java.io.IOException {
+        ResponseMeta parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (ResponseMeta) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      /**
+       * <pre>
+       *request id
+       * </pre>
+       *
+       * <code>uint64 requestId = 1;</code>
+       * @return The requestId.
+       */
+      public long getRequestId() {
+        return requestId_;
+      }
+
+      /**
+       * <pre>
+       *request id
+       * </pre>
+       *
+       * <code>uint64 requestId = 1;</code>
+       * @param value The requestId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRequestId(long value) {
+
+        requestId_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       *request id
+       * </pre>
+       *
+       * <code>uint64 requestId = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearRequestId() {
+
+        requestId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       * @return Whether the result field is set.
+       */
+      public boolean hasResult() {
+        return resultBuilder_ != null || result_ != null;
+      }
+
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       * @return The result.
+       */
+      public com.google.protobuf.Any getResult() {
+        if (resultBuilder_ == null) {
+          return result_ == null ? com.google.protobuf.Any.getDefaultInstance() : result_;
+        } else {
+          return resultBuilder_.getMessage();
+        }
+      }
+
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       */
+      public Builder setResult(com.google.protobuf.Any value) {
+        if (resultBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          result_ = value;
+          onChanged();
+        } else {
+          resultBuilder_.setMessage(value);
         }
 
-        private long requestId_;
-        private com.google.protobuf.Any result_;
-        private volatile Object errMsg_;
-        private byte memoizedIsInitialized = -1;
+        return this;
+      }
 
-        // Use ResponseMeta.newBuilder() to construct.
-        private ResponseMeta(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-            super(builder);
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       */
+      public Builder setResult(
+              com.google.protobuf.Any.Builder builderForValue) {
+        if (resultBuilder_ == null) {
+          result_ = builderForValue.build();
+          onChanged();
+        } else {
+          resultBuilder_.setMessage(builderForValue.build());
         }
 
-        private ResponseMeta() {
-            requestId_ = 0L;
-            errMsg_ = "";
+        return this;
+      }
+
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       */
+      public Builder mergeResult(com.google.protobuf.Any value) {
+        if (resultBuilder_ == null) {
+          if (result_ != null) {
+            result_ =
+                    com.google.protobuf.Any.newBuilder(result_).mergeFrom(value).buildPartial();
+          } else {
+            result_ = value;
+          }
+          onChanged();
+        } else {
+          resultBuilder_.mergeFrom(value);
         }
 
-        private ResponseMeta(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            this();
-            int mutable_bitField0_ = 0;
-            try {
-                boolean done = false;
-                while (!done) {
-                    int tag = input.readTag();
-                    switch (tag) {
-                        case 0:
-                            done = true;
-                            break;
-                        default: {
-                            if (!input.skipField(tag)) {
-                                done = true;
-                            }
-                            break;
-                        }
-                        case 8: {
+        return this;
+      }
 
-                            requestId_ = input.readUInt64();
-                            break;
-                        }
-                        case 18: {
-                            com.google.protobuf.Any.Builder subBuilder = null;
-                            if (result_ != null) {
-                                subBuilder = result_.toBuilder();
-                            }
-                            result_ = input.readMessage(com.google.protobuf.Any.parser(), extensionRegistry);
-                            if (subBuilder != null) {
-                                subBuilder.mergeFrom(result_);
-                                result_ = subBuilder.buildPartial();
-                            }
-
-                            break;
-                        }
-                        case 26: {
-                            String s = input.readStringRequireUtf8();
-
-                            errMsg_ = s;
-                            break;
-                        }
-                    }
-                }
-            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                throw e.setUnfinishedMessage(this);
-            } catch (java.io.IOException e) {
-                throw new com.google.protobuf.InvalidProtocolBufferException(
-                        e).setUnfinishedMessage(this);
-            } finally {
-                makeExtensionsImmutable();
-            }
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       */
+      public Builder clearResult() {
+        if (resultBuilder_ == null) {
+          result_ = null;
+          onChanged();
+        } else {
+          result_ = null;
+          resultBuilder_ = null;
         }
 
-        public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-            return RpcMeta.internal_static_ResponseMeta_descriptor;
+        return this;
+      }
+
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       */
+      public com.google.protobuf.Any.Builder getResultBuilder() {
+
+        onChanged();
+        return getResultFieldBuilder().getBuilder();
+      }
+
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       */
+      public com.google.protobuf.AnyOrBuilder getResultOrBuilder() {
+        if (resultBuilder_ != null) {
+          return resultBuilder_.getMessageOrBuilder();
+        } else {
+          return result_ == null ?
+                  com.google.protobuf.Any.getDefaultInstance() : result_;
+        }
+      }
+
+      /**
+       * <pre>
+       *invoke result
+       * </pre>
+       *
+       * <code>.google.protobuf.Any result = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>
+      getResultFieldBuilder() {
+        if (resultBuilder_ == null) {
+          resultBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                  com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>(
+                  getResult(),
+                  getParentForChildren(),
+                  isClean());
+          result_ = null;
+        }
+        return resultBuilder_;
+      }
+
+      /**
+       * <pre>
+       *error msg when exception.
+       * </pre>
+       *
+       * <code>string errMsg = 3;</code>
+       * @return The errMsg.
+       */
+      public String getErrMsg() {
+        Object ref = errMsg_;
+        if (!(ref instanceof String)) {
+          com.google.protobuf.ByteString bs =
+                  (com.google.protobuf.ByteString) ref;
+          String s = bs.toStringUtf8();
+          errMsg_ = s;
+          return s;
+        } else {
+          return (String) ref;
+        }
+      }
+
+      /**
+       * <pre>
+       *error msg when exception.
+       * </pre>
+       *
+       * <code>string errMsg = 3;</code>
+       * @param value The errMsg to set.
+       * @return This builder for chaining.
+       */
+      public Builder setErrMsg(
+              String value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
 
-        public static ResponseMeta parseFrom(
-                java.nio.ByteBuffer data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
+        errMsg_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       *error msg when exception.
+       * </pre>
+       *
+       * <code>string errMsg = 3;</code>
+       * @return The bytes for errMsg.
+       */
+      public com.google.protobuf.ByteString
+      getErrMsgBytes() {
+        Object ref = errMsg_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b =
+                  com.google.protobuf.ByteString.copyFromUtf8(
+                          (String) ref);
+          errMsg_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
         }
+      }
 
-        public static ResponseMeta parseFrom(
-                java.nio.ByteBuffer data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
+      /**
+       * <pre>
+       *error msg when exception.
+       * </pre>
+       *
+       * <code>string errMsg = 3;</code>
+       * @param value The bytes for errMsg to set.
+       * @return This builder for chaining.
+       */
+      public Builder setErrMsgBytes(
+              com.google.protobuf.ByteString value) {
+        if (value == null) {
+          throw new NullPointerException();
         }
-
-        public static ResponseMeta parseFrom(
-                com.google.protobuf.ByteString data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static ResponseMeta parseFrom(
-                com.google.protobuf.ByteString data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static ResponseMeta parseFrom(byte[] data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static ResponseMeta parseFrom(
-                byte[] data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static ResponseMeta parseFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-
-        public static ResponseMeta parseFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static ResponseMeta parseDelimitedFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input);
-        }
-
-        public static ResponseMeta parseDelimitedFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static ResponseMeta parseFrom(
-                com.google.protobuf.CodedInputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-
-        public static ResponseMeta parseFrom(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public static Builder newBuilder() {
-            return DEFAULT_INSTANCE.toBuilder();
-        }
-
-        public static Builder newBuilder(ResponseMeta prototype) {
-            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-        }
-
-        public static ResponseMeta getDefaultInstance() {
-            return DEFAULT_INSTANCE;
-        }
-
-        public static com.google.protobuf.Parser<ResponseMeta> parser() {
-            return PARSER;
-        }
-
-        @Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        protected FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return RpcMeta.internal_static_ResponseMeta_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            ResponseMeta.class, Builder.class);
-        }
-
-        /**
-         * <pre>
-         * request id
-         * </pre>
-         *
-         * <code>uint64 requestId = 1;</code>
-         */
-        public long getRequestId() {
-            return requestId_;
-        }
-
-        /**
-         * <pre>
-         * invoke result
-         * </pre>
-         *
-         * <code>.google.protobuf.Any result = 2;</code>
-         */
-        public boolean hasResult() {
-            return result_ != null;
-        }
-
-        /**
-         * <pre>
-         * invoke result
-         * </pre>
-         *
-         * <code>.google.protobuf.Any result = 2;</code>
-         */
-        public com.google.protobuf.Any getResult() {
-            return result_ == null ? com.google.protobuf.Any.getDefaultInstance() : result_;
-        }
-
-        /**
-         * <pre>
-         * invoke result
-         * </pre>
-         *
-         * <code>.google.protobuf.Any result = 2;</code>
-         */
-        public com.google.protobuf.AnyOrBuilder getResultOrBuilder() {
-            return getResult();
-        }
-
-        /**
-         * <pre>
-         * error msg when exception.
-         * </pre>
-         *
-         * <code>string errMsg = 3;</code>
-         */
-        public String getErrMsg() {
-            Object ref = errMsg_;
-            if (ref instanceof String) {
-                return (String) ref;
-            } else {
-                com.google.protobuf.ByteString bs =
-                        (com.google.protobuf.ByteString) ref;
-                String s = bs.toStringUtf8();
-                errMsg_ = s;
-                return s;
-            }
-        }
-
-        /**
-         * <pre>
-         * error msg when exception.
-         * </pre>
-         *
-         * <code>string errMsg = 3;</code>
-         */
-        public com.google.protobuf.ByteString
-        getErrMsgBytes() {
-            Object ref = errMsg_;
-            if (ref instanceof String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (String) ref);
-                errMsg_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
-        }
-
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized == 1) return true;
-            if (isInitialized == 0) return false;
-
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            if (requestId_ != 0L) {
-                output.writeUInt64(1, requestId_);
-            }
-            if (result_ != null) {
-                output.writeMessage(2, getResult());
-            }
-            if (!getErrMsgBytes().isEmpty()) {
-                com.google.protobuf.GeneratedMessageV3.writeString(output, 3, errMsg_);
-            }
-        }
-
-        public int getSerializedSize() {
-            int size = memoizedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (requestId_ != 0L) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(1, requestId_);
-            }
-            if (result_ != null) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeMessageSize(2, getResult());
-            }
-            if (!getErrMsgBytes().isEmpty()) {
-                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, errMsg_);
-            }
-            memoizedSize = size;
-            return size;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof ResponseMeta)) {
-                return super.equals(obj);
-            }
-            ResponseMeta other = (ResponseMeta) obj;
-
-            boolean result = true;
-            result = result && (getRequestId()
-                    == other.getRequestId());
-            result = result && (hasResult() == other.hasResult());
-            if (hasResult()) {
-                result = result && getResult()
-                        .equals(other.getResult());
-            }
-            result = result && getErrMsg()
-                    .equals(other.getErrMsg());
-            return result;
-        }
-
-        @Override
-        public int hashCode() {
-            if (memoizedHashCode != 0) {
-                return memoizedHashCode;
-            }
-            int hash = 41;
-            hash = (19 * hash) + getDescriptor().hashCode();
-            hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
-            hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-                    getRequestId());
-            if (hasResult()) {
-                hash = (37 * hash) + RESULT_FIELD_NUMBER;
-                hash = (53 * hash) + getResult().hashCode();
-            }
-            hash = (37 * hash) + ERRMSG_FIELD_NUMBER;
-            hash = (53 * hash) + getErrMsg().hashCode();
-            hash = (29 * hash) + unknownFields.hashCode();
-            memoizedHashCode = hash;
-            return hash;
-        }
-
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
-        public Builder toBuilder() {
-            return this == DEFAULT_INSTANCE
-                    ? new Builder() : new Builder().mergeFrom(this);
-        }
-
-        @Override
-        protected Builder newBuilderForType(
-                BuilderParent parent) {
-            Builder builder = new Builder(parent);
-            return builder;
-        }
-
-        @Override
-        public com.google.protobuf.Parser<ResponseMeta> getParserForType() {
-            return PARSER;
-        }
-
-        public ResponseMeta getDefaultInstanceForType() {
-            return DEFAULT_INSTANCE;
-        }
-
-        /**
-         * Protobuf type {@code ResponseMeta}
-         */
-        public static final class Builder extends
-                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-                // @@protoc_insertion_point(builder_implements:ResponseMeta)
-                ResponseMetaOrBuilder {
-            private long requestId_;
-            private com.google.protobuf.Any result_ = null;
-            private com.google.protobuf.SingleFieldBuilderV3<
-                    com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder> resultBuilder_;
-            private Object errMsg_ = "";
-
-            // Construct using com.jsj.rpc.protocol.RpcMeta.ResponseMeta.newBuilder()
-            private Builder() {
-                maybeForceBuilderInitialization();
-            }
-
-            private Builder(
-                    BuilderParent parent) {
-                super(parent);
-                maybeForceBuilderInitialization();
-            }
-
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return RpcMeta.internal_static_ResponseMeta_descriptor;
-            }
-
-            protected FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return RpcMeta.internal_static_ResponseMeta_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                ResponseMeta.class, Builder.class);
-            }
-
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessageV3
-                        .alwaysUseFieldBuilders) {
-                }
-            }
-
-            public Builder clear() {
-                super.clear();
-                requestId_ = 0L;
-
-                if (resultBuilder_ == null) {
-                    result_ = null;
-                } else {
-                    result_ = null;
-                    resultBuilder_ = null;
-                }
-                errMsg_ = "";
-
-                return this;
-            }
-
-            public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-                return RpcMeta.internal_static_ResponseMeta_descriptor;
-            }
-
-            public ResponseMeta getDefaultInstanceForType() {
-                return ResponseMeta.getDefaultInstance();
-            }
-
-            public ResponseMeta build() {
-                ResponseMeta result = buildPartial();
-                if (!result.isInitialized()) {
-                    throw newUninitializedMessageException(result);
-                }
-                return result;
-            }
-
-            public ResponseMeta buildPartial() {
-                ResponseMeta result = new ResponseMeta(this);
-                result.requestId_ = requestId_;
-                if (resultBuilder_ == null) {
-                    result.result_ = result_;
-                } else {
-                    result.result_ = resultBuilder_.build();
-                }
-                result.errMsg_ = errMsg_;
-                onBuilt();
-                return result;
-            }
-
-            public Builder clone() {
-                return (Builder) super.clone();
-            }
-
-            public Builder setField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return (Builder) super.setField(field, value);
-            }
-
-            public Builder clearField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field) {
-                return (Builder) super.clearField(field);
-            }
-
-            public Builder clearOneof(
-                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-                return (Builder) super.clearOneof(oneof);
-            }
-
-            public Builder setRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    int index, Object value) {
-                return (Builder) super.setRepeatedField(field, index, value);
-            }
-
-            public Builder addRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return (Builder) super.addRepeatedField(field, value);
-            }
-
-            public Builder mergeFrom(com.google.protobuf.Message other) {
-                if (other instanceof ResponseMeta) {
-                    return mergeFrom((ResponseMeta) other);
-                } else {
-                    super.mergeFrom(other);
-                    return this;
-                }
-            }
-
-            public Builder mergeFrom(ResponseMeta other) {
-                if (other == ResponseMeta.getDefaultInstance()) return this;
-                if (other.getRequestId() != 0L) {
-                    setRequestId(other.getRequestId());
-                }
-                if (other.hasResult()) {
-                    mergeResult(other.getResult());
-                }
-                if (!other.getErrMsg().isEmpty()) {
-                    errMsg_ = other.errMsg_;
-                    onChanged();
-                }
-                onChanged();
-                return this;
-            }
-
-            public final boolean isInitialized() {
-                return true;
-            }
-
-            public Builder mergeFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws java.io.IOException {
-                ResponseMeta parsedMessage = null;
-                try {
-                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                    parsedMessage = (ResponseMeta) e.getUnfinishedMessage();
-                    throw e.unwrapIOException();
-                } finally {
-                    if (parsedMessage != null) {
-                        mergeFrom(parsedMessage);
-                    }
-                }
-                return this;
-            }
-
-            /**
-             * <pre>
-             * request id
-             * </pre>
-             *
-             * <code>uint64 requestId = 1;</code>
-             */
-            public long getRequestId() {
-                return requestId_;
-            }
-
-            /**
-             * <pre>
-             * request id
-             * </pre>
-             *
-             * <code>uint64 requestId = 1;</code>
-             */
-            public Builder setRequestId(long value) {
-
-                requestId_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * request id
-             * </pre>
-             *
-             * <code>uint64 requestId = 1;</code>
-             */
-            public Builder clearRequestId() {
-
-                requestId_ = 0L;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            public boolean hasResult() {
-                return resultBuilder_ != null || result_ != null;
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            public com.google.protobuf.Any getResult() {
-                if (resultBuilder_ == null) {
-                    return result_ == null ? com.google.protobuf.Any.getDefaultInstance() : result_;
-                } else {
-                    return resultBuilder_.getMessage();
-                }
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            public Builder setResult(com.google.protobuf.Any value) {
-                if (resultBuilder_ == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    result_ = value;
-                    onChanged();
-                } else {
-                    resultBuilder_.setMessage(value);
-                }
-
-                return this;
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            public Builder setResult(
-                    com.google.protobuf.Any.Builder builderForValue) {
-                if (resultBuilder_ == null) {
-                    result_ = builderForValue.build();
-                    onChanged();
-                } else {
-                    resultBuilder_.setMessage(builderForValue.build());
-                }
-
-                return this;
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            public Builder mergeResult(com.google.protobuf.Any value) {
-                if (resultBuilder_ == null) {
-                    if (result_ != null) {
-                        result_ =
-                                com.google.protobuf.Any.newBuilder(result_).mergeFrom(value).buildPartial();
-                    } else {
-                        result_ = value;
-                    }
-                    onChanged();
-                } else {
-                    resultBuilder_.mergeFrom(value);
-                }
-
-                return this;
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            public Builder clearResult() {
-                if (resultBuilder_ == null) {
-                    result_ = null;
-                    onChanged();
-                } else {
-                    result_ = null;
-                    resultBuilder_ = null;
-                }
-
-                return this;
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            public com.google.protobuf.Any.Builder getResultBuilder() {
-
-                onChanged();
-                return getResultFieldBuilder().getBuilder();
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            public com.google.protobuf.AnyOrBuilder getResultOrBuilder() {
-                if (resultBuilder_ != null) {
-                    return resultBuilder_.getMessageOrBuilder();
-                } else {
-                    return result_ == null ?
-                            com.google.protobuf.Any.getDefaultInstance() : result_;
-                }
-            }
-
-            /**
-             * <pre>
-             * invoke result
-             * </pre>
-             *
-             * <code>.google.protobuf.Any result = 2;</code>
-             */
-            private com.google.protobuf.SingleFieldBuilderV3<
-                    com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>
-            getResultFieldBuilder() {
-                if (resultBuilder_ == null) {
-                    resultBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-                            com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>(
-                            getResult(),
-                            getParentForChildren(),
-                            isClean());
-                    result_ = null;
-                }
-                return resultBuilder_;
-            }
-
-            /**
-             * <pre>
-             * error msg when exception.
-             * </pre>
-             *
-             * <code>string errMsg = 3;</code>
-             */
-            public String getErrMsg() {
-                Object ref = errMsg_;
-                if (!(ref instanceof String)) {
-                    com.google.protobuf.ByteString bs =
-                            (com.google.protobuf.ByteString) ref;
-                    String s = bs.toStringUtf8();
-                    errMsg_ = s;
-                    return s;
-                } else {
-                    return (String) ref;
-                }
-            }
-
-            /**
-             * <pre>
-             * error msg when exception.
-             * </pre>
-             *
-             * <code>string errMsg = 3;</code>
-             */
-            public Builder setErrMsg(
-                    String value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-
-                errMsg_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * error msg when exception.
-             * </pre>
-             *
-             * <code>string errMsg = 3;</code>
-             */
-            public com.google.protobuf.ByteString
-            getErrMsgBytes() {
-                Object ref = errMsg_;
-                if (ref instanceof String) {
-                    com.google.protobuf.ByteString b =
-                            com.google.protobuf.ByteString.copyFromUtf8(
-                                    (String) ref);
-                    errMsg_ = b;
-                    return b;
-                } else {
-                    return (com.google.protobuf.ByteString) ref;
-                }
-            }
-
-            /**
-             * <pre>
-             * error msg when exception.
-             * </pre>
-             *
-             * <code>string errMsg = 3;</code>
-             */
-            public Builder setErrMsgBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                checkByteStringIsUtf8(value);
-
-                errMsg_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <pre>
-             * error msg when exception.
-             * </pre>
-             *
-             * <code>string errMsg = 3;</code>
-             */
-            public Builder clearErrMsg() {
-
-                errMsg_ = getDefaultInstance().getErrMsg();
-                onChanged();
-                return this;
-            }
-
-            public final Builder setUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return this;
-            }
-
-            public final Builder mergeUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return this;
-            }
-
-
-            // @@protoc_insertion_point(builder_scope:ResponseMeta)
-        }
-
+        checkByteStringIsUtf8(value);
+
+        errMsg_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <pre>
+       *error msg when exception.
+       * </pre>
+       *
+       * <code>string errMsg = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearErrMsg() {
+
+        errMsg_ = getDefaultInstance().getErrMsg();
+        onChanged();
+        return this;
+      }
+
+      @Override
+      public final Builder setUnknownFields(
+              final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @Override
+      public final Builder mergeUnknownFields(
+              final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:ResponseMeta)
     }
 
-    // @@protoc_insertion_point(outer_class_scope)
+  }
+
+  // @@protoc_insertion_point(outer_class_scope)
 }
