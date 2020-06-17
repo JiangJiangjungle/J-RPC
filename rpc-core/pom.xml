@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.jsj.rpc</groupId>
         <artifactId>my-netty-rpc</artifactId>
-        <version>1.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>rpc-core</artifactId>
@@ -26,6 +26,11 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
+        </dependency>
+        <!-- protobuf-->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
