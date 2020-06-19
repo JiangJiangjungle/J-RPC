@@ -7,7 +7,7 @@
     <groupId>com.jsj.rpc</groupId>
     <artifactId>my-netty-rpc</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 
     <modules>
         <module>rpc-core</module>
