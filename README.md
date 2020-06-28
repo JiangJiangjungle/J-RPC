@@ -1,4 +1,4 @@
-# My-NettyRPC
+# J-RPC
 
 #### 一个基于Netty实现的简单rpc框架
 
