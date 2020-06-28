@@ -1,9 +1,9 @@
 package com.jsj.rpc.client;
 
 import com.jsj.rpc.RpcCallback;
-import com.jsj.rpc.RpcFuture;
 import com.jsj.rpc.codec.BaseDecoder;
 import com.jsj.rpc.codec.BaseEncoder;
+import com.jsj.rpc.exception.RpcException;
 import com.jsj.rpc.protocol.ProtocolManager;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.util.NamedThreadFactory;
@@ -39,6 +39,8 @@ public class RpcClient extends AbstractRpcClient {
     protected NioEventLoopGroup workerGroup;
     protected ThreadPoolExecutor workerThreadPool;
 
+    protected Class<?> serviceInterface;
+
     /**
      * 连接管理器
      */
@@ -64,14 +66,8 @@ public class RpcClient extends AbstractRpcClient {
         return RpcProxy.getProxy(rpcClient, clazz);
     }
 
-    public <T> Request buildRequest(Class<?> serviceInterface, String methodName
-            , RpcCallback<T> callback, Object... args) throws Exception {
-        Method method = getMethod(serviceInterface, methodName, args);
-        return buildRequest(serviceInterface, method, callback, args);
-    }
-
-    public <T> Request buildRequest(Class<?> serviceInterface, Method method
-            , RpcCallback<T> callback, Object... args) throws Exception {
+    protected <T> Request buildRequest(Method method
+            , RpcCallback<T> callback, Object... args) {
         return protocol.createRequest()
                 .setRequestId(requestIdCounter.getAndIncrement())
                 .setServiceName(serviceInterface.getName())
@@ -83,19 +79,16 @@ public class RpcClient extends AbstractRpcClient {
                 .setParams(args);
     }
 
-    public <T> RpcFuture<T> invoke(Class<?> serviceInterface, String methodName
-            , RpcCallback<T> callback, Object... args) throws Exception {
-        Request request = buildRequest(serviceInterface, methodName, callback, args);
-        return sendRequest(request);
-    }
-
-    private Method getMethod(Class<?> serviceInterface, String methodName
-            , Object... args) throws Exception {
-        Class<?>[] argClasses = new Class[args.length];
-        for (int i = 0; i < args.length; i++) {
-            argClasses[i] = args[i].getClass();
+    protected void setServiceInterface(Class<?> clazz) {
+        if (this.serviceInterface != null) {
+            throw new RpcException("serviceInterface must not be set repeatedly, please use another RpcClient");
         }
-        return serviceInterface.getDeclaredMethod(methodName, argClasses);
+        if (clazz.getInterfaces().length == 0) {
+            this.serviceInterface = clazz;
+        } else {
+            // if it is async interface, we should subscribe the sync interface
+            this.serviceInterface = clazz.getInterfaces()[0];
+        }
     }
 
     /**

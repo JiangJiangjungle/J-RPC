@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.jsj.rpc</groupId>
-    <artifactId>my-netty-rpc</artifactId>
+    <groupId>com.jsj.jrpc</groupId>
+    <artifactId>parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 
     <modules>
         <module>rpc-core</module>
@@ -142,20 +142,20 @@
 
     <build>
         <plugins>
-            <!--            &lt;!&ndash;protobuf插件&ndash;&gt;-->
-            <!--            <plugin>-->
-            <!--                <groupId>org.xolstice.maven.plugins</groupId>-->
-            <!--                <artifactId>protobuf-maven-plugin</artifactId>-->
-            <!--                <version>0.5.1</version>-->
-            <!--                <executions>-->
-            <!--                    <execution>-->
-            <!--                        <goals>-->
-            <!--                            <goal>compile</goal>-->
-            <!--                            <goal>compile-custom</goal>-->
-            <!--                        </goals>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--            </plugin>-->
+<!--                        &lt;!&ndash;protobuf插件&ndash;&gt;-->
+<!--                        <plugin>-->
+<!--                            <groupId>org.xolstice.maven.plugins</groupId>-->
+<!--                            <artifactId>protobuf-maven-plugin</artifactId>-->
+<!--                            <version>0.5.1</version>-->
+<!--                            <executions>-->
+<!--                                <execution>-->
+<!--                                    <goals>-->
+<!--                                        <goal>compile</goal>-->
+<!--                                        <goal>compile-custom</goal>-->
+<!--                                    </goals>-->
+<!--                                </execution>-->
+<!--                            </executions>-->
+<!--                        </plugin>-->
         </plugins>
     </build>
 

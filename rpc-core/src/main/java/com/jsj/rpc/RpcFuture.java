@@ -1,12 +1,12 @@
 package com.jsj.rpc;
 
+import com.jsj.rpc.exception.RpcException;
+import com.jsj.rpc.exception.RpcExceptionType;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.Response;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author jiangshenjie
@@ -39,21 +39,24 @@ public class RpcFuture<T> implements Future<T> {
     }
 
     @Override
-    public T get() throws InterruptedException, ExecutionException {
+    public T get() throws InterruptedException {
         synchronized (this) {
             while (!isDone()) {
                 this.wait();
             }
         }
         if (isCancelled()) {
-            throw new InterruptedException("rpc task cancelled.");
+            throw new RpcException("rpc task cancelled.");
+        }
+        Exception exception = response.getException();
+        if (exception != null) {
+            throw new RpcException(exception);
         }
         return (T) this.response.getResult();
     }
 
     @Override
-    public T get(long timeout, TimeUnit unit) throws InterruptedException
-            , ExecutionException, TimeoutException {
+    public T get(long timeout, TimeUnit unit) throws InterruptedException {
         long millis = unit.toMillis(timeout);
         synchronized (this) {
             while (!isDone() && millis > 0L) {
@@ -61,7 +64,7 @@ public class RpcFuture<T> implements Future<T> {
             }
         }
         if (!isDone()) {
-            throw new TimeoutException();
+            throw new RpcException(RpcExceptionType.TIMEOUT_EXCEPTION);
         } else if (isCancelled()) {
             throw new InterruptedException("rpc task cancelled.");
         }

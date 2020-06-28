@@ -1,4 +1,4 @@
-package com.jsj.rpc.protocol.exception;
+package com.jsj.rpc.exception;
 
 public class BadSchemaException extends Exception {
 }

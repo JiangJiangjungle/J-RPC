@@ -49,7 +49,7 @@ public abstract class AbstractRpcClient {
             boolean writeSucceed = channel.writeAndFlush(packet)
                     .await(request.getWriteTimeoutMillis(), TimeUnit.MILLISECONDS);
             if (!writeSucceed) {
-                throw new RpcException(String.format("Send rpc request failed, request: %s.", request));
+                throw new RpcException(String.format("Write rpc request failed, request: %s.", request));
             }
         } catch (Exception e) {
             handleErrorResponse(rpcFuture, e);

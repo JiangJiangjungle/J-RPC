@@ -1,8 +1,8 @@
 package com.jsj.rpc.protocol;
 
 import com.jsj.rpc.ChannelInfo;
-import com.jsj.rpc.protocol.exception.BadSchemaException;
-import com.jsj.rpc.protocol.exception.NotEnoughDataException;
+import com.jsj.rpc.exception.BadSchemaException;
+import com.jsj.rpc.exception.NotEnoughDataException;
 import io.netty.buffer.ByteBuf;
 
 /**

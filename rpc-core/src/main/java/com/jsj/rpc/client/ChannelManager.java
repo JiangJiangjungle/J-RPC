@@ -25,7 +25,7 @@ public class ChannelManager {
     /**
      * Channel池
      */
-    GenericObjectPool<Channel> channelGenericObjectPool;
+    private GenericObjectPool<Channel> channelGenericObjectPool;
     private Endpoint endpoint;
 
     public ChannelManager(RpcClient rpcClient) {
