@@ -1,10 +1,11 @@
 package com.jsj.rpc.service;
 
-import com.jsj.rpc.User;
+import com.jsj.rpc.HelloRequest;
+import com.jsj.rpc.HelloResponse;
 
 /**
  * @author jiangshenjie
  */
 public interface DelayedHelloService {
-    User.UserDetail hello(User.UserInfo userInfo);
+    HelloResponse sayDelayedHello(HelloRequest helloRequest);
 }

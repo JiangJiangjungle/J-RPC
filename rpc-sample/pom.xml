@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.jsj.rpc</groupId>
-        <artifactId>my-netty-rpc</artifactId>
-        <version>1.0.5</version>
+        <groupId>com.jsj.jrpc</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0.6</version>
     </parent>
 
     <artifactId>rpc-sample</artifactId>

@@ -1,12 +1,14 @@
-package com.jsj.rpc.service;
+package com.jsj.rpc.service.impl;
 
-import com.jsj.rpc.User;
+import com.jsj.rpc.HelloRequest;
+import com.jsj.rpc.HelloResponse;
+import com.jsj.rpc.service.DelayedHelloService;
+import com.jsj.rpc.service.HelloService;
 
 /**
  * @author jiangshenjie
  */
 public class DelayedHelloServiceImpl implements DelayedHelloService {
-
     HelloService helloService;
 
     public DelayedHelloServiceImpl(HelloService helloService) {
@@ -14,12 +16,12 @@ public class DelayedHelloServiceImpl implements DelayedHelloService {
     }
 
     @Override
-    public User.UserDetail hello(User.UserInfo userInfo) {
+    public HelloResponse sayDelayedHello(HelloRequest helloRequest) {
         try {
             Thread.sleep(3000L);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return helloService.hello(userInfo);
+        return helloService.sayHello(helloRequest);
     }
 }
