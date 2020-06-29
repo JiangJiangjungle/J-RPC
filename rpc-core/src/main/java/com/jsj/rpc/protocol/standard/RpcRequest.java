@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
  */
 @ToString
 public class RpcRequest implements Request {
-    private Protocol protocol;
+    private final Protocol protocol;
     private long requestId;
     private String serviceName;
     private String methodName;

@@ -23,14 +23,11 @@ public class BaseEncoder extends MessageToByteEncoder<Packet> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
-        ByteBuf byteBuf = null;
+        ByteBuf byteBuf = protocol.encodePacket(packet);
         try {
-            byteBuf = protocol.encodePacket(packet);
             out.writeBytes(byteBuf);
         } finally {
-            if (byteBuf != null) {
-                byteBuf.release();
-            }
+            byteBuf.release();
         }
     }
 }

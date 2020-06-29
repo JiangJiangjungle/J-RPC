@@ -1,8 +1,11 @@
 package com.jsj.rpc.client;
 
 import com.jsj.rpc.RpcCallback;
+import com.jsj.rpc.client.channel.PooledChannel;
+import com.jsj.rpc.client.instance.Endpoint;
 import com.jsj.rpc.codec.BaseDecoder;
 import com.jsj.rpc.codec.BaseEncoder;
+import com.jsj.rpc.exception.RpcCallException;
 import com.jsj.rpc.exception.RpcException;
 import com.jsj.rpc.protocol.ProtocolManager;
 import com.jsj.rpc.protocol.Request;
@@ -32,8 +35,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 @Getter
 public class RpcClient extends AbstractRpcClient {
-    protected final Endpoint endpoint;
-    protected final RpcClientOptions clientOptions;
     protected Bootstrap bootstrap;
 
     protected NioEventLoopGroup workerGroup;
@@ -41,10 +42,7 @@ public class RpcClient extends AbstractRpcClient {
 
     protected Class<?> serviceInterface;
 
-    /**
-     * 连接管理器
-     */
-    private ChannelManager channelManager;
+    private PooledChannel pooledChannel;
 
     /**
      * 状态
@@ -57,9 +55,7 @@ public class RpcClient extends AbstractRpcClient {
     }
 
     public RpcClient(Endpoint endpoint, RpcClientOptions clientOptions) {
-        this.endpoint = endpoint;
-        this.clientOptions = clientOptions;
-        this.init();
+        super(endpoint, clientOptions);
     }
 
     public static <T> T getProxy(RpcClient rpcClient, Class<T> clazz) {
@@ -67,7 +63,7 @@ public class RpcClient extends AbstractRpcClient {
     }
 
     protected <T> Request buildRequest(Method method
-            , RpcCallback<T> callback, Object... args) {
+            , RpcCallback<T> callback, Object[] args) {
         return protocol.createRequest()
                 .setRequestId(requestIdCounter.getAndIncrement())
                 .setServiceName(serviceInterface.getName())
@@ -81,7 +77,7 @@ public class RpcClient extends AbstractRpcClient {
 
     protected void setServiceInterface(Class<?> clazz) {
         if (this.serviceInterface != null) {
-            throw new RpcException("serviceInterface must not be set repeatedly, please use another RpcClient");
+            throw new RpcCallException("serviceInterface must not be set repeatedly, please use another RpcClient");
         }
         if (clazz.getInterfaces().length == 0) {
             this.serviceInterface = clazz;
@@ -100,14 +96,15 @@ public class RpcClient extends AbstractRpcClient {
      */
     @Override
     protected Channel selectChannel(Request request) throws Exception {
-        return channelManager.borrowChannel();
+        return pooledChannel.borrowChannel();
     }
 
     @Override
     protected void processChannelAfterSendRequest(Channel channel) {
-        channelManager.returnChannel(channel);
+        pooledChannel.returnChannel(channel);
     }
 
+    @Override
     protected void init() {
         stop = new AtomicBoolean(false);
         requestIdCounter = new AtomicLong(0L);
@@ -158,7 +155,7 @@ public class RpcClient extends AbstractRpcClient {
                     }
                 });
         //初始化ChannelManager
-        channelManager = new ChannelManager(this);
+        pooledChannel = new PooledChannel(this);
     }
 
     public void shutdown() {
@@ -167,7 +164,7 @@ public class RpcClient extends AbstractRpcClient {
         }
         stop.set(true);
         //关闭所有连接
-        channelManager.closeAll();
+        pooledChannel.closeAll();
         if (!clientOptions.isGlobalThreadPoolSharing()) {
             //优雅退出，释放 NIO 线程组
             workerGroup.shutdownGracefully().awaitUninterruptibly();

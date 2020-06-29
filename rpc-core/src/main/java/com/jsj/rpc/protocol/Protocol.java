@@ -2,6 +2,7 @@ package com.jsj.rpc.protocol;
 
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.exception.BadSchemaException;
+import com.jsj.rpc.exception.DecodeException;
 import com.jsj.rpc.exception.NotEnoughDataException;
 import io.netty.buffer.ByteBuf;
 
@@ -44,9 +45,9 @@ public interface Protocol {
      *
      * @param packet
      * @return
-     * @throws Exception
+     * @throws DecodeException
      */
-    Request decodeAsRequest(Packet packet) throws Exception;
+    Request decodeAsRequest(Packet packet) throws DecodeException;
 
     /**************** 仅Rpc Client需要实现的函数 *******************/
 
@@ -56,7 +57,7 @@ public interface Protocol {
      * @param packet
      * @param channelInfo
      * @return
-     * @throws Exception
+     * @throws DecodeException
      */
-    Response decodeAsResponse(Packet packet, ChannelInfo channelInfo) throws Exception;
+    Response decodeAsResponse(Packet packet, ChannelInfo channelInfo) throws DecodeException;
 }

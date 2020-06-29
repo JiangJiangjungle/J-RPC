@@ -1,24 +1,24 @@
 package com.jsj.rpc;
 
 import com.jsj.rpc.exception.RpcException;
-import com.jsj.rpc.exception.RpcExceptionType;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.Response;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author jiangshenjie
  */
 public class RpcFuture<T> implements Future<T> {
     protected final Request request;
+    private Response response;
 
     private volatile boolean cancelled = false;
     private boolean isDone = false;
     private final long startTime = System.currentTimeMillis();
-
-    private Response response;
 
     public RpcFuture(Request request) {
         this.request = request;
@@ -39,24 +39,24 @@ public class RpcFuture<T> implements Future<T> {
     }
 
     @Override
-    public T get() throws InterruptedException {
+    public T get() throws InterruptedException, ExecutionException {
         synchronized (this) {
             while (!isDone()) {
                 this.wait();
             }
         }
         if (isCancelled()) {
-            throw new RpcException("rpc task cancelled.");
+            throw new ExecutionException(new RpcException("rpc task cancelled."));
         }
         Exception exception = response.getException();
         if (exception != null) {
-            throw new RpcException(exception);
+            throw new ExecutionException(exception);
         }
         return (T) this.response.getResult();
     }
 
     @Override
-    public T get(long timeout, TimeUnit unit) throws InterruptedException {
+    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         long millis = unit.toMillis(timeout);
         synchronized (this) {
             while (!isDone() && millis > 0L) {
@@ -64,9 +64,9 @@ public class RpcFuture<T> implements Future<T> {
             }
         }
         if (!isDone()) {
-            throw new RpcException(RpcExceptionType.TIMEOUT_EXCEPTION);
+            throw new TimeoutException();
         } else if (isCancelled()) {
-            throw new InterruptedException("rpc task cancelled.");
+            throw new ExecutionException(new RpcException("rpc task cancelled."));
         }
         return (T) this.response.getResult();
     }

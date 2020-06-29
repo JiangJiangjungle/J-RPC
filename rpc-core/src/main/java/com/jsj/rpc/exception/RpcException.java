@@ -1,9 +1,11 @@
 package com.jsj.rpc.exception;
 
 /**
+ * rpc调用的执行过程中出现的异常
+ *
  * @author jiangshenjie
  */
-public class RpcException extends RuntimeException {
+public class RpcException extends Exception {
     private int code;
 
     public RpcException(RpcExceptionType rpcExceptionType) {

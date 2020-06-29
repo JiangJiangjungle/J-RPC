@@ -4,13 +4,12 @@ import com.jsj.rpc.HelloRequest;
 import com.jsj.rpc.HelloResponse;
 import com.jsj.rpc.RpcCallback;
 import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.client.instance.Endpoint;
 import com.jsj.rpc.service.DelayedHelloService;
 import com.jsj.rpc.service.DelayedHelloServiceAsync;
 import com.jsj.rpc.service.HelloService;
 import com.jsj.rpc.service.HelloServiceAsync;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author jiangshenjie
@@ -52,7 +51,7 @@ public class HelloRpcClient {
         RpcFuture<HelloResponse> rpcFuture = helloServiceAsync.sayHello(helloRequest, new HelloRpcCallback());
         try {
             rpcFuture.get();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

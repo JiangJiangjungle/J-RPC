@@ -2,12 +2,14 @@ package com.jsj.rpc.client;
 
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.client.instance.Endpoint;
 import com.jsj.rpc.exception.RpcException;
 import com.jsj.rpc.protocol.Packet;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.Response;
 import io.netty.channel.Channel;
+import lombok.Getter;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -15,12 +17,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author jiangshenjie
  */
+@Getter
 public abstract class AbstractRpcClient {
-    Protocol protocol;
-    ScheduledThreadPoolExecutor scheduledThreadPool;
+    protected final Endpoint endpoint;
+    protected final RpcClientOptions clientOptions;
+    protected Protocol protocol;
+    protected ScheduledThreadPoolExecutor scheduledThreadPool;
 
-    public AbstractRpcClient() {
+    public AbstractRpcClient(Endpoint endpoint, RpcClientOptions clientOptions) {
+        this.endpoint = endpoint;
+        this.clientOptions = clientOptions;
+        init();
     }
+
+    protected abstract void init();
 
     public void handleResponse(Response response) {
         RpcFuture<?> rpcFuture = response.getRpcFuture();

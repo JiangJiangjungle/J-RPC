@@ -1,8 +1,8 @@
 package com.jsj.rpc.codec;
 
 
-import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.exception.NotEnoughDataException;
+import com.jsj.rpc.protocol.Protocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -26,9 +26,11 @@ public class BaseDecoder extends ByteToMessageDecoder {
 
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        in.markReaderIndex();
         try {
             out.add(protocol.parseHeaderAndPackage(in));
         } catch (NotEnoughDataException e) {
+            in.resetReaderIndex();
         }
     }
 }

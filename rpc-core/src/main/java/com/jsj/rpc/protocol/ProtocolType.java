@@ -10,9 +10,19 @@ public enum ProtocolType {
     /**
      * 自定义的二进制协议
      */
-    STANDARD,
+    STANDARD("standard"),
     /**
      * Http协议
      */
-    HTTP;
+    HTTP11("http1.1");
+
+    private String name;
+
+    ProtocolType(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

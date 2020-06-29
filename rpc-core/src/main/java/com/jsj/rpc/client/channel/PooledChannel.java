@@ -1,5 +1,7 @@
-package com.jsj.rpc.client;
+package com.jsj.rpc.client.channel;
 
+import com.jsj.rpc.client.RpcClient;
+import com.jsj.rpc.client.instance.Endpoint;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -21,14 +23,14 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 @Slf4j
 @Getter
 @Setter
-public class ChannelManager {
+public class PooledChannel {
     /**
-     * Channel池
+     * Netty Channel池
      */
     private GenericObjectPool<Channel> channelGenericObjectPool;
     private Endpoint endpoint;
 
-    public ChannelManager(RpcClient rpcClient) {
+    public PooledChannel(RpcClient rpcClient) {
         this.endpoint = rpcClient.getEndpoint();
         GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
         poolConfig.setMinIdle(1);
@@ -74,7 +76,6 @@ public class ChannelManager {
     private static class PooledChannelFactory extends BasePooledObjectFactory<Channel> {
         private final Endpoint endpoint;
         private final Bootstrap bootstrap;
-        private boolean enableHeartBeat;
 
         public PooledChannelFactory(RpcClient rpcClient) {
             this.endpoint = rpcClient.getEndpoint();

@@ -1,27 +1,36 @@
 package com.jsj.rpc.protocol;
 
+import com.jsj.rpc.exception.RpcCallException;
 import com.jsj.rpc.protocol.standard.RpcProtocol;
 import com.jsj.rpc.server.ServiceManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author jiangshenjie
  */
 public class ProtocolManager {
-    private static ProtocolManager manager = new ProtocolManager();
+    private static final ProtocolManager INSTANCE = new ProtocolManager();
+
+    private final Map<ProtocolType, Protocol> protocolMap = new HashMap<>();
+
+    {
+        protocolMap.put(ProtocolType.STANDARD, new RpcProtocol(ServiceManager.getInstance()));
+    }
 
     private ProtocolManager() {
     }
 
     public static ProtocolManager getInstance() {
-        return manager;
+        return INSTANCE;
     }
 
     public Protocol getProtocol(ProtocolType protocolType) {
-        if (protocolType == ProtocolType.STANDARD) {
-            return new RpcProtocol(ServiceManager.getInstance());
-        } else if (protocolType == ProtocolType.HTTP) {
-            throw new RuntimeException("Not support yet.");
+        Protocol protocol = protocolMap.get(protocolType);
+        if (protocol == null) {
+            throw new RpcCallException(String.format("No available protocol of %s yet", protocolType.getName()));
         }
-        return null;
+        return protocol;
     }
 }

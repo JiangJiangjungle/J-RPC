@@ -1,6 +1,6 @@
 package com.jsj.rpc.registry;
 
-import com.jsj.rpc.client.Endpoint;
+import com.jsj.rpc.client.instance.Endpoint;
 
 /**
  * @author jiangshenjie

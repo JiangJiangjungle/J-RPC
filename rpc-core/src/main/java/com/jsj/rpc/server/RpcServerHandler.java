@@ -10,8 +10,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-
 /**
  * @author jiangshenjie
  */
@@ -31,7 +29,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Packet> {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateServerChannelInfo(channel);
             Protocol protocol = channelInfo.getProtocol();
             Request request = protocol.decodeAsRequest(packet);
-            log.debug("New rpc request: {}.", request);
+            log.debug("Get new rpc request: {}.", request);
             rpcServer.getWorkerThreadPool().submit(new ServerWorkTask(request, protocol, channel));
         } finally {
             packet.release();
@@ -42,21 +40,17 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ChannelInfo channelInfo = ChannelInfo.getOrCreateServerChannelInfo(ctx.channel());
         channelInfo.setProtocol(rpcServer.getProtocol());
-        log.debug("Channel [remote addr: {}] active", ctx.channel().remoteAddress());
+        log.debug("Channel [remote addr: {}] is active", ctx.channel().remoteAddress());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("Channel [remote addr: {}] inactive.", ctx.channel().remoteAddress());
-        ctx.fireChannelInactive();
+        log.info("Channel [remote addr: {}] is inactive.", ctx.channel().remoteAddress());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (ctx.channel().isActive() && !(cause instanceof IOException)) {
-            log.info("Service exception, ex={}", cause.getMessage());
-        }
-        log.debug("Meet exception, may be connection is closed, msg={}", cause.getMessage());
+        log.warn("Exception caught in rpc server handler chain", cause);
         ctx.close();
     }
 }

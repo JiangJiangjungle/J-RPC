@@ -12,22 +12,19 @@ import java.util.Map;
  */
 @Slf4j
 public class ServiceManager {
-    /**
-     * 单例
-     */
-    private static volatile ServiceManager serviceManager = new ServiceManager();
-    private Map<String, RpcMethodDetail> serviceMap = new HashMap<>(16);
+    private static final ServiceManager INSTANCE = new ServiceManager();
+    private Map<String, RpcMethodDetail> rpcMethodDetailMap = new HashMap<>(16);
 
     private ServiceManager() {
     }
 
     public static ServiceManager getInstance() {
-        return serviceManager;
+        return INSTANCE;
     }
 
     public RpcMethodDetail getService(String serviceName, String methodName) {
         String serviceKey = buildServiceKey(serviceName, methodName);
-        return serviceMap.get(serviceKey);
+        return rpcMethodDetailMap.get(serviceKey);
     }
 
     public void registerService(Object service) {
@@ -60,7 +57,7 @@ public class ServiceManager {
             methodInfo.setTarget(service);
             methodInfo.setServiceName(serviceName);
             String serviceKey = buildServiceKey(serviceName, methodName);
-            serviceMap.put(serviceKey, methodInfo);
+            rpcMethodDetailMap.put(serviceKey, methodInfo);
             log.info("Register service, serviceName={}, methodName={}",
                     methodInfo.getServiceName(), methodInfo.getMethodName());
         }

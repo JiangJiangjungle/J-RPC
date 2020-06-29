@@ -1,11 +1,10 @@
-package com.jsj.rpc.client;
+package com.jsj.rpc.client.instance;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -15,7 +14,7 @@ import java.util.Objects;
 @Getter
 @ToString
 @NoArgsConstructor
-public class Endpoint implements Serializable {
+public class Endpoint {
     private String ip;
     private int port;
 

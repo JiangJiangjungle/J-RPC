@@ -29,20 +29,20 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Packet> {
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             Protocol protocol = channelInfo.getProtocol();
             response = protocol.decodeAsResponse(packet, channelInfo);
-            log.debug("New rpc response: {}.", response);
+            log.debug("Get new rpc response: {}.", response);
             //在业务线程处理返回结果
             final Response rpcResponse = response;
             rpcClient.getWorkerThreadPool().submit(() -> {
                 try {
                     rpcClient.handleResponse(rpcResponse);
                 } catch (Exception e) {
-                    log.warn("error when handling rpc response:{}.", rpcResponse, e);
+                    log.warn("Exception when handling rpc response:{}.", rpcResponse, e);
                     RpcFuture<?> rpcFuture = rpcResponse.getRpcFuture();
                     rpcClient.handleErrorResponse(rpcFuture, e);
                 }
             });
         } catch (Exception e) {
-            log.error("error before handle rpc response:{}.", response, e);
+            log.error("Fail to handle rpc response:{}.", response, e);
         } finally {
             packet.release();
         }
@@ -52,13 +52,19 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(ctx.channel());
         channelInfo.setProtocol(rpcClient.getProtocol());
-        log.info("Channel {} active.", ctx.channel());
+        log.info("Channel {} is active.", ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("Channel {} inactive.", ctx.channel());
+        log.info("Channel {} is inactive.", ctx.channel());
         //注销channel
-        rpcClient.getChannelManager().closeChannel(ctx.channel());
+        rpcClient.getPooledChannel().closeChannel(ctx.channel());
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.warn("Exception caught in rpc client handler chain", cause);
+        ctx.close();
     }
 }
