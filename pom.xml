@@ -7,7 +7,7 @@
     <groupId>com.jsj.jrpc</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
 
     <modules>
         <module>rpc-core</module>

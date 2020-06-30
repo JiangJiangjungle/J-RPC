@@ -23,26 +23,18 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet packet) throws Exception {
-        Response response = null;
         try {
             Channel channel = ctx.channel();
             ChannelInfo channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             Protocol protocol = channelInfo.getProtocol();
-            response = protocol.decodeAsResponse(packet, channelInfo);
+            Response response = protocol.decodeAsResponse(packet, channelInfo);
+            RpcFuture<?> rpcFuture = response.getRpcFuture();
             log.debug("Get new rpc response: {}.", response);
-            //在业务线程处理返回结果
+            //在业务线程处理结果
             final Response rpcResponse = response;
             rpcClient.getWorkerThreadPool().submit(() -> {
-                try {
-                    rpcClient.handleResponse(rpcResponse);
-                } catch (Exception e) {
-                    log.warn("Exception when handling rpc response:{}.", rpcResponse, e);
-                    RpcFuture<?> rpcFuture = rpcResponse.getRpcFuture();
-                    rpcClient.handleErrorResponse(rpcFuture, e);
-                }
+                rpcFuture.handleResponse(rpcResponse);
             });
-        } catch (Exception e) {
-            log.error("Fail to handle rpc response:{}.", response, e);
         } finally {
             packet.release();
         }
@@ -59,7 +51,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         log.info("Channel {} is inactive.", ctx.channel());
         //注销channel
-        rpcClient.getPooledChannel().closeChannel(ctx.channel());
+        rpcClient.getRpcChannel().removeChannel(ctx.channel());
     }
 
     @Override

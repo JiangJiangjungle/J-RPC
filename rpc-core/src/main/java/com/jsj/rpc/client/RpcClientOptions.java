@@ -14,8 +14,6 @@ import lombok.Setter;
 public class RpcClientOptions {
     private ProtocolType protocolType = ProtocolType.STANDARD;
 
-    private int connectTimeoutMillis = 1500;
-
     /**
      * The keep alive
      */
@@ -27,6 +25,7 @@ public class RpcClientOptions {
      */
     private int soLinger = 5;
 
+    private int connectTimeoutMillis = 1500;
     /**
      * channel write timeout
      */

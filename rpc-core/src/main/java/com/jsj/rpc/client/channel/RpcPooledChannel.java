@@ -5,7 +5,6 @@ import com.jsj.rpc.client.instance.Endpoint;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.BasePooledObjectFactory;
@@ -21,55 +20,55 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
  * @author jiangshenjie
  */
 @Slf4j
-@Getter
 @Setter
-public class PooledChannel {
+public class RpcPooledChannel implements RpcChannel {
     /**
      * Netty Channel池
      */
-    private GenericObjectPool<Channel> channelGenericObjectPool;
+    private GenericObjectPool<Channel> channelPool;
     private Endpoint endpoint;
 
-    public PooledChannel(RpcClient rpcClient) {
+    public RpcPooledChannel(RpcClient rpcClient) {
         this.endpoint = rpcClient.getEndpoint();
         GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
         poolConfig.setMinIdle(1);
         poolConfig.setMaxIdle(rpcClient.getClientOptions().getMaxChannelNumber());
         poolConfig.setMaxTotal(rpcClient.getClientOptions().getMaxChannelNumber());
         AbandonedConfig abandonedConfig = new AbandonedConfig();
-        this.channelGenericObjectPool = new GenericObjectPool<>(
-                new PooledChannelFactory(rpcClient), poolConfig, abandonedConfig);
+        this.channelPool = new GenericObjectPool<>(
+                new PooledChannelFactory(endpoint, rpcClient.getBootstrap())
+                , poolConfig, abandonedConfig);
     }
 
-    public void closeChannel(Channel channel) throws Exception {
-        channelGenericObjectPool.invalidateObject(channel);
+    @Override
+    public Channel getChannel() throws Exception {
+        return channelPool.borrowObject();
     }
 
+    @Override
+    public void removeChannel(Channel channel) {
+        try {
+            channelPool.invalidateObject(channel);
+        } catch (Exception e) {
+            log.warn("Fail to remove channel in channel pool", e);
+        }
+    }
+
+    @Override
+    public Endpoint getEndpoint() {
+        return this.endpoint;
+    }
+
+    @Override
+    public void close() {
+        log.debug("try to close all channels of rpc client: {}.", this.endpoint);
+        channelPool.close();
+    }
 
     /*******************以下方法只能由非EventLoop线程调用****************/
-
-    /**
-     * 返还channel
-     *
-     * @param channel
-     * @return
-     */
+    @Override
     public void returnChannel(Channel channel) {
-        channelGenericObjectPool.returnObject(channel);
-    }
-
-    public void closeAll() {
-        log.info("try to close all channels of rpc client: {}.", this.endpoint);
-        channelGenericObjectPool.close();
-    }
-
-    /**
-     * 获取一个服务节点对应的Channel
-     *
-     * @return
-     */
-    public Channel borrowChannel() throws Exception {
-        return channelGenericObjectPool.borrowObject();
+        channelPool.returnObject(channel);
     }
 
     @Slf4j
@@ -77,9 +76,9 @@ public class PooledChannel {
         private final Endpoint endpoint;
         private final Bootstrap bootstrap;
 
-        public PooledChannelFactory(RpcClient rpcClient) {
-            this.endpoint = rpcClient.getEndpoint();
-            this.bootstrap = rpcClient.getBootstrap();
+        public PooledChannelFactory(Endpoint endpoint, Bootstrap bootstrap) {
+            this.endpoint = endpoint;
+            this.bootstrap = bootstrap;
         }
 
         @Override
@@ -93,7 +92,7 @@ public class PooledChannel {
         }
 
         @Override
-        public void destroyObject(PooledObject<Channel> p) throws Exception {
+        public void destroyObject(PooledObject<Channel> p) {
             Channel channel = p.getObject();
             if (channel != null && channel.isActive()) {
                 channel.close();

@@ -2,27 +2,42 @@ package com.jsj.rpc.client;
 
 import com.jsj.rpc.ChannelInfo;
 import com.jsj.rpc.RpcFuture;
+import com.jsj.rpc.client.channel.RpcChannel;
 import com.jsj.rpc.client.instance.Endpoint;
 import com.jsj.rpc.exception.RpcException;
+import com.jsj.rpc.exception.RpcExceptionType;
 import com.jsj.rpc.protocol.Packet;
 import com.jsj.rpc.protocol.Protocol;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.protocol.Response;
 import io.netty.channel.Channel;
+import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author jiangshenjie
  */
+@Slf4j
 @Getter
 public abstract class AbstractRpcClient {
     protected final Endpoint endpoint;
     protected final RpcClientOptions clientOptions;
     protected Protocol protocol;
+    protected RpcChannel rpcChannel;
+
+    protected NioEventLoopGroup workerGroup;
     protected ScheduledThreadPoolExecutor scheduledThreadPool;
+    protected ThreadPoolExecutor workerThreadPool;
+    /**
+     * 状态
+     */
+    protected AtomicBoolean isStop;
 
     public AbstractRpcClient(Endpoint endpoint, RpcClientOptions clientOptions) {
         this.endpoint = endpoint;
@@ -32,18 +47,13 @@ public abstract class AbstractRpcClient {
 
     protected abstract void init();
 
-    public void handleResponse(Response response) {
-        RpcFuture<?> rpcFuture = response.getRpcFuture();
-        rpcFuture.handleResponse(response);
-    }
-
     public void handleErrorResponse(RpcFuture<?> rpcFuture, Exception e) {
         Request request = rpcFuture.getRequest();
         Response response = protocol.createResponse();
         response.setRequestId(request.getRequestId());
         response.setRpcFuture(rpcFuture);
         response.setException(e);
-        handleResponse(response);
+        rpcFuture.handleResponse(response);
     }
 
     public <T> RpcFuture<T> sendRequest(Request request) {
@@ -51,13 +61,13 @@ public abstract class AbstractRpcClient {
         Channel channel = null;
         ChannelInfo channelInfo = null;
         try {
-            channel = selectChannel(request);
+            channel = rpcChannel.getChannel();
             channelInfo = ChannelInfo.getOrCreateClientChannelInfo(channel);
             channelInfo.addRpcFuture(rpcFuture);
-            scheduleTimeoutTask(rpcFuture, channel);
+            scheduleTimeoutTask(rpcFuture);
             Packet packet = request.transToPacket();
             boolean writeSucceed = channel.writeAndFlush(packet)
-                    .await(request.getWriteTimeoutMillis(), TimeUnit.MILLISECONDS);
+                    .await(clientOptions.getWriteTimeoutMillis(), TimeUnit.MILLISECONDS);
             if (!writeSucceed) {
                 throw new RpcException(String.format("Write rpc request failed, request: %s.", request));
             }
@@ -74,18 +84,10 @@ public abstract class AbstractRpcClient {
         return rpcFuture;
     }
 
-    protected void scheduleTimeoutTask(RpcFuture<?> rpcFuture, Channel channel) {
-        Request request = rpcFuture.getRequest();
+    protected void scheduleTimeoutTask(RpcFuture<?> rpcFuture) {
         scheduledThreadPool.schedule(
-                () -> {
-                    long requestId = request.getRequestId();
-                    long elapseTime = System.currentTimeMillis() - rpcFuture.getStartTime();
-                    String errMsg = String.format(
-                            "request timeout, requestId: %d, remote addr: %s, elapseTime: %dms."
-                            , requestId, channel.remoteAddress(), elapseTime);
-                    handleErrorResponse(rpcFuture, new RpcException(errMsg));
-                }
-                , request.getTaskTimeoutMills(), TimeUnit.MILLISECONDS);
+                () -> handleErrorResponse(rpcFuture, new RpcException(RpcExceptionType.TIMEOUT_EXCEPTION))
+                , clientOptions.getRpcTaskTimeoutMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -95,13 +97,6 @@ public abstract class AbstractRpcClient {
      */
     protected abstract void processChannelAfterSendRequest(Channel channel);
 
-    /**
-     * 获取一个Channel
-     *
-     * @param request
-     */
-    protected abstract Channel selectChannel(Request request) throws Exception;
-
     public Protocol getProtocol() {
         return protocol;
     }
@@ -110,11 +105,17 @@ public abstract class AbstractRpcClient {
         this.protocol = protocol;
     }
 
-    public ScheduledThreadPoolExecutor getScheduledThreadPool() {
-        return scheduledThreadPool;
-    }
-
-    public void setScheduledThreadPool(ScheduledThreadPoolExecutor scheduledThreadPool) {
-        this.scheduledThreadPool = scheduledThreadPool;
+    public void shutdown() {
+        if (isStop.compareAndSet(false, true)) {
+            //关闭连接
+            rpcChannel.close();
+            if (!clientOptions.isGlobalThreadPoolSharing()) {
+                //优雅退出，释放 NIO 线程组
+                workerGroup.shutdownGracefully().awaitUninterruptibly();
+                //释放业务线程池
+                workerThreadPool.shutdown();
+            }
+            log.info("rpc client shutdown.");
+        }
     }
 }

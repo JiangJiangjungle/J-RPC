@@ -1,12 +1,12 @@
 package com.jsj.rpc.client;
 
 import com.jsj.rpc.RpcCallback;
-import com.jsj.rpc.client.channel.PooledChannel;
+import com.jsj.rpc.client.channel.RpcChannel;
+import com.jsj.rpc.client.channel.RpcPooledChannel;
 import com.jsj.rpc.client.instance.Endpoint;
 import com.jsj.rpc.codec.BaseDecoder;
 import com.jsj.rpc.codec.BaseEncoder;
 import com.jsj.rpc.exception.RpcCallException;
-import com.jsj.rpc.exception.RpcException;
 import com.jsj.rpc.protocol.ProtocolManager;
 import com.jsj.rpc.protocol.Request;
 import com.jsj.rpc.util.NamedThreadFactory;
@@ -37,17 +37,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class RpcClient extends AbstractRpcClient {
     protected Bootstrap bootstrap;
 
-    protected NioEventLoopGroup workerGroup;
-    protected ThreadPoolExecutor workerThreadPool;
-
     protected Class<?> serviceInterface;
 
-    private PooledChannel pooledChannel;
-
-    /**
-     * 状态
-     */
-    private AtomicBoolean stop;
     private AtomicLong requestIdCounter;
 
     public RpcClient(Endpoint endpoint) {
@@ -70,8 +61,6 @@ public class RpcClient extends AbstractRpcClient {
                 .setCallback(callback)
                 .setMethod(method)
                 .setMethodName(method.getName())
-                .setWriteTimeoutMillis(clientOptions.getWriteTimeoutMillis())
-                .setTaskTimeoutMills(clientOptions.getRpcTaskTimeoutMillis())
                 .setParams(args);
     }
 
@@ -87,33 +76,23 @@ public class RpcClient extends AbstractRpcClient {
         }
     }
 
-    /**
-     * 根据RpcRequest选取可用的Channel
-     *
-     * @param request
-     * @return
-     * @throws Exception
-     */
-    @Override
-    protected Channel selectChannel(Request request) throws Exception {
-        return pooledChannel.borrowChannel();
-    }
-
     @Override
     protected void processChannelAfterSendRequest(Channel channel) {
-        pooledChannel.returnChannel(channel);
+        rpcChannel.returnChannel(channel);
     }
 
     @Override
     protected void init() {
-        stop = new AtomicBoolean(false);
+        isStop = new AtomicBoolean(false);
         requestIdCounter = new AtomicLong(0L);
         protocol = ProtocolManager.getInstance().getProtocol(clientOptions.getProtocolType());
         if (clientOptions.isGlobalThreadPoolSharing()) {
-            workerGroup = ClientThreadPoolInstance.getOrCreateIoThreadPool(clientOptions.getIoThreadNumber());
-            scheduledThreadPool = ClientThreadPoolInstance.getOrCreateScheduledThreadPool(clientOptions.getWorkerThreadNumber());
-            workerThreadPool = ClientThreadPoolInstance.getOrCreateWorkThreadPool(
-                    clientOptions.getWorkerThreadNumber()
+            workerGroup = ClientThreadPoolInstance
+                    .getOrCreateIoThreadPool(clientOptions.getIoThreadNumber());
+            scheduledThreadPool = ClientThreadPoolInstance
+                    .getOrCreateScheduledThreadPool(clientOptions.getWorkerThreadNumber());
+            workerThreadPool = ClientThreadPoolInstance
+                    .getOrCreateWorkThreadPool(clientOptions.getWorkerThreadNumber()
                     , clientOptions.getWorkerThreadPoolQueueSize());
         } else {
             workerGroup = new NioEventLoopGroup(clientOptions.getIoThreadNumber()
@@ -154,23 +133,8 @@ public class RpcClient extends AbstractRpcClient {
                                 .addLast(new RpcClientHandler(rpcClient));
                     }
                 });
-        //初始化ChannelManager
-        pooledChannel = new PooledChannel(this);
+        //初始化RpcChannel
+        rpcChannel = new RpcPooledChannel(this);
     }
 
-    public void shutdown() {
-        if (stop.get()) {
-            return;
-        }
-        stop.set(true);
-        //关闭所有连接
-        pooledChannel.closeAll();
-        if (!clientOptions.isGlobalThreadPoolSharing()) {
-            //优雅退出，释放 NIO 线程组
-            workerGroup.shutdownGracefully().awaitUninterruptibly();
-            //释放业务线程池
-            workerThreadPool.shutdown();
-        }
-        log.info("rpc client shutdown.");
-    }
 }

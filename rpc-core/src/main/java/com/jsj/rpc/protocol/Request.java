@@ -24,14 +24,6 @@ public interface Request {
 
     String getMethodName();
 
-    int getWriteTimeoutMillis();
-
-    Request setWriteTimeoutMillis(int writeTimeoutMillis);
-
-    int getTaskTimeoutMills();
-
-    Request setTaskTimeoutMills(int taskTimeoutMills);
-
     Request setServiceName(String serviceName);
 
     Request setMethodName(String methodName);
