@@ -27,7 +27,7 @@
         <fastjson.version>1.2.47</fastjson.version>
         <cglib.version>3.2.5</cglib.version>
         <mockito.version>1.9.0</mockito.version>
-        <protobuf.version>3.11.4</protobuf.version>
+        <protobuf.version>3.16.1</protobuf.version>
     </properties>
 
     <dependencies>
